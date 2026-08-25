@@ -1,0 +1,44 @@
+#simulationWindow .apparatus-stage {
+  position: absolute;
+  inset: 0;
+  z-index: 4;
+  display: none;
+  overflow: hidden;
+}
+
+#simulationWindow .apparatus-stage.is-active {
+  display: block;
+}
+
+#simulationWindow .apparatus-stage canvas {
+  display: block;
+  width: 100% !important;
+  height: 100% !important;
+}
+
+#hms-stage #hms-app,
+#ballistic-galvanometer-stage #ballistic-galvanometer-canvas-container,
+#commutator-stage #commutator-canvas-container {
+  position: absolute !important;
+  inset: 0 !important;
+  width: 100% !important;
+  height: 100% !important;
+}
+
+#simulationWindow.external-apparatus-mode #lab-ui-container {
+  display: none;
+}
+
+#apparatus-runtime-error {
+  position: absolute;
+  right: 1.2rem;
+  bottom: 1.2rem;
+  z-index: 20;
+  max-width: 60%;
+  padding: .8rem 1rem;
+  border: 1px solid #b91c1c;
+  border-radius: .5rem;
+  background: #fff1f2;
+  color: #991b1b;
+  font: 600 1.2rem/1.35 system-ui, sans-serif;
+}

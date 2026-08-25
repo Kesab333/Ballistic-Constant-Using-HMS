@@ -1,0 +1,561 @@
+/* ==========================================================================
+   Hibbert's Standard & Ballistic Constant Virtual Lab
+   ========================================================================== */
+
+/* ---- Base Configurations ---- */
+@import './base/variables.css';
+@import './base/reset.css';
+@import './base/desktop-layout.css';
+@import './base/mobile-layout.css';
+
+/* ---- Component Styles ---- */
+@import './components/apparatus.css';
+@import './components/controls.css';
+@import './components/graphs.css';
+@import './components/reference.css';
+@import './components/workspace.css';
+
+/* ---- Utilities & Overlays ---- */
+@import './utilities/help.css';
+@import './utilities/responsive.css';
+
+:root {
+  --px-prov-f04: "4719";
+}
+
+/* ==========================================================================
+   Interactive UI Overlays & Control Buttons
+   ========================================================================== */
+
+/* Viewport Fullscreen Toggle Button */
+.viewport-actions-wrap {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  z-index: 50;
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+
+.viewport-fullscreen-btn,
+.rotation-lock-btn,
+.viewport-action-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 38px;
+  height: 38px;
+  padding: 0;
+  background: rgba(255, 255, 255, 0.95);
+  border: 1px solid #cbd5e1;
+  border-radius: 8px;
+  color: #168983;
+  cursor: pointer;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+  backdrop-filter: blur(6px);
+  transition: all 0.2s ease-in-out;
+}
+
+.viewport-fullscreen-btn:hover,
+.rotation-lock-btn:hover,
+.viewport-action-btn:hover {
+  background: #168983;
+  color: #ffffff;
+  border-color: #168983;
+  transform: scale(1.06);
+}
+
+.rotation-lock-btn.is-locked {
+  background: #059669;
+  color: #ffffff;
+  border-color: #047857;
+}
+
+.viewport-fullscreen-btn:active,
+.rotation-lock-btn:active,
+.viewport-action-btn:active {
+  transform: scale(0.95);
+}
+
+/* Fullscreen State Button Overrides */
+.apparatus-wrap:fullscreen .viewport-fullscreen-btn {
+  top: 16px;
+  right: 16px;
+  background: rgba(15, 23, 42, 0.85);
+  color: #ffffff;
+  border-color: rgba(255, 255, 255, 0.3);
+}
+
+.apparatus-wrap:fullscreen .viewport-fullscreen-btn:hover {
+  background: #168983;
+}
+
+/* ==========================================================================
+   Results Container - Observations Side Panel
+   ========================================================================== */
+
+/* Outer Card Container */
+.experiment-sidepanel .side-details#observations {
+  background-color: #bae6fd; /* Light blue container background */
+  border: 1px solid #7dd3fc;
+  border-radius: 12px;
+  padding: 12px;
+}
+
+/* Banner Box for Summary */
+.side-details-banner {
+  background-color: #ffffff;
+  border: 2px solid #0f172a; /* Dark border outline */
+  border-radius: 6px;
+  padding: 8px 14px;
+  margin-bottom: 12px;
+  cursor: pointer;
+  list-style: none; /* Hide default arrow marker */
+  display: flex;
+  align-items: center;
+}
+
+.side-details-banner::-webkit-details-marker {
+  display: none;
+}
+
+.banner-title {
+  color: #0891b2; /* Teal title color */
+  font-weight: 700;
+  font-size: 1rem;
+}
+
+/* Internal content card styling */
+.side-details#observations .readout-grid,
+.side-details#observations .heat-readout {
+  background-color: #ffffff;
+  border-radius: 8px;
+  padding: 12px;
+  margin-top: 8px;
+}
+
+/* ==========================================================================
+   Enhanced Control Layout - Label + Number Input + Slider
+   ========================================================================== */
+
+.var-div {
+  display: grid;
+  grid-template-columns: 1fr auto; /* Label on left, number box on right */
+  align-items: center;
+  gap: 0.4rem 0.8rem;
+  color: #444;
+  font-size: 1.4rem;
+  padding: 0.3rem 0;
+}
+
+/* Label spans first column */
+.var-div label {
+  grid-column: 1 / 2;
+  font-weight: 500;
+  font-size: 1.3rem;
+  color: #1e293b;
+}
+
+/* Number input in the second column */
+.var-number-input {
+  grid-column: 2 / 3;
+  width: 5.5rem;
+  padding: 0.2rem 0.4rem;
+  border: 1px solid #a9cecc;
+  border-radius: 0.35rem;
+  background: #ffffff;
+  color: #087d76;
+  font-weight: 700;
+  font-size: 1.2rem;
+  text-align: right;
+  outline: none;
+  transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+.var-number-input:focus {
+  border-color: #089b93;
+  box-shadow: 0 0 0 2px rgba(8, 155, 147, 0.2);
+}
+
+/* Range input spans full width underneath both columns */
+.var-div input[type="range"] {
+  grid-column: 1 / -1;
+  width: 100%;
+  accent-color: #089b93;
+  margin-top: 0.1rem;
+}
+
+/* ============================================================
+   GLOBAL LAB CONTROLS
+   ============================================================ */
+
+.lab-controls-panel {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+}
+
+.lab-controls-panel[hidden] {
+    display: none !important;
+}
+
+.lab-controls-panel .side-panel-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.lab-controls-panel .side-panel-header h3 {
+    margin: 0;
+}
+
+.lab-control-block {
+    display: flex;
+    flex-direction: column;
+    gap: 0.45rem;
+    margin-bottom: 1rem;
+}
+
+.lab-control-block > label {
+    font-weight: 600;
+    color: #1e293b;
+}
+
+.lab-control-button-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 0.5rem;
+}
+
+/* ============================================================
+   APPARATUS PANEL CLOSE BUTTON
+   ============================================================ */
+
+.side-panel-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.apparatus-close-btn {
+    width: 30px;
+    height: 30px;
+    border: 0;
+    border-radius: 7px;
+    background: transparent;
+    color: #fafbfc;
+    font-size: 1.25rem;
+    line-height: 1;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.apparatus-close-btn:hover {
+    background: #f1f5f9;
+    color: #0f172a;
+}
+
+#lab-total-resistance {
+  width: 70px !important;
+  height: 30px !important;
+  padding: 2px 4px !important;
+  border-radius: 6px !important;
+  border: 1px solid #008080 !important;
+  font-weight: bold !important;
+  color: #005f5f !important;
+  text-align: right !important;
+  background-color: #e6f2f2 !important;
+}
+
+#lab-hms-manual {
+    width: 100%;
+    accent-color: #089b93;
+}
+
+/* ============================================================
+   FULLSCREEN LAB CONTROLS
+   ============================================================ */
+
+#lab-controls-fullscreen-host {
+    position: absolute;
+    top: 70px;
+    right: 18px;
+
+    z-index: 60;
+
+    width: 300px;
+    max-width: calc(100vw - 36px);
+
+    pointer-events: none;
+}
+
+#lab-controls-fullscreen-host #lab-controls {
+    pointer-events: auto;
+}
+
+#lab-controls.is-fullscreen-lab-controls {
+
+    display: flex !important;
+
+    background: rgba(255, 255, 255, 0.10);
+
+    border: 1px solid rgba(255, 255, 255, 0.28);
+
+    border-radius: 14px;
+
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+
+    box-shadow:
+        0 8px 30px rgba(0, 0, 0, 0.14);
+
+    color: #ffffff;
+}
+
+#lab-controls.is-fullscreen-lab-controls
+.side-panel-header {
+
+    background: transparent;
+    border-bottom:
+        1px solid rgba(255, 255, 255, 0.18);
+}
+
+#lab-controls.is-fullscreen-lab-controls
+.side-panel-header h3 {
+
+    color: #6f7272;
+}
+
+#lab-controls.is-fullscreen-lab-controls
+.card-body {
+
+    background: transparent;
+}
+
+#lab-controls.is-fullscreen-lab-controls
+.lab-control-block > label {
+
+    color: rgb(97, 104, 107);
+}
+
+#lab-controls.is-fullscreen-lab-controls
+.apparatus-close-btn {
+
+    color: rgba(255, 255, 255, 0.88);
+}
+
+#lab-controls.is-fullscreen-lab-controls
+.apparatus-close-btn:hover {
+
+    background:
+        rgba(255, 255, 255, 0.14);
+
+    color: #ffffff;
+}
+
+#lab-controls.is-fullscreen-lab-controls
+.control-btn {
+
+    background:
+        rgba(255, 255, 255, 0.12);
+
+    border:
+        1px solid rgba(255, 255, 255, 0.25);
+
+    color: #881717;
+
+    backdrop-filter: blur(6px);
+    -webkit-backdrop-filter: blur(6px);
+}
+
+/* ============================================================
+   PhysicX Template Slider
+   ============================================================ */
+
+.template-range {
+    appearance: none;
+    -webkit-appearance: none;
+
+    width: 100%;
+    height: 18px;
+
+    margin: 4px 0;
+    padding: 0;
+
+    background: transparent;
+    cursor: pointer;
+}
+
+/* Track */
+.template-range::-webkit-slider-runnable-track {
+    height: 4px;
+    background: #cbd5e1;
+    border-radius: 999px;
+    border: 0;
+}
+
+.template-range::-moz-range-track {
+    height: 4px;
+    background: #cbd5e1;
+    border-radius: 999px;
+    border: 0;
+}
+
+/* Thumb */
+.template-range::-webkit-slider-thumb {
+    appearance: none;
+    -webkit-appearance: none;
+
+    width: 16px;
+    height: 16px;
+
+    margin-top: -6px;
+
+    border-radius: 50%;
+    border: 1px solid #7ea8c7;
+    background: #78abd0;
+
+    box-shadow:
+        0 1px 3px rgba(0, 0, 0, 0.2);
+
+    transition:
+        transform 0.12s ease,
+        box-shadow 0.12s ease;
+}
+
+.template-range::-moz-range-thumb {
+    width: 16px;
+    height: 16px;
+
+    border-radius: 50%;
+    border: 1px solid #7ea8c7;
+    background: #78abd0;
+
+    box-shadow:
+        0 1px 3px rgba(0, 0, 0, 0.2);
+}
+
+.template-range:hover::-webkit-slider-thumb {
+    transform: scale(1.05);
+}
+
+.template-range:focus {
+    outline: none;
+}
+
+.template-range:focus::-webkit-slider-thumb {
+    box-shadow:
+        0 0 0 3px rgba(120, 171, 208, 0.18),
+        0 1px 3px rgba(0, 0, 0, 0.2);
+}
+
+/* ============================================================
+   CUSTOM BLUE SLIDER - Matches the image reference
+   ============================================================ */
+
+#lab-hms-manual,
+.custom-blue-slider {
+  appearance: none;
+  -webkit-appearance: none;
+  width: 100%;
+  height: 20px;
+  background: transparent;
+  cursor: pointer;
+}
+
+/* Track (Chrome / Safari / Edge) */
+#lab-hms-manual::-webkit-slider-runnable-track {
+  height: 6px;
+  background: linear-gradient(to bottom, #bdc4cc, #eaf0f6);
+  border: 1px solid #9ea7b0;
+  border-radius: 10px;
+  box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.18);
+}
+
+/* Track (Firefox) */
+#lab-hms-manual::-moz-range-track {
+  height: 6px;
+  background: linear-gradient(to bottom, #bdc4cc, #eaf0f6);
+  border: 1px solid #9ea7b0;
+  border-radius: 10px;
+  box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.18);
+}
+
+/* Thumb / Knob (Chrome / Safari / Edge) */
+#lab-hms-manual::-webkit-slider-thumb {
+  appearance: none;
+  -webkit-appearance: none;
+  width: 18px;
+  height: 18px;
+  margin-top: -7px;
+  border-radius: 50%;
+  border: 1px solid #6b99c4;
+  background: 
+    linear-gradient(#2b5270, #2b5270) center / 4px 4px no-repeat,
+    linear-gradient(to bottom, #d8eaff 0%, #a6d0f5 50%, #8ebfec 100%);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.35);
+  transition: transform 0.1s ease;
+}
+
+/* Thumb / Knob (Firefox) */
+#lab-hms-manual::-moz-range-thumb {
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  border: 1px solid #6b99c4;
+  background: 
+    linear-gradient(#2b5270, #2b5270) center / 4px 4px no-repeat,
+    linear-gradient(to bottom, #d8eaff 0%, #a6d0f5 50%, #8ebfec 100%);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.35);
+}
+
+#lab-hms-manual:focus {
+  outline: none;
+}
+
+/* ============================================================
+   TOTAL RESISTANCE - Inline label + input on same line
+   ============================================================ */
+
+/* style.css */
+
+.lab-control-block:has(#lab-total-resistance) {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between; 
+    gap: 0.5rem;                     
+}
+
+
+.lab-control-block:has(#lab-total-resistance) .input-with-unit {
+    display: flex;
+    align-items: center;
+    gap: 0.35rem;
+    flex-shrink: 0;
+}
+
+.lab-control-block:has(#lab-total-resistance) > label {
+    margin-bottom: 0;
+    white-space: nowrap;
+}
+
+
+#lab-total-resistance {
+    width: 100%;
+    max-width: 120px;
+}
+
+/* Restrict Resistance Box header close button dimensions */
+#resistance-ui .side-panel-header button,
+#resistance-ui .apparatus-close-btn {
+  width: 30px !important;
+  height: 30px !important;
+  flex-shrink: 0 !important;
+  background: transparent !important;
+  border: none !important;
+  color: #ffffff !important;
+}

@@ -1,0 +1,104 @@
+:root {
+  --px-prov-f07: "211f";
+}
+
+/* ---- Workspace Viewport ---- */
+#workspaceViewport {
+  height: 44rem;
+  min-height: 44rem;
+  overflow: auto;
+  background: #fff;
+}
+
+#workspaceViewport > .apparatus-wrap,
+#workspaceViewport > .main__task-div,
+#workspaceViewport > .side-details {
+  width: 100%;
+  min-height: 100%;
+}
+
+#workspaceViewport > .apparatus-wrap > canvas {
+  width: 100%;
+  height: 44rem;
+  min-height: 44rem;
+}
+
+#workspaceViewport > .main__task-div,
+#workspaceViewport > .side-details {
+  box-shadow: none;
+  border: 0;
+  border-radius: 0;
+}
+
+#workspaceViewport > .side-details {
+  display: block;
+  overflow: visible;
+}
+
+#workspaceViewport > .side-details > summary { display: none; }
+#workspaceViewport > .main__task-div > .task-title { display: none; }
+
+/* REMOVED: #workspaceViewport > .graphs-card .graph-grid canvas { height: 21rem; min-height: 0; } */
+
+/* ---- Section List ---- */
+.section-list {
+  display: grid;
+  grid-column: 1 / -1;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: .5rem;
+}
+
+.section-list > .workspace-section,
+.section-list > .main__task-div,
+.section-list > .side-details {
+  min-height: 15rem;
+  max-height: 24rem;
+  overflow: auto;
+}
+
+.section-list > .workspace-section {
+  position: relative;
+  border: 1px solid #e2e8f0;
+  border-radius: .9rem;
+  background: #fff;
+}
+
+.section-list > .workspace-section > canvas {
+  height: 23rem;
+  min-height: 23rem;
+}
+
+.section-list > .side-details {
+  border: 1px solid #c8dada;
+  border-radius: .9rem;
+  background: #fff;
+}
+
+.section-list > .side-details > summary { padding: .8rem 1rem; }
+
+/* ---- Simulation Card Modes ---- */
+.simulation-card.is-reference-mode {
+  grid-column: 1 / -1;
+  grid-row: auto;
+  min-height: 0;
+}
+
+.simulation-card.is-reference-mode .apparatus-caption,
+.simulation-card.is-reference-mode .drag-hint {
+  display: none !important;
+}
+
+.simulation-card.is-reference-mode .simulation-toolbar,
+.simulation-card.is-reference-mode .experiment-sidepanel { opacity: 1; }
+
+.simulation-card.is-reference-mode button:disabled,
+.simulation-card.is-reference-mode input:disabled,
+.simulation-card.is-reference-mode summary { cursor: not-allowed; }
+
+.simulation-card.is-reference-mode:not(.is-graph-mode) .simulation-toolbar,
+.simulation-card.is-reference-mode:not(.is-graph-mode) .experiment-sidepanel { opacity: .62; }
+
+/* ---- Apparatus Caption ---- */
+.apparatus-caption {
+  display: none;
+}

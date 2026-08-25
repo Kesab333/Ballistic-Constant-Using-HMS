@@ -1,0 +1,49 @@
+:root {
+  --clr-title-background: #089b93;
+  --clr-title-background2: rgb(8, 195, 185);
+  --clr-container-clr: #9fdeff;
+  --clr-body-clr: #c9e1ddfb;
+  --clr-side-background2: rgb(28, 138, 138);
+  --clr-side-background3: rgb(75, 77, 77);
+  --clr-text-clr: #fff;
+  --ink: #333;
+  --px-prov-f03: "7103";
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html {
+  font-size: 62.5%;
+  font-family: "Nunito", sans-serif;
+  scroll-behavior: smooth;
+}
+
+body {
+  width: min(1180px, 100%);
+  margin: auto;
+  color: var(--ink);
+  background: var(--clr-body-clr);
+  font-size: 1.6rem;
+  font-weight: 600;
+  line-height: 1.5;
+}
+
+button,
+input {
+  font: inherit;
+}
+
+button {
+  cursor: pointer;
+}
+
+canvas {
+  display: block;
+  max-width: 100%;
+}

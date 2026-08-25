@@ -1,0 +1,537 @@
+/* ==========================================
+   UPDATED MOBILE & TABLET RESPONSIVE LAYOUT (<= 768px)
+   ========================================== */
+
+@media screen and (max-width: 768px) {
+
+  /* ---- 1. Universal Box & Page Reset ---- */
+  *, *::before, *::after {
+    box-sizing: border-box !important;
+  }
+
+  body, html {
+    overflow-x: hidden !important;
+    width: 100% !important;
+  }
+
+  .container {
+    display: flex !important;
+    flex-direction: column !important;
+    padding: 0.35rem !important;
+    gap: 0.5rem !important;
+    width: 100% !important;
+  }
+
+  /* ---- 2. Redesigned Premium Header ---- */
+  .title-div-container {
+    padding: 0.25rem 0.25rem 0.1rem !important;
+    background: transparent !important;
+  }
+
+  .title-div {
+    display: flex !important;
+    flex-direction: row !important;
+    align-items: center !important;
+    justify-content: center !important;
+    gap: 0.8rem !important;
+    padding: 0.65rem 1rem !important;
+    min-height: auto !important;
+    border-radius: 0.8rem !important;
+    background: linear-gradient(135deg, #0e6b65 0%, #054a46 100%) !important;
+    box-shadow: 0 4px 14px rgba(5, 74, 70, 0.22) !important;
+    border: 1px solid rgba(255, 255, 255, 0.18) !important;
+  }
+
+  .logo-div {
+    flex: 0 0 2.5rem !important;
+    width: 2.5rem !important;
+    height: 2.5rem !important;
+    min-height: auto !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    background: rgba(255, 255, 255, 0.15) !important;
+    border-radius: 50% !important;
+    padding: 0.25rem !important;
+    backdrop-filter: blur(4px) !important;
+  }
+
+  .logo {
+    width: 100% !important;
+    height: 100% !important;
+    object-fit: contain !important;
+    filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.2)) !important;
+  }
+
+  .title-div h1 {
+    font-size: 0.95rem !important;
+    font-weight: 700 !important;
+    line-height: 1.25 !important;
+    color: #ffffff !important;
+    text-align: center !important;
+    letter-spacing: 0.04em !important;
+    text-transform: uppercase !important;
+    margin: 0 !important;
+    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.2) !important;
+  }
+
+  /* ---- 3. Centered Top Navigation Icon Rail ---- */
+  .sidebar {
+    position: fixed !important;
+    bottom: 0 !important;
+    top: auto !important;
+    left: 0 !important;
+    right: 0 !important;
+    z-index: 1000 !important;
+    width: 100% !important;
+    height: auto !important;
+    max-height: none !important;
+    padding: 0.5rem !important;
+    background: #ffffff !important;
+    border-radius: 0.75rem 0.75rem 0 0 !important; /* Rounded top corners for a bottom tab bar look */
+    box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.12) !important; /* Upward shadow */
+    border-top: 1px solid #e2e8f0 !important;
+    border-left: none !important;
+    border-right: none !important;
+    border-bottom: none !important;
+    display: flex !important;
+    justify-content: center !important;
+    overflow-x: auto !important;
+    overflow-y: hidden !important;
+    -webkit-overflow-scrolling: touch !important;
+  }
+
+  /* Prevent bottom page content from being hidden behind the fixed navbar */
+  body {
+    padding-bottom: 4rem !important;
+  }
+
+  .tool-menu {
+    display: flex !important;
+    flex-direction: row !important;
+    justify-content: center !important;
+    align-items: center !important;
+    gap: 0.5rem !important;
+    width: 100% !important;
+    max-width: max-content !important;
+    margin: 0 auto !important;
+    padding: 0 !important;
+  }
+
+  .tool-list {
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: center !important;
+  }
+
+  .tool-list span:last-child {
+    display: none !important;
+  }
+
+  .tool-link,
+  .rail-button {
+    width: 2.5rem !important;
+    height: 2.5rem !important;
+  }
+
+  .tool-link::before,
+  .rail-button::before {
+    width: 2.2rem !important;
+    height: 2.2rem !important;
+  }
+
+  /* ---- 4. Single-Column Workspace Container ---- */
+  .main,
+  .main-section,
+  .main__task-div,
+  .simulation-card {
+    display: flex !important;
+    flex-direction: column !important;
+    width: 100% !important;
+    height: auto !important;
+    min-height: 0 !important;
+    max-height: none !important;
+    overflow: visible !important;
+  }
+
+  .lab-stage {
+    display: flex !important;
+    flex-direction: column !important;
+    width: 100% !important;
+    height: auto !important;
+    background: #ffffff !important;
+  }
+
+  /* ---- 5. 3D Simulation Canvas & Workspace Viewport ---- */
+  .workspace-viewport,
+  #workspaceViewport,
+  .workspace-section {
+    width: 100% !important;
+    height: auto !important;
+    min-height: auto !important;
+    max-height: none !important;
+    overflow: visible !important;
+  }
+
+  .three-viewport,
+  .apparatus-wrap,
+  .simulation-window.is-active-workspace {
+    width: 100% !important;
+    height: 55vh !important;
+    min-height: 280px !important;
+    max-height: 500px !important;
+    position: relative !important;
+    overflow: hidden !important;
+  }
+
+  .three-viewport canvas,
+  .apparatus-wrap canvas {
+    width: 100% !important;
+    height: 100% !important;
+    display: block !important;
+  }
+
+  /* Fullscreen Overrides */
+  .apparatus-wrap:fullscreen,
+  #simulationWindow:fullscreen,
+  #workspaceViewport:fullscreen {
+    width: 100vw !important;
+    height: 100vh !important;
+    max-height: none !important;
+    min-height: 100vh !important;
+    padding: 0 !important;
+    margin: 0 !important;
+    background: #f8fafc !important;
+    display: block !important;
+  }
+
+  .apparatus-wrap:fullscreen .three-viewport,
+  #simulationWindow:fullscreen #threeViewport {
+    width: 100vw !important;
+    height: 100vh !important;
+    max-height: none !important;
+    min-height: 100vh !important;
+  }
+
+  /* ---- 6. Hide Legacy Simulation Toolbar & Headers ---- */
+  .simulation-toolbar,
+  .simulation-card .experiment-sidepanel,
+  #tapping-switch-info {
+    display: none !important;
+  }
+
+  .button-group,
+  .control-buttons-row,
+  .sim-action-bar {
+    display: flex !important;
+    flex-direction: row !important;
+    justify-content: center !important;
+    align-items: center !important;
+    gap: 0.6rem !important;
+    width: 100% !important;
+    margin: 0 auto !important;
+  }
+
+  .control-button,
+  .sim-action-bar button,
+  .action-btn {
+    flex: 0 1 auto !important;
+    min-width: 5.5rem !important;
+    padding: 0.5rem 1rem !important;
+    border-radius: 0.5rem !important;
+    font-size: 0.85rem !important;
+    font-weight: 700 !important;
+    text-align: center !important;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05) !important;
+  }
+
+  /* ---- 7. Right Control Panel (Directly Below Canvas) ---- */
+  .experiment-sidepanel,
+  .side-details {
+    display: flex !important;
+    flex-direction: column !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    padding: 1rem 0.8rem !important;
+    border-left: none !important;
+    border-top: 1px solid #d2e1e0 !important;
+    background: #ffffff !important;
+  }
+
+  .control-presets,
+  .mode-controls,
+  .display-controls,
+  .variables-sections {
+    display: block !important;
+    width: 100% !important;
+    padding: 0.6rem 0 !important;
+  }
+
+  .meter-panel {
+    display: none !important;
+  }
+
+  .preset-grid {
+    display: grid !important;
+    grid-template-columns: repeat(2, 1fr) !important;
+    gap: 0.5rem !important;
+  }
+
+  .mode-button-group {
+    display: grid !important;
+    grid-template-columns: repeat(3, 1fr) !important;
+    gap: 0.4rem !important;
+  }
+
+  .variables-sections .var-div {
+    display: flex !important;
+    flex-direction: column !important;
+    gap: 0.2rem !important;
+  }
+
+  /* ---- 8. Reference Sections & Select Elements Fix ---- */
+  .formula-display-grid,
+  .graph-grid,
+  .reference-card,
+  .formula-card,
+  .calculation-card,
+  .observation-card {
+    display: flex !important;
+    flex-direction: column !important;
+    gap: 0.75rem !important;
+    height: auto !important;
+    max-height: none !important;
+    overflow: visible !important;
+    width: 100% !important;
+    max-width: 100% !important;
+  }
+
+  /* Fix for formula drop-down and controls exceeding screen width */
+  .formula-select-container,
+  .formula-selector,
+  .formula-header,
+  .select-formula-wrap,
+  .card-header-select,
+  #formula select,
+  .formula-card select {
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: stretch !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    box-sizing: border-box !important;
+  }
+
+  select {
+    width: 100% !important;
+    max-width: 100% !important;
+    box-sizing: border-box !important;
+    text-overflow: ellipsis !important;
+    white-space: nowrap !important;
+    overflow: hidden !important;
+    font-size: 0.85rem !important;
+    padding: 0.5rem !important;
+  }
+
+  /* Ensure math renders (KaTeX / MathJax) wrap properly and don't push out the screen */
+  .katex-display,
+  .formula-card *,
+  .sidebar-card-content {
+    max-width: 100% !important;
+    overflow-x: auto !important;
+    overflow-y: hidden !important;
+  }
+}
+
+/* Reference views keep the same main-content / info-sidebar order on phones. */
+@media screen and (max-width: 768px) {
+  .reference-card {
+    min-height: 0 !important;
+    overflow: visible !important;
+  }
+
+  .workspace-layout {
+    display: flex !important;
+    flex-direction: column !important;
+    min-height: 0 !important;
+  }
+
+  #graphs > .workspace-layout {
+    display: flex !important;
+    flex-direction: column !important;
+  }
+
+  .workspace-primary,
+  .workspace-aside {
+    width: 100% !important;
+    overflow: visible !important;
+  }
+
+  .workspace-aside {
+    padding: .9rem !important;
+    border-top: 1px solid #c7dedb !important;
+    border-left: 0 !important;
+  }
+
+  .workspace-toolbar,
+  .formula-selector-card {
+    align-items: stretch !important;
+    flex-direction: column !important;
+  }
+
+  .graph-panel {
+    display: flex !important;
+    flex-direction: column !important;
+    padding: .8rem !important;
+  }
+
+  .graph-figure {
+    min-height: 19rem !important;
+  }
+
+  .graph-canvas,
+  #graphs .graph-canvas {
+    flex: none !important;
+    height: 16rem !important;
+    min-height: 16rem !important;
+  }
+
+  .calculation-output {
+    grid-template-columns: 1fr !important;
+  }
+
+  .manual-observation-form {
+    grid-template-columns: 1fr !important;
+  }
+
+  .formula-workspace,
+  .observation-panel,
+  .results-panel,
+  .calculation-panel {
+    padding: 1rem !important;
+  }
+
+  .reference-card img {
+    max-height: none !important;
+  }
+}
+
+/* ==========================================
+   MOBILE HELP / FAQ MODAL OVERRIDES (<= 768px)
+   ========================================== */
+@media screen and (max-width: 768px) {
+
+  /* 1. Backdrop Padding Fix */
+  .faq-modal-overlay {
+    padding: 0.5rem !important;
+  }
+
+  /* 2. Container Sizing */
+  #helpOverlay.faq-modal-overlay #helpPopover,
+  .faq-modal-container {
+    width: 100% !important;
+    max-width: 100% !important;
+    height: 92vh !important;
+    max-height: 92vh !important;
+    border-radius: 12px !important;
+  }
+
+  /* 3. Header & Close Button Alignment */
+  .faq-modal-header {
+    display: flex !important;
+    flex-direction: row !important;
+    align-items: flex-start !important;
+    justify-content: space-between !important;
+    gap: 0.75rem !important;
+    padding: 1rem !important;
+  }
+
+  .faq-modal-title {
+    font-size: 1.15rem !important;
+    line-height: 1.3 !important;
+  }
+
+  .faq-modal-subtitle {
+    font-size: 0.85rem !important;
+  }
+
+  .faq-close-btn {
+    flex-shrink: 0 !important;
+    width: 36px !important;
+    height: 36px !important;
+    font-size: 1.6rem !important;
+    border: 1px solid #cbd5e1 !important;
+    border-radius: 8px !important;
+  }
+
+  /* 4. Convert Grid to Single-Column Stack */
+  .faq-modal-body {
+    display: flex !important;
+    flex-direction: column !important;
+    height: calc(100% - 70px) !important;
+    overflow-y: auto !important;
+  }
+
+  /* 5. Mobile Sidebar / Topic List */
+  .faq-question-sidebar {
+    width: 100% !important;
+    border-right: none !important;
+    border-bottom: 1px solid #e2e8f0 !important;
+    padding: 0.75rem !important;
+    flex-shrink: 0 !important;
+  }
+
+  .faq-question-list {
+    gap: 8px !important;
+  }
+
+  .faq-q-item {
+    padding: 10px 12px !important;
+    border-radius: 8px !important;
+  }
+
+  .q-number {
+    width: 26px !important;
+    height: 26px !important;
+    font-size: 0.85rem !important;
+  }
+
+  .q-title {
+    font-size: 0.9rem !important;
+  }
+
+  /* 6. Viewport Content Padding & Typography */
+  .faq-procedure-viewport {
+    padding: 1rem !important;
+    overflow-y: visible !important; /* Managed by parent container */
+  }
+
+  .faq-content-header h3 {
+    font-size: 1.25rem !important;
+  }
+
+  .faq-content-subtitle {
+    font-size: 0.95rem !important;
+    margin-bottom: 1rem !important;
+  }
+
+  .faq-step-card {
+    padding: 12px 14px !important;
+    gap: 12px !important;
+  }
+
+  .step-badge {
+    width: 30px !important;
+    height: 30px !important;
+    font-size: 0.95rem !important;
+  }
+
+  .step-title {
+    font-size: 1rem !important;
+  }
+
+  .step-desc,
+  .faq-callout-tip {
+    font-size: 0.88rem !important;
+  }
+}

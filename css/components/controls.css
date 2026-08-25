@@ -1,0 +1,373 @@
+:root {
+  --px-prov-f06: "50e8";
+}
+
+/* ---- Variable Controls ---- */
+.variables-sections {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 1.3rem 2rem;
+  padding: 1.6rem;
+}
+
+.var-div {
+  display: grid;
+  /* Row 1: Label on left (1fr), compact input box on right (auto) */
+  /* Row 2: Range slider spans across full width */
+  grid-template-columns: 1fr auto;
+  align-items: center;
+  gap: .4rem .8rem;
+  color: #444;
+  font-size: 1.4rem;
+}
+
+/* Label alignment */
+.var-div label {
+  font-weight: 600;
+  color: #333;
+  grid-column: 1 / 2;
+  font-size: 1.3rem;
+}
+
+/* Small input box aligned to the right of the label */
+.var-number-input {
+  grid-column: 2 / 3;
+  width: 5.2rem;   /* Fixed compact width */
+  padding: 0.2rem 0.4rem;
+  border: 1px solid #a9cecc;
+  border-radius: 0.35rem;
+  background: #ffffff;
+  color: #087d76;
+  font-weight: 700;
+  font-size: 1.25rem;
+  text-align: right;
+  outline: none;
+  box-sizing: border-box;
+  transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+.var-number-input:focus {
+  border-color: #089b93;
+  box-shadow: 0 0 0 2px rgba(8, 155, 147, 0.2);
+}
+
+/* Remove default browser arrows/spinners on number inputs for a cleaner look */
+.var-number-input::-webkit-inner-spin-button, 
+.var-number-input::-webkit-outer-spin-button { 
+  -webkit-appearance: none;
+  margin: 0;
+}
+.var-number-input[type=number] {
+  -moz-appearance: textfield;
+  appearance: textfield; /* Standard property for compatibility */
+}
+
+/* ---- Custom Slider Styling ---- */
+.var-div input[type="range"] {
+  -webkit-appearance: none;
+  appearance: none; /* Standard property alongside vendor prefix */
+  grid-column: 1 / -1;
+  width: 100%;
+  height: 18px; /* Touch/hover hit area height */
+  background: transparent;
+  cursor: pointer;
+  outline: none;
+  margin: 0;
+}
+
+/* --- Track Styling --- */
+
+/* Webkit (Chrome, Safari, Edge) */
+.var-div input[type="range"]::-webkit-slider-runnable-track {
+  width: 100%;
+  height: 5px;
+  background: #d8dee4;
+  border-radius: 3px;
+  border: 1px solid #b8c1ca;
+  /* Inset shadow gives it that recessed/grooved look */
+  box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.2);
+}
+
+/* Firefox */
+.var-div input[type="range"]::-moz-range-track {
+  width: 100%;
+  height: 5px;
+  background: #d8dee4;
+  border-radius: 3px;
+  border: 1px solid #b8c1ca;
+  box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.2);
+}
+
+/* --- Thumb (Handle) Styling --- */
+
+/* Webkit (Chrome, Safari, Edge) */
+.var-div input[type="range"]::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none; /* Standard property alongside vendor prefix */
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  border: 1px solid #7398b5;
+  margin-top: -6px; /* Vertically centers thumb over 5px track */
+  
+  /* Concentric light-blue gradient + dark blue inner dot */
+  background: radial-gradient(
+    circle at center,
+    #2c5a7d 0%,
+    #2c5a7d 22%,
+    #8fbedd 25%,
+    #bfe1f6 65%,
+    #a2ccf0 100%
+  );
+  
+  /* Soft drop shadow below the knob */
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.35);
+  transition: transform 0.1s ease;
+}
+
+/* Firefox */
+.var-div input[type="range"]::-moz-range-thumb {
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  border: 1px solid #7398b5;
+  box-sizing: border-box;
+  
+  background: radial-gradient(
+    circle at center,
+    #2c5a7d 0%,
+    #2c5a7d 22%,
+    #8fbedd 25%,
+    #bfe1f6 65%,
+    #a2ccf0 100%
+  );
+  
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.35);
+  transition: transform 0.1s ease;
+}
+
+/* Hover and active states */
+.var-div input[type="range"]::-webkit-slider-thumb:hover,
+.var-div input[type="range"]::-moz-range-thumb:hover {
+  transform: scale(1.1);
+}
+
+.var-div input[type="range"]::-webkit-slider-thumb:active,
+.var-div input[type="range"]::-moz-range-thumb:active {
+  transform: scale(0.95);
+}
+
+/* Hide legacy output */
+.var-div output {
+  display: none;
+  color: #087d76;
+  font-weight: 700;
+}
+
+.control-note {
+  padding: 0 1.6rem 1.6rem;
+  color: #627070;
+  font-size: 1.2rem;
+}
+
+/* ---- Side Details (Accordion) ---- */
+.side-details {
+  overflow: hidden;
+  border: 1px solid #c8dada;
+  border-radius: .45rem;
+  background: #ffffff;
+}
+
+.side-details summary {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: .65rem .85rem;
+  background: #ffffff;
+  border-bottom: 1px solid #e2e8f0;
+  color: #087d76;
+  cursor: pointer;
+  font-size: 1.35rem;
+  font-weight: 700;
+}
+
+.controls-lock {
+  padding: .25rem .55rem;
+  border: 1px solid #a9cecc;
+  border-radius: .35rem;
+  background: #fff;
+  color: #087d76;
+  font-size: 1.05rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.controls-lock:hover {
+  background: #f0f7f6;
+}
+
+.controls-lock.is-locked {
+  border-color: #a86c28;
+  background: #fff5e8;
+  color: #8a581e;
+}
+
+.side-details[open] summary {
+  border-bottom: 1px solid #c8dada;
+}
+
+.side-details .variables-sections {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: .85rem;
+  padding: 1rem;
+}
+
+.side-details .var-div {
+  font-size: 1.2rem;
+}
+
+.side-details .var-number-input {
+  width: 4.8rem;
+  font-size: 1.1rem;
+}
+
+.side-details .readout-grid {
+  grid-template-columns: 1fr;
+  padding: .5rem .9rem;
+}
+
+.side-details .readout-grid p {
+  margin: 0;
+  padding: .45rem 0;
+  font-size: 1.15rem;
+}
+
+.side-details .observation-box {
+  margin: .8rem;
+  padding: .7rem;
+}
+
+.side-details .observation-box p {
+  font-size: 1.15rem;
+}
+
+/* ---- Display Controls ---- */
+.display-controls {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: .45rem .8rem;
+  padding: .85rem 1rem .15rem;
+}
+
+.display-controls > p { 
+  flex-basis: 100%; 
+  margin-bottom: .5rem; 
+  color: #087d76; 
+  font-size: 1.12rem; 
+  font-weight: 700; 
+}
+
+.display-controls label {
+  display: flex;
+  align-items: center;
+  gap: .35rem;
+  color: #435352;
+  font-size: 1.1rem;
+  cursor: pointer;
+}
+
+.display-controls input[type="checkbox"] {
+  accent-color: #089b93;
+  cursor: pointer;
+}
+
+/* ---- Control Presets ---- */
+.control-presets {
+  padding: .85rem 1rem 0;
+}
+
+.control-presets > p {
+  margin-bottom: .5rem;
+  color: #087d76;
+  font-size: 1.12rem;
+  font-weight: 700;
+}
+
+.preset-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: .45rem;
+}
+
+.preset-button {
+  min-height: 2.7rem;
+  padding: .35rem .5rem;
+  border: 1px solid #a9cecc;
+  border-radius: .35rem;
+  background: #f7fcfb;
+  color: #216764;
+  font: inherit;
+  font-size: 1.05rem;
+  font-weight: 700;
+  line-height: 1.15;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.preset-button:hover { 
+  background: #e3f3f1; 
+}
+
+.preset-button:active {
+  transform: scale(0.97);
+}
+
+/* ---- Mode Controls ---- */
+.mode-controls {
+  padding: .85rem 1rem 0;
+}
+
+.mode-controls > p {
+  margin-bottom: .5rem;
+  color: #087d76;
+  font-size: 1.12rem;
+  font-weight: 700;
+}
+
+.mode-button-group {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: .45rem;
+}
+
+.mode-button {
+  min-height: 2.7rem;
+  padding: .35rem .5rem;
+  border: 1px solid #a9cecc;
+  border-radius: .35rem;
+  background: #f7fcfb;
+  color: #216764;
+  font: inherit;
+  font-size: 1.05rem;
+  font-weight: 700;
+  line-height: 1.15;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.mode-button:hover { 
+  background: #e3f3f1; 
+}
+
+.mode-button.is-active {
+  border-color: #087d76;
+  background: #089b93;
+  color: #fff;
+}
+
+.mode-button:active {
+  transform: scale(0.97);
+}

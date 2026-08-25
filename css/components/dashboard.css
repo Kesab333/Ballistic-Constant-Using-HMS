@@ -1,0 +1,116 @@
+/* --- Dashboard Grid Container --- */
+.dashboard-grid-view {
+  width: 100%;
+  height: 100%;
+  padding: 2rem;
+  background-color: #f0f4f8;
+  box-sizing: border-box;
+  overflow-y: auto;
+}
+
+.dashboard-header {
+  margin-bottom: 1.5rem;
+  color: #1e293b;
+}
+
+.dashboard-header h2 {
+  margin: 0;
+  font-size: 1.75rem;
+}
+
+.dashboard-header p {
+  margin: 0.25rem 0 0 0;
+  color: #64748b;
+}
+
+.dashboard-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 1.5rem;
+}
+
+/* --- Cards --- */
+.dash-card {
+  background: #ffffff;
+  border: 1px solid #cbd5e1;
+  border-radius: 10px;
+  padding: 1.25rem;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  cursor: pointer;
+  transition: transform 0.2s, box-shadow 0.2s, border-color 0.2s;
+}
+
+.dash-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 10px 20px rgba(0, 0, 0, 0.08);
+  border-color: #0d9488;
+}
+
+.dash-card-header {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  margin-bottom: 0.75rem;
+}
+
+.dash-card-icon {
+  font-size: 1.5rem;
+}
+
+.dash-card-title {
+  font-weight: 700;
+  font-size: 1.1rem;
+  color: #0f172a;
+}
+
+.dash-card-body p {
+  color: #475569;
+  font-size: 0.9rem;
+  line-height: 1.4;
+  margin: 0 0 1rem 0;
+}
+
+.dash-launch-btn {
+  background: #0d9488;
+  color: #ffffff;
+  border: none;
+  padding: 0.5rem 1rem;
+  border-radius: 6px;
+  font-weight: 600;
+  cursor: pointer;
+  width: 100%;
+  transition: background 0.2s;
+}
+
+.dash-card:hover .dash-launch-btn {
+  background: #0f766e;
+}
+
+/* --- Close Button Fix (Neat Top-Right Placement) --- */
+.dash-close-btn {
+  position: absolute;
+  top: 10px;
+  right: 15px;
+  z-index: 100;
+  background: #ef4444;
+  color: #ffffff;
+  border: none;
+  padding: 0.4rem 0.8rem;
+  border-radius: 6px;
+  font-weight: 600;
+  font-size: 0.85rem;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.dash-close-btn:hover {
+  background: #dc2626;
+}
+
+.rail-divider {
+  height: 1px;
+  background: #e2e8f0;
+  margin: 0.5rem 0;
+}

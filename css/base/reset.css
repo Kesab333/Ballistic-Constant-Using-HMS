@@ -1,0 +1,37 @@
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html {
+  font-size: 62.5%;
+  font-family: "Nunito", sans-serif;
+  scroll-behavior: smooth;
+}
+
+body {
+  width: min(1180px, 100%);
+  margin: auto;
+  color: var(--ink);
+  background: var(--clr-body-clr);
+  font-size: 1.6rem;
+  font-weight: 600;
+  line-height: 1.5;
+}
+
+button,
+input {
+  font: inherit;
+}
+
+button {
+  cursor: pointer;
+}
+
+canvas {
+  display: block;
+  max-width: 100%;
+}

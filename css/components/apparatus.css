@@ -1,0 +1,634 @@
+:root {
+  --px-prov-f05: "2923";
+}
+
+/* ---- Task Heading ---- */
+.task-heading {
+  display: flex;
+  align-items: stretch;
+  justify-content: space-between;
+  background-image: linear-gradient(to bottom, var(--clr-side-background2), var(--clr-side-background3));
+}
+
+.task-title {
+  padding: .3rem 1.6rem;
+  color: white;
+  background-image: linear-gradient(to bottom, var(--clr-side-background2), var(--clr-side-background3));
+  font-size: 1.8rem;
+  letter-spacing: .15rem;
+}
+
+.task-heading .task-title {
+  flex: 1;
+  background: none;
+}
+
+.heading-actions {
+  display: flex;
+  align-items: center;
+  gap: .45rem;
+  padding: .3rem 1rem;
+}
+
+.heading-button {
+  display: grid;
+  place-items: center;
+  width: 2.7rem;
+  height: 2.7rem;
+  border: 1px solid #ffffff90;
+  border-radius: .4rem;
+  background: #ffffff1c;
+  color: white;
+  font-size: 1.8rem;
+  font-weight: 700;
+  line-height: 1;
+}
+
+.heading-button:hover { background: #ffffff38; }
+.help-button { font-family: Georgia, serif; font-size: 1.55rem; border-radius: 50%; }
+
+/* ---- Apparatus Wrap & Viewport ---- */
+.apparatus-wrap {
+  position: relative;
+  min-width: 0;
+}
+
+.three-viewport {
+  width: 100%;
+  height: 44rem;
+  min-height: 44rem;
+  overflow: hidden;
+  background: #f4f4f0;
+}
+
+.three-viewport canvas {
+  display: block;
+  width: 100% !important;
+  height: 100% !important;
+  min-height: 0 !important;
+  cursor: grab;
+  touch-action: none;
+}
+
+.three-viewport canvas:active {
+  cursor: grabbing;
+}
+
+.drag-hint {
+  position: absolute;
+  bottom: 1.1rem;
+  left: 50%;
+  transform: translateX(-50%);
+  padding: .35rem .9rem;
+  border-radius: 1.5rem;
+  background: #ffffffdf;
+  color: #087d76;
+  box-shadow: 0 .2rem .5rem #4c6c6b2e;
+  font-size: 1.15rem;
+  pointer-events: none;
+  white-space: nowrap;
+}
+
+/* ---- Simulation Toolbar ---- */
+.simulation-toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 0.4rem 1.2rem;
+  border-top: 1px solid #d9e5e5;
+}
+
+.status-chip {
+  display: flex;
+  align-items: center;
+  gap: .7rem;
+  color: #4b4d4d;
+  font-size: 1.4rem;
+}
+
+.status-dot {
+  width: .9rem;
+  height: .9rem;
+  border-radius: 50%;
+  background: #929292;
+}
+
+.status-dot.running {
+  background: #089b93;
+  box-shadow: 0 0 0 .3rem #089b9333;
+}
+
+.status-dot.paused {
+  background: #c48329;
+}
+
+.control-button {
+  padding: .5rem 1rem;
+  border: 1px solid #168983;
+  border-radius: .4rem;
+  background: white;
+  color: #0a756e;
+  font-weight: 700;
+  font-size: 1.2rem;
+  cursor: pointer;
+  transition: background .18s, color .18s, transform .18s;
+}
+
+.control-button:hover {
+  transform: translateY(-1px);
+  background: #e7f6f5;
+}
+
+.control-button.primary {
+  background: #089b93;
+  color: #fff;
+}
+
+.control-button:disabled {
+  opacity: .45;
+  cursor: not-allowed;
+  transform: none;
+}
+
+/* ---- Lab Stage ---- */
+.lab-stage {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  min-height: 44rem;
+  background: #ffffff;
+  position: relative;
+}
+
+.lab-stage canvas {
+  width: 100% !important;
+  height: 100% !important;
+  display: block;
+}
+
+/* In-canvas apparatus controls overlay styling */
+#hms-stage #hms-hud,
+#ballistic-galvanometer-stage #ballistic-galvanometer-ui-panel,
+#tapping-switch-stage #tapping-switch-control-panel,
+#resistance-box-stage #resistance-ui {
+  position: absolute !important;
+  z-index: 10;
+}
+
+.side-details {
+  background: #ffffff;
+  border: 1px solid #cbd5e1;
+  border-radius: 0.75rem;
+  overflow: hidden;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.04);
+}
+
+/* Header Gradient Matching Main Title Header */
+.side-details summary {
+  padding: 0.65rem 1rem;
+  font-weight: 700;
+  font-size: 1.4rem;
+  color: #ffffff;
+  background-image: linear-gradient(
+    to bottom,
+    var(--clr-side-background2),
+    var(--clr-side-background3)
+  );
+  cursor: pointer;
+  user-select: none;
+  list-style: none;
+}
+
+.side-details summary::-webkit-details-marker {
+  display: none;
+}
+
+.card-body {
+  padding: 1rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1.2rem;
+}
+
+/* ---- Action Buttons Grid (Fixes Border Collisions & Overlap) ---- */
+.control-actions-grid {
+  display: grid !important;
+  grid-template-columns: repeat(2, 1fr) !important;
+  gap: 0.6rem !important;
+  width: 100% !important;
+}
+
+.control-actions-grid .control-button {
+  margin: 0 !important;
+  width: 100% !important;
+  box-sizing: border-box !important;
+  border-radius: 0.4rem !important;
+  font-size: 1.15rem !important;
+  padding: 0.6rem 0.2rem !important;
+  text-align: center !important;
+  white-space: nowrap !important;
+}
+
+.control-group {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.group-label {
+  font-weight: 700;
+  font-size: 1.2rem;
+  color: #475569;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.mode-button-group {
+  display: flex;
+  gap: 0.5rem;
+  width: 100%;
+}
+
+.mode-button {
+  flex: 1;
+  padding: 0.55rem 0.75rem;
+  border: 1px solid #cbd5e1;
+  border-radius: 0.4rem;
+  background: #f1f5f9;
+  color: #334155;
+  font-weight: 700;
+  font-size: 1.2rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.mode-button:hover {
+  background: #e2e8f0;
+}
+
+.mode-button.is-active {
+  background: #089b93;
+  color: #ffffff;
+  border-color: #089b93;
+}
+
+.display-controls {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.display-controls label {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  font-size: 1.3rem;
+  color: #1e293b;
+  cursor: pointer;
+}
+
+.display-controls input[type="checkbox"] {
+  width: 1.2rem;
+  height: 1.2rem;
+  accent-color: #089b93;
+  cursor: pointer;
+}
+
+/* ---- Variable Control Rows & Alignment ---- */
+.variables-sections {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.var-div {
+  display: flex !important;
+  flex-direction: column !important;
+  gap: 0.35rem !important;
+}
+
+.var-label {
+  font-weight: 700;
+  font-size: 1.25rem;
+  color: #334155;
+  text-align: center;
+}
+
+.var-controls-row {
+  display: flex !important;
+  align-items: center !important;
+  gap: 0.75rem !important;
+  width: 100%;
+}
+
+.var-controls-row input[type="range"] {
+  flex: 1 !important;
+  min-width: 0 !important;
+  accent-color: #089b93;
+}
+
+/* Wrapper linking custom stepper box & unit label */
+.input-unit-wrap {
+  display: inline-flex !important;
+  align-items: center !important;
+  gap: 0.5rem !important;
+  flex-shrink: 0 !important;
+}
+
+/* Custom Stepper Box (Uniform Width Across Rows) */
+.custom-stepper {
+  display: inline-flex !important;
+  align-items: center !important;
+  border: 1px solid #a6a6a6 !important;
+  border-radius: 3px !important;
+  background: #ffffff !important;
+  overflow: hidden !important;
+  height: 2.5rem !important;
+  width: 6.8rem !important;
+  flex-shrink: 0 !important;
+}
+
+/* Number input inside stepper box */
+.var-number-input {
+  border: none !important;
+  outline: none !important;
+  width: 100% !important;
+  flex: 1 !important;
+  padding: 0 0.3rem !important;
+  font-size: 1.2rem !important;
+  font-weight: 600 !important;
+  color: #0f172a !important;
+  text-align: center !important;
+  background: transparent !important;
+  appearance: textfield !important;
+  -moz-appearance: textfield !important;
+}
+
+.var-number-input::-webkit-inner-spin-button,
+.var-number-input::-webkit-outer-spin-button {
+  -webkit-appearance: none !important;
+  margin: 0 !important;
+}
+
+/* Stepper Up/Down Button Container */
+.stepper-arrow-box {
+  display: flex !important;
+  flex-direction: column !important;
+  width: 1.6rem !important;
+  height: 100% !important;
+  border-left: 1px solid #a6a6a6 !important;
+  background: #f0f0f0 !important;
+  flex-shrink: 0 !important;
+}
+
+/* Stepper Arrows */
+.step-btn {
+  flex: 1 !important;
+  border: none !important;
+  background: #f0f0f0 !important;
+  color: #444444 !important;
+  font-size: 0.65rem !important;
+  line-height: 1 !important;
+  cursor: pointer !important;
+  display: grid !important;
+  place-items: center !important;
+  padding: 0 !important;
+  transition: background 0.15s ease !important;
+}
+
+.step-btn:hover {
+  background: #e0e0e0 !important;
+  color: #000000 !important;
+}
+
+.step-btn:active {
+  background: #cccccc !important;
+}
+
+.step-btn.step-up {
+  border-bottom: 1px solid #d0d0d0 !important;
+}
+
+/* Unit Label (Fixed Width Ensures Vertical Alignment Across All Rows) */
+.var-unit {
+  display: inline-block !important;
+  width: 3.6rem !important;
+  min-width: 3.6rem !important;
+  text-align: left !important;
+  font-size: 1.25rem !important;
+  color: #089b93 !important;
+  font-weight: 700 !important;
+  white-space: nowrap !important;
+}
+
+/* ==========================================================================
+   Apparatus Sidebar Panels Unified Styling
+   ========================================================================== */
+
+/* 1. Prevent panel stretching & enable vertical scrolling */
+.experiment-sidepanel {
+  max-height: 100%;
+  overflow-y: auto;
+}
+
+/* 2. Fix layout: stack header on top of the body across full width */
+.apparatus-panel,
+#hms-hud {
+  display: flex;
+  flex-direction: column; /* Switches layout from horizontal row to top-down column */
+  width: 100%;
+  max-height: 100%;
+  overflow-y: auto;
+}
+
+.side-panel-header {
+  width: 100%;
+  padding: 0.75rem 1rem;
+  background-image: linear-gradient(
+    to bottom,
+    var(--clr-side-background2, #0e6b65),
+    var(--clr-side-background3, #084c47)
+  );
+  color: #ffffff;
+  box-sizing: border-box;
+}
+
+.side-panel-header h3 {
+  margin: 0;
+  font-size: 1.3rem;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  color: #ffffff;
+}
+
+.panel-desc {
+  font-size: 1.05rem;
+  color: #475569;
+  line-height: 1.45;
+  margin: 0 0 0.8rem;
+}
+
+.var-header-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 0.4rem;
+}
+
+.var-header-row label {
+  font-weight: 600;
+  font-size: 1.15rem;
+  color: #334155;
+}
+
+.var-badge {
+  display: inline-block;
+  padding: 0.15rem 0.55rem;
+  border-radius: 0.35rem;
+  border: 1px solid #a9cecc;
+  background: #f0fdfa;
+  color: #087d76;
+  font-weight: 700;
+  font-size: 1.1rem;
+  font-family: monospace;
+}
+
+.section-divider {
+  font-weight: 700;
+  font-size: 1.05rem;
+  color: #087d76;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  border-top: 1px dashed #cbd5e1;
+  padding-top: 0.8rem;
+  margin: 0.6rem 0 0.4rem;
+}
+
+.control-btn {
+  width: 100%;
+  padding: 0.65rem 1rem;
+  border-radius: 0.45rem;
+  font-weight: 700;
+  font-size: 1.1rem;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  border: none;
+  margin-top: 0.5rem;
+}
+
+.control-btn.primary {
+  background: #089b93;
+  color: #ffffff;
+}
+
+.control-btn.primary:hover {
+  background: #067a74;
+}
+
+.control-btn.secondary {
+  background: #e2e8f0;
+  color: #1e293b;
+  border: 1px solid #cbd5e1;
+}
+
+.control-btn.secondary:hover {
+  background: #cbd5e1;
+}
+
+.btn-grid-4 {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 0.5rem;
+  margin-bottom: 0.6rem;
+}
+
+.btn-grid-4 button,
+.btn-grid-3 button {
+  padding: 0.55rem 0.4rem;
+  border: 1px solid #cbd5e1;
+  border-radius: 0.4rem;
+  background: #f8fafc;
+  color: #1e293b;
+  font-weight: 600;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: all 0.15s;
+}
+
+.btn-grid-4 button:hover,
+.btn-grid-3 button:hover {
+  background: #e2e8f0;
+}
+
+.btn-grid-4 button.active {
+  background: #089b93;
+  color: #ffffff;
+  border-color: #089b93;
+}
+
+.btn-grid-3 {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 0.4rem;
+  margin-bottom: 0.6rem;
+}
+
+/* ==========================================================================
+   Resistance Box Stepper Alignment & Placement Fix
+   ========================================================================== */
+
+.ui-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 12px;
+  font-size: 13px;
+}
+
+/* Flex container forces input and unit symbol onto the same horizontal line */
+.ui-row .input-with-unit,
+.ui-row .input-unit-wrap {
+  display: flex !important;
+  align-items: center !important;
+  gap: 6px !important;
+  flex-shrink: 0 !important;
+}
+
+/* Number input styling with native functional stepper arrows restored */
+.ui-row input[type="number"] {
+  width: 70px !important;
+  height: 30px !important;
+  padding: 2px 4px !important;
+  border-radius: 6px !important;
+  border: 1px solid #008080 !important;
+  font-weight: bold !important;
+  color: #005f5f !important;
+  text-align: right !important;
+  background-color: #e6f2f2 !important;
+
+  /* Restores functional browser up/down steppers & fixes VS Code warning */
+  appearance: auto !important;
+  -webkit-appearance: auto !important;
+  -moz-appearance: number-input !important;
+}
+
+/* Inline unit placement outside the box */
+.ui-row .unit-label,
+.ui-row .var-unit {
+  font-weight: 700 !important;
+  color: #008080 !important;
+  font-size: 14px !important;
+  white-space: nowrap !important;
+}
+
+.keys-detail-box {
+  font-size: 11px;
+  color: #222;
+  background: #f0f4f8;
+  border: 1px solid #ccc;
+  padding: 6px;
+  border-radius: 4px;
+  margin-top: 4px;
+  font-family: monospace;
+}

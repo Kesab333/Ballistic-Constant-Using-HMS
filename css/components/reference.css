@@ -1,0 +1,633 @@
+/* ---- Reference Base ---- */
+.reference-card {
+  min-height: 15rem;
+  min-width: 24rem;
+  resize: both;
+  overflow: auto;
+}
+
+.reference-card, .graphs-card { cursor: grab; }
+.reference-card.is-dragging { opacity: .45; outline: 2px dashed #089b93; }
+.reference-card.drag-over { outline: 3px solid #089b93; }
+.graphs-card.is-dragging { opacity: .45; outline: 2px dashed #089b93; }
+.graphs-card.drag-over { outline: 3px solid #089b93; }
+
+.reference-content {
+  padding: 1.4rem 1.6rem;
+  color: #536160;
+  font-size: 1.35rem;
+}
+
+.reference-content p+p {
+  margin-top: .9rem;
+}
+
+.formula-content {
+  color: #087d76;
+  font-family: Georgia, serif;
+  font-size: 1.85rem;
+  text-align: center;
+}
+
+.diagram-figure { background: #f5fbfa; }
+.diagram-figure area { cursor: help; }
+
+.reference-card img {
+  display: block;
+  width: 100%;
+  height: auto;
+  min-height: 36rem;
+  max-height: 42rem;
+  object-fit: contain;
+  padding: 0.5rem;
+  background: #f5fbfa;
+}
+
+.diagram-caption { display: none; }
+.is-active-workspace .diagram-caption {
+  display: block;
+  padding: 0 1.6rem 1rem;
+  color: #536160;
+  font-size: 1.2rem;
+  font-style: italic;
+  text-align: center;
+}
+
+/* ---- Formula Workspace Layout ---- */
+.formula-workspace {
+  display: flex;
+  flex-direction: column;
+  gap: 1.2rem;
+  padding: 1.5rem;
+  background: #ffffff;
+  border-radius: 0.9rem;
+}
+
+.formula-selector-card {
+  display: flex;
+  align-items: center;
+  gap: 1.2rem;
+  padding: 1rem 1.4rem;
+  background: #f5fbfa;
+  border: 1px solid #c8dada;
+  border-radius: 0.6rem;
+}
+
+.formula-selector-card label {
+  font-size: 1.35rem;
+  font-weight: 700;
+  color: #087d76;
+  white-space: nowrap;
+}
+
+.formula-dropdown {
+  flex: 1;
+  padding: 0.65rem 1rem;
+  font-size: 1.3rem;
+  border: 1px solid #089b93;
+  border-radius: 0.4rem;
+  background: #ffffff;
+  color: #216764;
+  font-weight: 600;
+  cursor: pointer;
+  outline: none;
+}
+
+.formula-dropdown:focus {
+  box-shadow: 0 0 0 3px rgba(8, 155, 147, 0.25);
+}
+
+.formula-detail-card {
+  display: flex;
+  flex-direction: column;
+  gap: 1.2rem;
+}
+
+.box-label {
+  display: block;
+  margin-bottom: 0.6rem;
+  font-size: 1.15rem;
+  font-weight: 700;
+  color: #087d76;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.formula-usage-box {
+  padding: 1.2rem;
+  background: #f8fafc;
+  border-left: 0.4rem solid #089b93;
+  border-radius: 0.4rem;
+  border-top: 1px solid #e2e8f0;
+  border-right: 1px solid #e2e8f0;
+  border-bottom: 1px solid #e2e8f0;
+}
+
+.formula-usage-text {
+  font-size: 1.3rem;
+  line-height: 1.5;
+  color: #334155;
+  margin: 0;
+}
+
+.formula-display-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1.2rem;
+}
+
+.formula-latex-box,
+.formula-variables-box {
+  display: flex;
+  flex-direction: column;
+  padding: 1.2rem;
+  border: 1px solid #dce7e6;
+  border-radius: 0.6rem;
+  background: #ffffff;
+}
+
+.latex-render {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex: 1;
+  min-height: 12rem;
+  padding: 1rem;
+  background: #f5fbfa;
+  border-radius: 0.4rem;
+  font-size: 2rem;
+  color: #087d76;
+}
+
+.variables-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+}
+
+.variables-list li {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.55rem 0.8rem;
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 0.4rem;
+  font-size: 1.2rem;
+}
+
+.var-symbol { font-weight: 700; color: #087d76; }
+.var-desc { color: #475569; }
+
+/* ---- Workspace Reference Final Layout ---- */
+.workspace-reference {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  padding: 1rem;
+  background: #ffffff;
+}
+
+.workspace-reference .reference-card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  max-width: 95rem;
+  min-height: 44rem;
+  padding: 1rem;
+  background: #ffffff;
+  border: none;
+  box-shadow: none;
+  resize: none;
+}
+
+.workspace-reference .reference-card .reference-content,
+.workspace-reference .reference-card img {
+  height: 100%;
+}
+
+.workspace-reference .task-title {
+  display: none;
+}
+
+/* HMS ballistic experiment controls and measured-data plots. */
+.ballistic-input-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 10px;
+  margin-bottom: 12px;
+}
+
+.ballistic-input-grid label {
+  display: grid;
+  gap: 4px;
+  color: #405150;
+  font-size: 0.82rem;
+  font-weight: 700;
+}
+
+.ballistic-input-grid input,
+.ballistic-input-grid select {
+  width: 100%;
+  box-sizing: border-box;
+  min-height: 32px;
+  border: 1px solid #cbd8d7;
+  border-radius: 5px;
+  padding: 5px 7px;
+  background: #fff;
+}
+
+#ballisticCalibrationGraph,
+#ballisticTrajectoryGraph {
+  width: 100%;
+  max-height: 220px;
+  display: block;
+  margin: 6px 0 14px;
+  border-radius: 5px;
+  background: #fbfdfd;
+}
+
+/* ---- Unified reference workspace: one view with contextual right sidebar ---- */
+.reference-card {
+  min-width: 0;
+  min-height: calc(100vh - 15rem);
+  resize: none;
+  overflow: hidden;
+}
+
+.reference-card > .task-heading {
+  flex: 0 0 auto;
+}
+
+.reference-card > .task-title {
+  flex: 0 0 auto;
+}
+
+.workspace-layout {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(17rem, 24rem);
+  flex: 1;
+  min-height: 0;
+  background: #f5f9f9;
+}
+
+/* Neutralise the obsolete graph-card rules that forced this view into a
+   collapsing single-column flex container. */
+#graphs {
+  height: min(54rem, calc(100vh - 15rem)) !important;
+  min-height: 0 !important;
+  max-height: 54rem;
+}
+
+#graphs[hidden] {
+  display: none !important;
+}
+
+#graphs > .task-heading {
+  flex: 0 0 auto !important;
+  width: auto !important;
+  min-height: 0 !important;
+}
+
+#graphs > .workspace-layout {
+  display: grid !important;
+  flex-direction: initial !important;
+  flex: 1 1 auto !important;
+  min-height: 0 !important;
+}
+
+#graphs .graph-panel {
+  min-height: 0;
+  overflow: hidden;
+}
+
+.workspace-primary {
+  min-width: 0;
+  min-height: 0;
+  overflow: auto;
+  background: #fff;
+}
+
+.workspace-aside {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  min-width: 0;
+  padding: 1.25rem;
+  overflow: auto;
+  background: #eef7f6;
+  border-left: 1px solid #c7dedb;
+}
+
+.info-card,
+.formula-aside .formula-usage-box,
+.formula-aside .formula-variables-box {
+  padding: 1.1rem;
+  border: 1px solid #d5e5e3;
+  border-radius: .7rem;
+  background: #fff;
+  box-shadow: 0 2px 5px rgba(15, 68, 65, .05);
+}
+
+.info-eyebrow {
+  display: block;
+  margin-bottom: .55rem;
+  color: #087d76;
+  font-size: 1.05rem;
+  font-weight: 800;
+  letter-spacing: .06em;
+  text-transform: uppercase;
+}
+
+.info-card p,
+.info-card li {
+  color: #405150;
+  font-size: 1.2rem;
+  line-height: 1.5;
+}
+
+.info-card ol {
+  display: grid;
+  gap: .45rem;
+  margin: 0;
+  padding-left: 1.5rem;
+}
+
+.sidebar-equation {
+  margin: .75rem 0;
+  padding: .8rem .55rem;
+  overflow-x: auto;
+  border-radius: .45rem;
+  background: #f2fbfa;
+  color: #076e68;
+  text-align: center;
+}
+
+.workspace-toolbar {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  padding: 1rem 1.4rem;
+  border-bottom: 1px solid #e0ecea;
+}
+
+.workspace-toolbar label {
+  color: #087d76;
+  font-weight: 800;
+}
+
+.diagram-panel {
+  display: flex;
+  flex-direction: column;
+}
+
+.diagram-figure {
+  display: grid;
+  flex: 1;
+  min-height: 0;
+  place-items: center;
+  padding: 1rem;
+}
+
+.reference-card img,
+.diagram-panel .reference-card img {
+  width: min(100%, 62rem);
+  min-height: 0;
+  max-height: min(62vh, 46rem);
+  padding: .5rem;
+  object-fit: contain;
+}
+
+.diagram-caption {
+  display: block;
+  margin: 0;
+  padding: 0 1.4rem 1.1rem;
+  color: #536160;
+  font-size: 1.15rem;
+  font-style: italic;
+  text-align: center;
+}
+
+.graph-panel {
+  display: grid;
+  grid-template-rows: repeat(2, minmax(0, 1fr));
+  gap: 1rem;
+  padding: 1.2rem;
+  background: #fff;
+}
+
+.graph-figure {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  min-height: 0;
+  margin: 0;
+  padding: 1rem;
+  border: 1px solid #d9e7e5;
+  border-radius: .75rem;
+  background: #fbfefe;
+}
+
+.graph-figure figcaption {
+  margin-bottom: .7rem;
+  color: #214c49;
+  font-size: 1.2rem;
+  font-weight: 800;
+}
+
+.graph-canvas,
+#graphs .graph-canvas {
+  display: block !important;
+  flex: 1 !important;
+  width: 100% !important;
+  height: 100% !important;
+  min-height: 0 !important;
+  max-height: none !important;
+  margin: 0 !important;
+  border: 1px solid #bcd7d4;
+  border-radius: .45rem;
+  background: #fff;
+}
+
+.calculation-panel {
+  padding: 1.4rem 1.6rem;
+}
+
+.calculation-panel > p {
+  margin-bottom: 1.1rem;
+}
+
+.ballistic-input-grid {
+  grid-template-columns: repeat(auto-fit, minmax(15rem, 1fr));
+}
+
+.calculation-output {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: .75rem;
+  margin: 1.2rem 0;
+}
+
+.calculation-output .calculation-readout {
+  padding: .85rem;
+  border: 1px solid #d7e5e3;
+  border-radius: .55rem;
+  background: #f8fbfb;
+}
+
+.calculation-readout > span {
+  display: block;
+  color: #087d76;
+  font-weight: 800;
+}
+
+.calculation-readout strong {
+  display: block;
+  margin-top: .35rem;
+  color: #283c3b;
+  font-size: 1.2rem;
+  word-break: break-word;
+}
+
+.formula-workspace {
+  min-height: 0;
+  padding: 1.4rem;
+  overflow: auto;
+}
+
+.formula-display-single {
+  grid-template-columns: minmax(0, 1fr);
+}
+
+.formula-aside .formula-usage-box {
+  border-left: 4px solid #089b93;
+}
+
+.formula-aside .formula-variables-box {
+  min-height: 0;
+}
+
+.variables-list li {
+  gap: .7rem;
+  align-items: flex-start;
+}
+
+.var-symbol .katex {
+  font-size: 1.15em;
+}
+
+.observation-panel,
+.results-panel {
+  padding: 1.4rem 1.6rem;
+}
+
+.emf-table-wrap {
+  width: 100%;
+  overflow-x: auto;
+}
+
+.emf-table {
+  width: 100%;
+  min-width: 58rem;
+  border-collapse: collapse;
+  background: #fff;
+}
+
+.emf-table th,
+.emf-table td {
+  padding: .8rem;
+  border: 1px solid #d6e4e2;
+  text-align: left;
+}
+
+.emf-table th {
+  background: #eaf6f4;
+  color: #075f5a;
+}
+
+.manual-observation {
+  margin-top: 1.4rem;
+  padding-top: 1.2rem;
+  border-top: 1px solid #d8e7e5;
+}
+
+.manual-observation-form {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: .8rem;
+  align-items: end;
+  margin: .7rem 0 1rem;
+}
+
+.manual-observation-form label {
+  display: grid;
+  gap: .35rem;
+  color: #405150;
+  font-size: 1.1rem;
+  font-weight: 800;
+}
+
+.manual-observation-form input {
+  width: 100%;
+  min-height: 3.3rem;
+  padding: .45rem .6rem;
+  border: 1px solid #b9d4d1;
+  border-radius: .4rem;
+}
+
+.result-summary {
+  margin-bottom: 1rem;
+  padding: 1rem 1.2rem;
+  border-left: 4px solid #089b93;
+  border-radius: .5rem;
+  background: #eef9f7;
+  color: #294543;
+}
+
+.result-summary p + p { margin-top: .35rem; }
+
+/* Use the available desktop height for the active workspace instead of
+   leaving an unused strip between the simulation and footer. */
+@media screen and (min-width: 769px) {
+  .container,
+  .main-section {
+    min-height: calc(100vh - 9rem);
+  }
+
+  .simulation-card {
+    min-height: calc(100vh - 13rem);
+  }
+
+  .simulation-card .lab-stage {
+    min-height: calc(100vh - 16rem);
+  }
+}
+
+.results-panel .readout-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(16rem, 1fr));
+  gap: .75rem;
+}
+
+.results-panel .readout-grid p {
+  display: flex;
+  flex-direction: column;
+  gap: .2rem;
+  margin: 0;
+  padding: .9rem;
+  border: 1px solid #d8e7e5;
+  border-radius: .55rem;
+  background: #fff;
+}
+
+.results-panel .readout-grid strong {
+  color: #087d76;
+  font-size: 1.25rem;
+}

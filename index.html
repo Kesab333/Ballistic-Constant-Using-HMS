@@ -1,0 +1,682 @@
+<!DOCTYPE html>
+<html lang="en" data-px-prov-f01="2c38">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="px-prov-f00" content="0f16" />
+  <meta name="description"
+    content="Determination of the Ballistic Constant Using Hibbert's Magnetic Standard" />
+  <title>Ballistic Constant Using Hibbert's Magnetic Standard | SOLVE Virtual Lab</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <link rel="icon" href="images/nitk.ico" />
+  
+  <!-- KaTeX Library for LaTeX Rendering -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/katex.min.css" />
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/katex.min.js"></script>
+
+  <!-- Main Global Styles -->
+  <link rel="stylesheet" href="css/general.css" />
+  <link rel="stylesheet" href="css/style.css" />
+  <link rel="stylesheet" href="css/lab-scene.css" />
+  <link rel="stylesheet" href="css/hms-apparatus.css" />
+  <link rel="stylesheet" href="css/ballistic-galvanometer.css" />
+  <link rel="stylesheet" href="css/tapping-switch.css" />
+  <link rel="stylesheet" href="css/apparatus-stages.css" />
+
+  <!-- Layout Styles & Component Styles -->
+  <link rel="stylesheet" href="css/components/apparatus.css?v=2" />
+  <link rel="stylesheet" href="css/base/desktop-layout.css" />
+  <link rel="stylesheet" href="css/components/graphs.css" />
+  <link rel="stylesheet" href="css/components/reference.css" />
+  <link rel="stylesheet" href="css/base/tablet-layout.css" media="screen and (min-width: 769px) and (max-width: 1024px)" />
+  <link rel="stylesheet" href="css/base/mobile-layout.css" media="screen and (max-width: 768px)" />
+
+  <script type="importmap">
+    { "imports": {
+      "three": "https://unpkg.com/three@0.160.0/build/three.module.js",
+      "three/addons/": "https://unpkg.com/three@0.160.0/examples/jsm/"
+    } }
+  </script>
+</head>
+
+<body>
+  <header class="title-div-container">
+    <div class="title-div">
+      <div class="logo-div"><img src="images/nitk.ico" alt="NITK logo" class="logo" /></div>
+      <h1>Ballistic Constant Using Hibbert's Magnetic Standard</h1>
+    </div>
+  </header>
+
+  <div class="container">
+    <!-- Left Navigation Sidebar -->
+    <nav class="sidebar" aria-label="Experiment sections">
+      <ul class="tool-menu">
+        <li class="tool-list"><button class="tool-link icon-diagram workspace-link" data-workspace="diagram"
+            aria-label="Diagram"></button><span>Diagram</span></li>
+        <li class="tool-list"><button class="tool-link icon-formula workspace-link" data-workspace="formula"
+            aria-label="Formula"></button><span>Formula</span></li>
+        <li class="tool-list"><button class="tool-link icon-simulation workspace-link is-active" data-workspace="simulation"
+            aria-label="Simulation"></button><span>Simulation</span></li>
+        <li class="tool-list"><button class="tool-link icon-observation workspace-link" data-workspace="observation"
+            aria-label="Observation"></button><span>Observation</span></li>
+        <li class="tool-list"><button id="railGraphButton" class="rail-button icon-graph workspace-link" data-workspace="graphs"
+            aria-label="Show graphs"></button><span>Graph</span></li>
+        <li class="tool-list"><button class="tool-link icon-calculation workspace-link" data-workspace="calculation"
+            aria-label="Calculation"></button><span>Calculation</span></li>
+        <li class="tool-list"><button class="tool-link icon-results workspace-link" data-workspace="results"
+            aria-label="Results"></button><span>Results</span></li>
+      </ul>
+    </nav>
+
+    <main class="main">
+      <div class="main-section">
+        <section id="simulation" class="main__task-div simulation-card">
+          <div class="task-heading"><h2 id="workspaceTitle" class="task-title">Simulation</h2><div class="heading-actions">
+            <button id="helpButton" class="heading-button help-button" aria-label="Open simulation help">?</button>
+            <button id="fullscreenButton" class="heading-button" aria-label="View website fullscreen" title="Fullscreen">⛶</button>
+          </div></div>
+          
+          <section class="apparatus-selector" aria-label="Laboratory apparatus">
+            <span class="apparatus-selector__label">Apparatus</span>
+            <button class="apparatus-option" type="button" data-apparatus="laboratory" aria-selected="true">Laboratory</button>
+            <button class="apparatus-option" type="button" draggable="true" data-apparatus="resistance-box" aria-selected="false">Resistance Box</button>
+            <button class="apparatus-option" type="button" draggable="true" data-apparatus="hms" aria-selected="false">HMS</button>
+            <button class="apparatus-option" type="button" draggable="true" data-apparatus="ballistic-galvanometer" aria-selected="false">Ballistic Galvanometer</button>
+            <button class="apparatus-option" type="button" draggable="true" data-apparatus="tapping-switch" aria-selected="false">Tapping Switch</button>
+            <button class="apparatus-option" type="button" draggable="true" data-apparatus="commutator" aria-selected="false">Commutator</button>
+            
+            <!-- UPDATED: Clean connection buttons without inline colors and emojis -->
+            <div class="circuit-actions" style="margin-left: auto; display: flex; gap: 8px; align-items: center;">
+              <button id="light-toggle-btn" class="apparatus-option circuit-btn" type="button">Room Light (On)</button>
+              <button id="autoConnectBtn" class="apparatus-option circuit-btn" type="button">Auto Connect</button>
+              <button id="manualConnectBtn" class="apparatus-option circuit-btn" type="button">Manual Connect</button>
+              <button id="clearWiresBtn" class="apparatus-option circuit-btn" type="button">Clear Wires</button>
+            </div>
+          </section>
+
+          <div class="lab-stage">
+            <div id="workspaceViewport" class="workspace-viewport">
+              <div id="simulationWindow" class="apparatus-wrap">
+
+                <!-- Lab controls fullscreen host -->
+                <div id="lab-controls-fullscreen-host"></div>
+
+                <!-- Viewport Header Action Buttons -->
+                <div class="viewport-actions-wrap">
+                  <button id="rotationLockButton" class="rotation-lock-btn" aria-label="Toggle camera rotation lock" title="Lock View Rotation">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                      <rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect>
+                      <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
+                    </svg>
+                  </button>
+                  <button id="viewportFullscreenButton" class="viewport-fullscreen-btn" aria-label="Toggle viewport full mode" title="Full Viewport Mode">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                      <path d="M8 3H5a2 2 0 0 0-2 2v3M3 16v3a2 2 0 0 0 2 2h3M16 21h3a2 2 0 0 0 2-2v-3M21 8V5a2 2 0 0 0-2-2h-3"/>
+                    </svg>
+                  </button>
+                </div>
+
+                <div id="threeViewport" class="three-viewport" role="img" aria-label="Interactive three-dimensional laboratory apparatus. Drag empty space to orbit the view."></div>
+                
+                <!-- Resistance Box Stage - Circuit Topology Removed -->
+                <section id="resistance-box-stage" class="apparatus-stage" aria-label="Interactive resistance box">
+                  <!-- Circuit Topology section completely removed -->
+                </section>
+
+                <section id="hms-stage" class="apparatus-stage" aria-label="Interactive Hibbert Magnetic Standard">
+                  <div id="hms-app"></div>
+                  <div id="hms-legend">
+                    <div><span class="sw" style="background:#ee2222"></span>Fixed Inner N Pole</div>
+                    <div><span class="sw" style="background:#2266ee"></span>Fixed Outer S Pole</div>
+                    <div><span class="sw" style="background:#d4a044"></span>Brass Mechanicals &amp; Screws</div>
+                    <div><span class="sw" style="background:#c59b27"></span>Engraved Specification Plates</div>
+                  </div>
+                  <div id="hms-tip">Pull the lever handle down to lift the coil. Use the casing slider to fade the shell and hardware.</div>
+                </section>
+
+                <section id="ballistic-galvanometer-stage" class="apparatus-stage" aria-label="Interactive ballistic galvanometer">
+                  <div id="ballistic-galvanometer-canvas-container"></div>
+                  <div id="ballistic-galvanometer-instructions">Left-click and drag the knob to adjust it. Drag empty canvas to rotate the view.</div>
+                </section>
+
+                <section id="tapping-switch-stage" class="apparatus-stage" aria-label="Interactive tapping switch">
+                </section>
+
+                <section id="commutator-stage" class="apparatus-stage" aria-label="Interactive commutator">
+                  <div id="commutator-canvas-container" style="width:100%;height:100%;"></div>
+                  <div id="commutator-instructions" style="position:absolute;bottom:12px;left:50%;transform:translateX(-50%);background:rgba(255,255,255,0.85);padding:7px 18px;border-radius:20px;font-size:13px;color:#334155;pointer-events:none;">Drag to orbit · Scroll to zoom</div>
+                </section>
+
+                <output id="apparatus-runtime-error" hidden aria-live="assertive"></output>
+              </div>
+            </div>
+
+            <!-- Right Experiment Controls Side Panel -->
+            <aside class="experiment-sidepanel" id="experimentSidepanel" aria-label="Apparatus controls">
+
+              <!-- =========================================================
+                   GLOBAL LAB CONTROLS
+                   Shown only when all required apparatus are present
+                   and no apparatus-specific control panel is open.
+                   ========================================================= -->
+              <section id="lab-controls" class="side-details lab-controls-panel" hidden>
+
+                <div class="side-panel-header">
+                  <h3>Lab Controls</h3>
+                </div>
+
+                <div class="card-body">
+
+                  <!-- Resistance-box setting: the physics model adds HMS and galvanometer resistance. -->
+                  <div class="lab-control-block">
+                    <label for="lab-total-resistance">Resistance Box Setting</label>
+
+                    <div class="input-with-unit">
+                      <input
+                        type="number"
+                        id="lab-total-resistance"
+                        min="0"
+                        max="210"
+                        step="1"
+                        value="0"
+                      />
+                      <span class="unit-label">Ω</span>
+                    </div>
+                  </div>
+
+                  <!-- HMS Auto Control -->
+                  <div class="lab-control-block">
+                    <label>Auto Control</label>
+
+                    <button
+                      id="lab-hms-auto"
+                      class="control-btn primary"
+                      type="button"
+                    >
+                      Auto Lever Up–Down
+                    </button>
+                  </div>
+
+                  <!-- HMS Manual Control -->
+                  <div class="lab-control-block">
+                    <label for="lab-hms-manual">Manual Control</label>
+
+                    <input
+                      type="range"
+                      id="lab-hms-manual"
+                      class="template-range"
+                      step="0.002"
+                    />
+                  </div>
+
+                  <!-- Tapping Switch -->
+                  <div class="lab-control-block">
+                    <label>Tapping Switch</label>
+
+                    <div class="lab-control-button-row">
+                      <button
+                        id="lab-switch-toggle"
+                        class="control-btn primary"
+                        type="button"
+                      >
+                        Toggle ON / OFF
+                      </button>
+
+                      <button
+                        id="lab-switch-press"
+                        class="control-btn secondary"
+                        type="button"
+                      >
+                        Hold / Press
+                      </button>
+                    </div>
+                  </div>
+
+                </div>
+              </section>
+
+              <!-- Resistance Box Controls - UPDATED with smaller inputs and inline units -->
+              <div id="resistance-ui" class="side-details apparatus-panel">
+                <div class="side-panel-header">
+                  <h3>Resistance Box</h3>
+                  <button type="button" class="apparatus-close-btn" aria-label="Close apparatus controls" hidden>×</button>
+                </div>
+                <div class="card-body">
+                  <!-- External resistance input; internal instrument resistances are included separately. -->
+                  <div class="ui-row">
+                    <label for="res-input">Resistance Box Setting:</label>
+                    <div class="input-with-unit">
+                      <input type="number" id="res-input" min="0" max="210" step="1" value="0" />
+                      <span class="unit-label">Ω</span>
+                    </div>
+                  </div>
+
+                  <!-- Keys Required Display -->
+                  <div class="ui-row-vertical">
+                    <label>Keys to Open:</label>
+                    <div id="keys-detail" class="keys-detail-box">None (0 Ω)</div>
+                  </div>
+
+                  <!-- Casing Opacity Stepper + Slider -->
+                  <div class="ui-row">
+                    <label for="opacity-stepper">Casing Opacity:</label>
+                    <div class="input-with-unit">
+                      <input type="number" id="opacity-stepper" min="0" max="100" step="1" value="100" />
+                      <span class="unit-label">%</span>
+                    </div>
+                  </div>
+                  <input type="range" id="opacity" min="0" max="1" step="0.01" value="1" />
+                </div>
+              </div>
+
+              <!-- HMS Controls -->
+              <div id="hms-hud" class="side-details apparatus-panel">
+                <div class="side-panel-header">
+                  <h3>Hibbert Magnetic Standard</h3>
+                  <button type="button" class="apparatus-close-btn" aria-label="Close apparatus controls" hidden>×</button>
+                </div>
+                <div class="card-body">
+                  
+                  <div class="btn-grid-4">
+                    <button id="hms-viewExterior" class="active">Exterior</button>
+                    <button id="hms-viewCut">Cutaway</button>
+                    <button id="hms-viewExploded">Exploded</button>
+                    <button id="hms-viewInternal">Internal</button>
+                  </div>
+                  <div class="btn-grid-3">
+                    <button id="hms-pullUp">Raise Coil</button>
+                    <button id="hms-release">Drop Coil</button>
+                    <button id="hms-field">Toggle B-field</button>
+                  </div>
+                  <button id="hms-autoCycle" class="control-btn primary" type="button">Auto Lever Up–Down</button>
+                  <div class="var-div">
+                    <div class="var-header-row"><label for="hms-coilPosSlider">Coil Position</label></div>
+                    <input type="range" id="hms-coilPosSlider" step=".002">
+                  </div>
+                  <div class="var-div">
+                    <div class="var-header-row"><label for="hms-casingOpacity">Casing Opacity</label></div>
+                    <input type="range" id="hms-casingOpacity" min="0" max="1" step=".05" value="1">
+                  </div>
+                  <div class="kv">
+                    <div>Interaction</div><div>Drag Handle Downward</div>
+                    <div>Physics Active</div><div id="hms-physicsReadout">Manual Control</div>
+                    <div>Current State</div><div id="hms-stateReadout">At Min (Inside Gap)</div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Ballistic Galvanometer Controls -->
+              <div id="ballistic-galvanometer-ui-panel" class="side-details apparatus-panel">
+                <div class="side-panel-header">
+                  <h3>Ballistic Galvanometer</h3>
+                  <button type="button" class="apparatus-close-btn" aria-label="Close apparatus controls" hidden>×</button>
+                </div>
+                <div class="card-body">
+
+                  <!-- Container 1: Galvanometer Controls -->
+                  <details class="bg-accordion-group" name="bg-controls" open>
+                    <summary class="accordion-header">Galvanometer Controls</summary>
+                    <div class="accordion-body">
+                      <div class="var-div">
+                        <div class="var-header-row">
+                          <label for="ballistic-galvanometer-casing-opacity">Casing Opacity</label>
+                          <div class="input-with-unit">
+                            <input type="number" id="ballistic-galvanometer-casing-opacity-num" min="0" max="100" step="1" value="100">
+                            <span class="unit-label">%</span>
+                          </div>
+                        </div>
+                        <input type="range" id="ballistic-galvanometer-casing-opacity" min="0" max="1" step="0.02" value="1">
+                      </div>
+
+                      <div class="var-div">
+                        <div class="var-header-row">
+                          <label for="ballistic-galvanometer-knob">Zero Adjuster Knob</label>
+                          <div class="input-with-unit">
+                            <input type="number" id="ballistic-galvanometer-knob-num" min="-135" max="135" step="1" value="0">
+                            <span class="unit-label">&deg;</span>
+                          </div>
+                        </div>
+                        <input type="range" id="ballistic-galvanometer-knob" min="-135" max="135" step="1" value="0">
+                      </div>
+
+                      <div class="var-div">
+                        <div class="var-header-row">
+                          <label for="ballistic-galvanometer-coil-angle">Coil Deflection</label>
+                          <div class="input-with-unit">
+                            <input type="number" id="ballistic-galvanometer-coil-angle-num" min="-30" max="30" step="1" value="0">
+                            <span class="unit-label">&deg;</span>
+                          </div>
+                        </div>
+                        <input type="range" id="ballistic-galvanometer-coil-angle" min="-30" max="30" step="1" value="0">
+                      </div>
+                      <button class="control-btn primary" id="ballistic-galvanometer-btn-impulse">Simulate Charge Impulse</button>
+                    </div>
+                  </details>
+
+                  <!-- Container 2: Stand / Scale Controls -->
+                  <details class="bg-accordion-group" name="bg-controls">
+                    <summary class="accordion-header">Stand / Scale Controls</summary>
+                    <div class="accordion-body">
+                      <div class="var-div">
+                        <div class="var-header-row">
+                          <label for="ballistic-galvanometer-stand-z">Stand Dist (1m Base)</label>
+                          <div class="input-with-unit">
+                            <input type="number" id="ballistic-galvanometer-stand-z-num" min="0.8" max="2.0" step="0.05" value="1.0">
+                            <span class="unit-label">m</span>
+                          </div>
+                        </div>
+                        <input type="range" id="ballistic-galvanometer-stand-z" min="0.8" max="2.0" step="0.05" value="1.0">
+                      </div>
+
+                      <div class="var-div">
+                        <div class="var-header-row">
+                          <label for="ballistic-galvanometer-stand-x">Scale Offset X</label>
+                          <div class="input-with-unit">
+                            <input type="number" id="ballistic-galvanometer-stand-x-num" min="-4.0" max="4.0" step="0.1" value="0.0">
+                            <span class="unit-label">m</span>
+                          </div>
+                        </div>
+                        <input type="range" id="ballistic-galvanometer-stand-x" min="-4.0" max="4.0" step="0.1" value="0.0">
+                      </div>
+
+                      <div class="var-div">
+                        <div class="var-header-row">
+                          <label for="ballistic-galvanometer-stand-scaleY">Scale Height (Y)</label>
+                          <div class="input-with-unit">
+                            <input type="number" id="ballistic-galvanometer-stand-scaleY-num" min="4.0" max="5.5" step="0.1" value="5.0">
+                            <span class="unit-label">m</span>
+                          </div>
+                        </div>
+                        <input type="range" id="ballistic-galvanometer-stand-scaleY" min="4.0" max="5.5" step="0.1" value="5.0">
+                      </div>
+
+                      <div class="var-div">
+                        <div class="var-header-row">
+                          <label for="ballistic-galvanometer-stand-rot">Stand Rotation</label>
+                          <div class="input-with-unit">
+                            <input type="number" id="ballistic-galvanometer-stand-rot-num" min="-180" max="180" step="1" value="0">
+                            <span class="unit-label">&deg;</span>
+                          </div>
+                        </div>
+                        <input type="range" id="ballistic-galvanometer-stand-rot" min="-180" max="180" step="1" value="0">
+                      </div>
+                    </div>
+                  </details>
+
+                  <!-- Container 3: Lamp Controls -->
+                  <details class="bg-accordion-group" name="bg-controls">
+                    <summary class="accordion-header">Lamp Controls</summary>
+                    <div class="accordion-body">
+                      <div class="var-div">
+                        <div class="var-header-row">
+                          <label for="ballistic-galvanometer-stand-lampY">Lamp Height (Y)</label>
+                          <div class="input-with-unit">
+                            <input type="number" id="ballistic-galvanometer-stand-lampY-num" min="2.5" max="4.5" step="0.1" value="3.5">
+                            <span class="unit-label">m</span>
+                          </div>
+                        </div>
+                        <input type="range" id="ballistic-galvanometer-stand-lampY" min="2.5" max="4.5" step="0.1" value="3.5">
+                      </div>
+
+                      <div class="var-div">
+                        <div class="var-header-row">
+                          <label for="ballistic-galvanometer-lamp-rot">Lamp Rotation</label>
+                          <div class="input-with-unit">
+                            <input type="number" id="ballistic-galvanometer-lamp-rot-num" min="-180" max="180" step="1" value="0">
+                            <span class="unit-label">&deg;</span>
+                          </div>
+                        </div>
+                        <input type="range" id="ballistic-galvanometer-lamp-rot" min="-180" max="180" step="1" value="0">
+                      </div>
+                    </div>
+                  </details>
+
+                  <button class="control-btn secondary" id="ballistic-galvanometer-btn-reset" style="margin-top: 10px;">Reset Setup</button>
+                </div>
+              </div>
+
+              <!-- Tapping Switch Controls -->
+              <div id="tapping-switch-control-panel" class="side-details apparatus-panel">
+                <div class="side-panel-header">
+                  <h3>Switch Control</h3>
+                  <button type="button" class="apparatus-close-btn" aria-label="Close apparatus controls" hidden>×</button>
+                </div>
+                <div class="card-body">
+                  <div class="status-row">
+                    <span>Circuit State:</span>
+                    <span class="status-badge"><span id="tapping-switch-status-dot" class="status-dot"></span><span id="tapping-switch-status-text">OFF (OPEN)</span></span>
+                  </div>
+                  <button id="tapping-switch-toggle-btn" class="control-btn primary">TOGGLE LOCK (ON/OFF)</button>
+                  <button id="tapping-switch-press-btn" class="control-btn secondary">HOLD TO PRESS</button>
+                </div>
+              </div>
+
+              <!-- Commutator Controls -->
+              <div id="commutator-control-panel" class="side-details apparatus-panel">
+                <div class="side-panel-header">
+                  <h3>Commutator</h3>
+                  <button type="button" class="apparatus-close-btn" aria-label="Close apparatus controls" hidden>×</button>
+                </div>
+                <div class="card-body">
+                  <p class="apparatus-info-text">
+                    Commutator control panel.
+                  </p>
+                </div>
+              </div>
+
+            </aside>
+          </div>
+        </section>
+
+        <section id="graphs" class="main__task-div reference-card">
+          <div class="task-heading"><h2 class="task-title">Graph</h2></div>
+          <div class="workspace-layout">
+            <div class="workspace-primary graph-panel">
+              <figure class="graph-figure"><figcaption>Calibration plot <span data-latex="\frac{1}{\theta_0}\text{ vs. }R"></span></figcaption><canvas id="ballisticCalibrationGraph" class="graph-canvas" width="760" height="300" aria-label="Ballistic calibration graph"></canvas></figure>
+              <figure class="graph-figure"><figcaption>Live galvanometer trajectory <span data-latex="\theta\text{ vs. }t"></span></figcaption><canvas id="ballisticTrajectoryGraph" class="graph-canvas" width="760" height="300" aria-label="Ballistic trajectory graph"></canvas></figure>
+            </div>
+            <aside class="workspace-aside">
+              <div class="info-card"><span class="info-eyebrow">Calibration relation</span><div class="sidebar-equation" data-latex="\frac{1}{\theta_0}=\frac{K_q}{n\Phi}(R+r_{\mathrm{HMS}}+G)"></div><p>A straight line is expected when readings at two or more resistance settings are recorded.</p></div>
+              <div class="info-card"><span class="info-eyebrow">How to read it</span><ol><li>Record valid first-throw observations.</li><li>Compare the measured points as resistance changes.</li><li>Use the slope to determine <span data-latex="K_q"></span>.</li></ol></div>
+            </aside>
+          </div>
+        </section>
+
+        <section id="diagram" class="main__task-div reference-card">
+          <div class="task-heading"><h2 class="task-title">Diagram</h2></div>
+          <div class="workspace-layout">
+            <div class="workspace-primary diagram-panel"><div class="workspace-toolbar"><label for="ballisticDiagramSelect">View</label><select id="ballisticDiagramSelect" class="formula-dropdown"><option value="images/ballistic-galvanometer-circuit_diagram.png">Ballistic Galvanometer Circuit</option><option value="images/HMS_Circuit_Diagram.png">Hibbert's Magnetic Standard Circuit</option><option value="images/lab_circuit_Connection.png">Complete Laboratory Connection</option></select></div><div class="diagram-figure"><img id="ballisticDiagramImage" src="images/ballistic-galvanometer-circuit_diagram.png"
+            alt="Ballistic Galvanometer Circuit" /><map name="circuit-labels">
+              <area shape="rect" coords="650,130,785,315" href="#diagram" alt="Diode" title="D — Diode" />
+              <area shape="rect" coords="925,135,1115,310" href="#diagram" alt="Switch" title="SW — Switch" />
+              <area shape="rect" coords="790,440,985,705" href="#diagram" alt="Capacitor" title="Capacitor — Stores electrical charge" />
+              <area shape="rect" coords="1180,440,1445,700" href="#diagram" alt="Voltmeter" title="V — Voltmeter" />
+              <area shape="rect" coords="530,755,770,940" href="#diagram" alt="Milliammeter" title="mA — Milliammeter" />
+            </map></div>
+            <p id="diagramCaption" class="diagram-caption">Ballistic galvanometer circuit used to measure the first angular throw.</p></div>
+            <aside id="diagramInfo" class="workspace-aside"></aside>
+          </div>
+        </section>
+
+        <section id="calculation" class="main__task-div reference-card">
+          <div class="task-heading"><h2 class="task-title">Calculation</h2></div>
+          <div class="workspace-layout"><div class="workspace-primary reference-content calculation-panel"></div><aside class="workspace-aside"><div class="info-card"><span class="info-eyebrow">Charge through the circuit</span><div class="sidebar-equation" data-latex="Q=\frac{n\Phi}{R+r_{\mathrm{HMS}}+G}"></div><p>Use the complete flux transition and the total circuit resistance.</p></div><div class="info-card"><span class="info-eyebrow">Calibration</span><div class="sidebar-equation" data-latex="K_q=\frac{Q}{\theta_0}"></div><p>Calculate after a valid, damping-corrected first throw has been recorded.</p></div></aside></div>
+        </section>
+
+        <section id="formula" class="main__task-div reference-card">
+          <div class="task-heading"><h2 class="task-title">Formula</h2></div>
+          <div class="workspace-layout"><div class="workspace-primary formula-workspace">
+            <div class="formula-selector-card">
+              <label for="formulaSelect">Select Formula:</label>
+              <select id="formulaSelect" class="formula-dropdown">
+                <option value="faraday">Faraday's Law of Electromagnetic Induction</option>
+                <option value="lenz">Lenz's Law &amp; Induced Direction</option>
+                <option value="flux">Magnetic Flux (Φ)</option>
+                <option value="motional">Motional EMF (Conductor moving in B-field)</option>
+                <option value="rotating">EMF in a Rotating Coil</option>
+                <option value="current">Induced Current &amp; Charge</option>
+                <option value="inductance">Self-Induced EMF (Inductance)</option>
+              </select>
+            </div>
+
+            <div class="formula-detail-card">
+              <div class="formula-display-grid formula-display-single">
+                <div class="formula-latex-box">
+                  <span class="box-label">Formula</span>
+                  <div id="formulaLatex" class="latex-render"></div>
+                </div>
+
+              </div>
+            </div>
+          </div><aside class="workspace-aside formula-aside"><div class="formula-usage-box"><span class="box-label">Usage &amp; Application</span><p id="formulaUsage" class="formula-usage-text"></p></div><div class="formula-variables-box"><span class="box-label">Variables &amp; Constants</span><ul id="formulaVariables" class="variables-list"></ul></div></aside></div>
+        </section>
+
+        <section id="observation" class="main__task-div reference-card observation-card">
+          <div class="task-heading"><h2 class="task-title">Observation</h2></div>
+          <div class="workspace-layout"><div class="workspace-primary reference-content observation-panel">
+            <div class="observation-box"><span class="observation-heading">Observation</span>
+              <p id="observationText">Ready. Select Release to start the gravity-driven oscillation.</p>
+            </div>
+            <div class="emf-table-wrap">
+              <p class="table-heading">Ballistic first-throw observations</p>
+              <table class="emf-table">
+                <thead>
+                  <tr>
+                    <th>Trial</th>
+                    <th>R (ohm)</th>
+                    <th>Spot (cm)</th>
+                    <th>theta1 (rad)</th>
+                    <th>theta0 (rad)</th>
+                    <th>Q (C)</th>
+                  </tr>
+                </thead>
+                <tbody id="emfReadings">
+                  <tr>
+                    <td colspan="6">Connect the circuit, raise the HMS coil, then release it to record a first throw.</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+            <div class="manual-observation">
+              <p class="table-heading">Manual observation record</p>
+              <form id="manualObservationForm" class="manual-observation-form">
+                <label>Resistance <span data-latex="R\;(\Omega)"></span><input id="manualResistance" type="number" min="0" step="any" required></label>
+                <label>Spot displacement (cm)<input id="manualSpot" type="number" step="any" required></label>
+                <label>First throw <span data-latex="\theta_1\;(\mathrm{rad})"></span><input id="manualTheta" type="number" step="any" required></label>
+                <button class="control-btn secondary" type="submit">Add manual reading</button>
+              </form>
+              <div class="emf-table-wrap"><table class="emf-table manual-table"><thead><tr><th>Reading</th><th><span data-latex="R\;(\Omega)"></span></th><th>Spot (cm)</th><th><span data-latex="\theta_1\;(\mathrm{rad})"></span></th></tr></thead><tbody id="manualReadings"><tr><td colspan="4">No manual readings added.</td></tr></tbody></table></div>
+            </div>
+          </div><aside class="workspace-aside"><div class="info-card"><span class="info-eyebrow">Manual observation</span><ol><li>Set a resistance value and close the circuit.</li><li>Raise and release the HMS coil.</li><li>Read the first spot displacement and retain valid trials.</li></ol></div><div class="info-card"><span class="info-eyebrow">Recorded quantities</span><p><span data-latex="R"></span>, spot displacement, <span data-latex="\theta_1"></span>, damping-corrected <span data-latex="\theta_0"></span>, and <span data-latex="Q"></span> are collected in the table.</p></div></aside></div>
+        </section>
+
+        <section id="results" class="main__task-div reference-card results-card">
+          <div class="task-heading"><h2 class="task-title">Results</h2></div>
+          <div class="workspace-layout"><div class="workspace-primary reference-content results-panel">
+            <div id="ballisticResult" class="result-summary" aria-live="polite"></div>
+            <div class="readout-grid">
+              <p>Angle <strong id="angleValue">22.0°</strong></p>
+              <p id="velocityLabel">Velocity <strong id="velocityValue">0.000 rad/s</strong></p>
+              <p>Flux <strong id="fluxValue">0.000 mWb</strong></p>
+              <p>EMF <strong id="emfValue">+0.000 V</strong></p>
+              <p>Delivered charge <strong id="chargeValue">0.000 C</strong></p>
+              <p>Induced current <strong id="currentValue">0.000 mA</strong></p>
+              <p>Oscillations <strong id="countValue">0</strong></p>
+              <p>Motion <strong id="motionValue">Stationary</strong></p>
+            </div>
+            
+            <div class="heat-readout">
+              <span>Electrical energy dissipated</span>
+              <strong id="heatValue">0.000 mJ</strong>
+              <i class="heat-bar"><b id="heatFill"></b></i>
+            </div>
+          </div><aside class="workspace-aside"><div class="info-card"><span class="info-eyebrow">Final result</span><p>The ballistic constant becomes available after valid first-throw observations have been recorded.</p><div class="sidebar-equation" data-latex="K_q=\frac{Q}{\theta_0}"></div></div><div class="info-card"><span class="info-eyebrow">Quality check</span><p>Use readings from different resistance values. The calibration plot should be approximately linear.</p></div></aside></div>
+        </section>
+
+        <footer class="main__task-div footer">
+          <p>Copyright © SOLVE The Virtual Lab @ NITK Surathkal</p>
+        </footer>
+      </div>
+    </main>
+  </div>
+  <!-- EXPANDED OPERATING GUIDE & FAQ MODAL WINDOW -->
+  <div id="helpOverlay" class="help-overlay faq-modal-overlay" hidden aria-hidden="true">
+    <div id="helpPopover" class="help-popover faq-modal-container" role="dialog" aria-modal="true" aria-labelledby="helpTitle">
+      
+      <!-- Modal Header -->
+      <header class="faq-modal-header">
+        <div class="header-text">
+          <h2 id="helpTitle" class="faq-modal-title">Hibbert's Standard & Ballistic Constant Virtual Lab — Procedure & Operating Guide</h2>
+          <p class="faq-modal-subtitle">Select a topic from the left sidebar to view detailed operating procedures</p>
+        </div>
+        <button id="closeHelpButton" class="control-button faq-close-btn" aria-label="Close guide">&times;</button>
+      </header>
+
+      <!-- Modal Body Grid Layout -->
+      <div class="faq-modal-body">
+        
+        <!-- Left Sidebar: Question Selection List -->
+        <nav class="faq-question-sidebar" aria-label="Guide Questions">
+          <ul id="faqQuestionList" class="faq-question-list">
+            <li class="faq-q-item is-active" data-question="experiment">
+              <span class="q-number">1</span>
+              <span class="q-title">Perform the experiment</span>
+            </li>
+            <li class="faq-q-item" data-question="apparatus">
+              <span class="q-number">2</span>
+              <span class="q-title">Apparatus overview</span>
+            </li>
+            <li class="faq-q-item" data-question="resistance-box">
+              <span class="q-number">3</span>
+              <span class="q-title">Resistance box</span>
+            </li>
+            <li class="faq-q-item" data-question="hms-galvanometer">
+              <span class="q-number">4</span>
+              <span class="q-title">HMS &amp; galvanometer</span>
+            </li>
+            <li class="faq-q-item" data-question="switching">
+              <span class="q-number">5</span>
+              <span class="q-title">Switches &amp; wiring</span>
+            </li>
+            <li class="faq-q-item" data-question="graph">
+              <span class="q-number">6</span>
+              <span class="q-title">Graphs, observations &amp; results</span>
+            </li>
+            <li class="faq-q-item" data-question="mobile">
+              <span class="q-number">7</span>
+              <span class="q-title">Phone &amp; small screens</span>
+            </li>
+            <li class="faq-q-item" data-question="troubleshooting">
+              <span class="q-number">8</span>
+              <span class="q-title">Troubleshooting &amp; good practice</span>
+            </li>
+          </ul>
+        </nav>
+
+        <!-- Right Viewport: Dynamic Step-by-Step Procedure Display -->
+        <main class="faq-procedure-viewport">
+          <article id="faqProcedureContent" class="faq-procedure-card">
+            <!-- Dynamic step-by-step procedures injected via JS -->
+          </article>
+        </main>
+
+      </div>
+    </div>
+  </div>
+  <script type="module" src="js/lab-scene.js"></script>
+  <script src="js/runtime-diagnostics.js"></script>
+  <script type="module" src="js/resistance-box.js"></script>
+  <script type="module" src="js/hms-apparatus.js"></script>
+  <script type="module" src="js/ballistic-galvanometer.js"></script>
+  <script type="module" src="js/tapping-switch.js"></script>
+  <script type="module" src="js/commutator.js"></script>
+  <script type="module" src="js/ui.js"></script>
+  <script src="js/help.js"></script>
+  <script src="js/apparatus-selector.js"></script>
+  <script src="js/workspace-navigation.js"></script>
+</body>
+
+</html>

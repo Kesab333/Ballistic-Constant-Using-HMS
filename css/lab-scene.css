@@ -1,0 +1,273 @@
+#threeViewport {
+  position: relative;
+  overflow: hidden;
+  background: #f0f4f8;
+}
+
+#threeViewport .lab-canvas {
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  display: block;
+  width: 100% !important;
+  height: 100% !important;
+}
+
+#lab-ui-container .ui-item {
+  margin-bottom: .8rem;
+  color: #475569;
+  font-size: 1.1rem;
+}
+
+#lab-ui-container label {
+  display: flex;
+  align-items: center;
+  gap: .8rem;
+  cursor: pointer;
+  user-select: none;
+}
+
+/* Lab-stage grid is managed by desktop-layout.css (2-column) and
+   mobile/tablet overrides. No blanket hiding of side-panel here. */
+
+#simulation .apparatus-selector {
+  display: flex;
+  align-items: center;
+  gap: .8rem;
+  flex-wrap: wrap;
+  padding: .8rem 1.2rem;
+  border-bottom: 1px solid #d9e5e5;
+  background: #fff;
+}
+
+#simulation .apparatus-selector__label {
+  margin-right: .4rem;
+  color: #475569;
+  font-size: 1.25rem;
+  font-weight: 700;
+}
+
+#simulation .apparatus-option {
+  padding: .55rem 1rem;
+  border: 1px solid #a9c7c4;
+  border-radius: .45rem;
+  background: #f7fbfb;
+  color: #176c67;
+  cursor: pointer;
+  font: inherit;
+  font-size: 1.2rem;
+  font-weight: 700;
+}
+
+#simulation .apparatus-option[aria-selected="true"] {
+  border-color: #078f87;
+  background: #089b93;
+  color: #fff;
+}
+
+#resistance-box-stage {
+  position: absolute;
+  inset: 0;
+  z-index: 4;
+  display: none;
+  overflow: hidden;
+  background: #eef0f2;
+  font-family: Inter, ui-sans-serif, system-ui, -apple-system, sans-serif;
+}
+
+#resistance-box-stage.is-active {
+  display: block;
+}
+
+#resistance-box-stage .resistance-box-canvas {
+  display: block;
+  width: 100% !important;
+  height: 100% !important;
+}
+
+#resistance-schematic {
+  position: absolute;
+  top: 20px;
+  left: 20px;
+  z-index: 10;
+}
+
+#resistance-ui h3 {
+  margin: 0 0 1.2rem;
+  color: #111;
+  font-size: 1.5rem;
+}
+
+#resistance-ui .resistance-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 1.2rem;
+  color: #444;
+  font-size: 1.3rem;
+  font-weight: 500;
+}
+
+#resistance-ui .resistance-value {
+  color: #2b5797;
+  font-size: 1.5rem;
+  font-weight: 800;
+  font-variant-numeric: tabular-nums;
+}
+
+#resistance-ui input {
+  width: 100%;
+  accent-color: #2b5797;
+  cursor: pointer;
+}
+
+#resistance-ui button {
+  width: 100%;
+  margin-top: 1rem;
+  padding: .8rem;
+  border: 1px solid #ccc;
+  border-radius: .6rem;
+  background: #f9f9f9;
+  color: #333;
+  cursor: pointer;
+  font: inherit;
+  font-weight: 600;
+}
+
+#resistance-ui button:hover {
+  background: #eee;
+}
+
+#resistance-help {
+  margin: 1rem 0 0;
+  padding-top: .8rem;
+  border-top: 1px solid #eee;
+  color: #666;
+  font-size: 1.1rem;
+  line-height: 1.4;
+}
+
+#resistance-schematic {
+  top: 2.2rem;
+  left: 2.2rem;
+  width: 22rem;
+  padding: 1.6rem;
+  border: 1px solid rgba(255, 255, 255, .1);
+  border-radius: .8rem;
+  background: rgba(15, 15, 18, .95);
+  box-shadow: 0 1rem 3rem rgba(0, 0, 0, .3);
+  color: #fff;
+  font-family: monospace;
+  font-size: 1.3rem;
+  pointer-events: none;
+}
+
+#resistance-schematic .sch-title {
+  margin-bottom: 1.2rem;
+  padding-bottom: .4rem;
+  border-bottom: 1px solid #333;
+  color: #aaa;
+  font-weight: 700;
+}
+
+#resistance-schematic .sch-node {
+  display: flex;
+  align-items: center;
+  margin: .4rem 0;
+}
+
+#resistance-schematic .sch-line {
+  margin-left: 2.4rem;
+  color: #555;
+}
+
+#resistance-schematic .sch-active {
+  color: #ff5555;
+  font-weight: 700;
+}
+
+#resistance-schematic .sch-bypassed {
+  color: #44ff44;
+}
+
+#simulationWindow.resistance-mode #lab-ui-container {
+  display: none;
+}
+
+/* =========================================================
+   Simulation layout fix
+   Prevent the controls panel from stretching the simulation
+   ========================================================= */
+
+#simulation .lab-stage {
+    display: grid !important;
+    grid-template-columns: minmax(0, 1fr) minmax(280px, 340px) !important;
+    width: 100%;
+    min-width: 0;
+    min-height: 0;
+    height: min(70vh, 720px);
+    overflow: hidden;
+    align-items: stretch;
+}
+
+#simulation .workspace-viewport,
+#simulation #simulationWindow {
+    min-width: 0 !important;
+    min-height: 0 !important;
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+}
+
+#simulation .experiment-sidepanel {
+    min-width: 0 !important;
+    min-height: 0 !important;
+    height: 100%;
+    max-height: 100%;
+    overflow-y: auto;
+    overflow-x: hidden;
+    box-sizing: border-box;
+    overscroll-behavior: contain;
+    scrollbar-gutter: stable;
+}
+
+/* Keep the 3D viewport from expanding because of controls */
+#simulation #threeViewport {
+    width: 100%;
+    height: 100%;
+    min-width: 0;
+    min-height: 0;
+    overflow: hidden;
+}
+
+/* Prevent long labels / controls from increasing grid width */
+#simulation .experiment-sidepanel *,
+#simulation .side-details,
+#simulation .card-body {
+    max-width: 100%;
+    box-sizing: border-box;
+}
+
+/* Make ranges stay inside the panel */
+#simulation .experiment-sidepanel input[type="range"] {
+    width: 100%;
+    max-width: 100%;
+}
+
+/* Slightly nicer scrollbar */
+#simulation .experiment-sidepanel::-webkit-scrollbar {
+    width: 8px;
+}
+
+#simulation .experiment-sidepanel::-webkit-scrollbar-track {
+    background: #eef3f3;
+}
+
+#simulation .experiment-sidepanel::-webkit-scrollbar-thumb {
+    background: #9ab8b5;
+    border-radius: 6px;
+}
+
+#simulation .experiment-sidepanel::-webkit-scrollbar-thumb:hover {
+    background: #6f9995;
+}

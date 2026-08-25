@@ -1,0 +1,85 @@
+#tapping-switch-stage {
+  margin: 0;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  background: #e9e9e9;
+  font-family: Arial, sans-serif;
+  user-select: none;
+  position: relative;
+}
+
+#tapping-switch-stage canvas {
+  display: block;
+  width: 100% !important;
+  height: 100% !important;
+}
+
+#tapping-switch-info {
+  display: none !important;
+}
+
+#tapping-switch-control-panel .status-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 14px;
+  font-weight: bold;
+  font-size: 1.15rem;
+  color: #334155;
+}
+
+#tapping-switch-control-panel .status-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: #f1f5f9;
+  padding: 4px 10px;
+  border-radius: 6px;
+  border: 1px solid #cbd5e1;
+}
+
+#tapping-switch-control-panel .status-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background-color: #d9534f;
+  box-shadow: 0 0 6px #d9534f;
+  transition: background-color 0.2s, box-shadow 0.2s;
+}
+
+#tapping-switch-control-panel .status-dot.active {
+  background-color: #28a745;
+  box-shadow: 0 0 8px #28a745;
+}
+
+#tapping-switch-control-panel .control-btn {
+  width: 100%;
+  padding: 0.8rem 1rem;
+  margin-top: 0.75rem;
+  border-radius: 0.5rem;
+  cursor: pointer;
+  font-weight: 700;
+  font-size: 1.1rem;
+  transition: all 0.15s ease;
+}
+
+#tapping-switch-control-panel .control-btn.primary {
+  background: #089b93;
+  color: white;
+  border: none;
+}
+
+#tapping-switch-control-panel .control-btn.primary:hover {
+  background: #056e68;
+}
+
+#tapping-switch-control-panel .control-btn.secondary {
+  background: #e2e8f0;
+  color: #1e293b;
+  border: 1px solid #cbd5e1;
+}
+
+#tapping-switch-control-panel .control-btn.secondary:hover {
+  background: #cbd5e1;
+}

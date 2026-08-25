@@ -1,0 +1,79 @@
+#hms-stage {
+  --bg: #f9f9fa9c;
+  --accent: #089b93;
+  margin: 0;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  background: var(--bg);
+  font-family: Inter, Segoe UI, Arial, sans-serif;
+  position: relative;
+}
+
+#hms-stage #hms-app {
+  position: absolute;
+  inset: 0;
+  width: 100% !important;
+  height: 100% !important;
+}
+
+#hms-hud .kv {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 6px 10px;
+  font-size: 1.1rem;
+  margin-top: 10px;
+  border-top: 1px solid #e2e8f0;
+  padding-top: 10px;
+  color: #475569;
+}
+
+#hms-hud .kv div:nth-child(even) {
+  color: #087d76;
+  font-variant-numeric: tabular-nums;
+  font-weight: 700;
+}
+
+#hms-legend {
+  position: absolute;
+  right: 16px;
+  top: 60px;
+  z-index: 10;
+  background: transparent;
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.4);
+  border-radius: 12px;
+  padding: 10px 14px;
+  color: #202833;
+  font-size: 11px;
+  line-height: 1.55;
+  box-shadow: 0 10px 28px rgba(0, 0, 0, 0.08);
+}
+
+#hms-legend .sw {
+  display: inline-block;
+  width: 10px;
+  height: 10px;
+  border-radius: 2px;
+  margin-right: 6px;
+  vertical-align: -1px;
+}
+
+#hms-tip {
+  position: absolute;
+  left: 50%;
+  bottom: 16px;
+  transform: translateX(-50%);
+  z-index: 4;
+  background: transparent;
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.4);
+  color: #010911;
+  padding: 8px 14px;
+  border-radius: 999px;
+  font-size: 11px;
+  pointer-events: none;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+}

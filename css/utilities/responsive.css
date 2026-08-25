@@ -1,0 +1,137 @@
+/* ---- Media Query Breakpoints ---- */
+@media (max-width: 760px) {
+  body {
+    width: 100%;
+  }
+
+  .title-div {
+    gap: 1rem;
+  }
+
+  .logo-div {
+    flex-basis: 5.5rem;
+  }
+
+  .container {
+    padding: .5rem;
+  }
+
+  .sidebar {
+    align-self: stretch;
+    padding: .8rem .45rem;
+  }
+
+  .tool-menu {
+    gap: 1rem;
+  }
+
+  .tool-icon {
+    font-size: 2.3rem;
+  }
+
+  .tool-link,
+  .rail-button {
+    width: 3.5rem;
+    height: 3.5rem;
+  }
+
+  .tool-list span:last-child {
+    font-size: 1.05rem;
+  }
+
+  .main-section {
+    grid-template-columns: 1fr;
+  }
+
+  .lab-stage {
+    grid-template-columns: 1fr;
+    min-height: 27rem;
+  }
+
+  .meter-panel {
+    position: static;
+    width: auto;
+    max-width: 22rem;
+    margin: 0 1.6rem 1.6rem;
+  }
+
+  .lab-stage canvas {
+    min-height: 27rem;
+    height: 27rem;
+  }
+
+  .three-viewport {
+    height: 27rem;
+    min-height: 27rem;
+  }
+
+  #workspaceViewport {
+    height: 27rem;
+    min-height: 27rem;
+  }
+
+  #workspaceViewport > .apparatus-wrap > canvas {
+    height: 27rem;
+    min-height: 27rem;
+  }
+
+  .simulation-toolbar {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  .experiment-sidepanel {
+    border-top: 1px solid #d2e1e0;
+    border-left: 0;
+  }
+
+  .variables-sections,
+  .graph-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .side-details .variables-sections {
+    grid-template-columns: 1fr;
+  }
+
+  .readout-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .readout-grid p:nth-child(odd) {
+    margin-right: 0;
+  }
+
+  .reference-card {
+    grid-column: 1/-1;
+  }
+
+  .section-list {
+    grid-template-columns: 1fr;
+  }
+
+  .formula-display-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 440px) {
+  .title-div h1 { font-size: 1.65rem; }
+  .title-div { padding: .5rem; }
+  .logo-div { flex-basis: 4.5rem; }
+  .container { gap: .3rem; }
+  .sidebar { padding: .5rem; }
+  .tool-list span:last-child { display: none; }
+  .tool-menu { gap: 1.6rem; }
+  .button-group { flex-wrap: wrap; }
+  .control-button { padding: .45rem .85rem; }
+
+  .lab-stage canvas,
+  .three-viewport,
+  #workspaceViewport,
+  #workspaceViewport > .apparatus-wrap > canvas,
+  .lab-stage {
+    min-height: 19rem;
+    height: 19rem;
+  }
+}

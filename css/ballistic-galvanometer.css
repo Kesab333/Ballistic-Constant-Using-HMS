@@ -1,0 +1,256 @@
+#ballistic-galvanometer-stage {
+  margin: 0;
+  padding: 0;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  background: #fff;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  color: #1f2937;
+  user-select: none;
+  position: relative;
+}
+
+#ballistic-galvanometer-stage #ballistic-galvanometer-canvas-container {
+  width: 100% !important;
+  height: 100% !important;
+  display: block;
+}
+
+/* Accordion styles for ballistic galvanometer controls */
+.bg-accordion-group {
+  border: 1px solid #cbd5e1;
+  border-radius: 6px;
+  margin-bottom: 8px;
+  background: #f8fafc;
+  overflow: hidden;
+}
+
+.accordion-header {
+  padding: 10px 12px;
+  font-size: 13px;
+  font-weight: 600;
+  color: #1e293b;
+  background: #e2e8f0;
+  cursor: pointer;
+  list-style: none;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  user-select: none;
+}
+
+.accordion-header::-webkit-details-marker {
+  display: none;
+}
+
+.accordion-header::after {
+  content: "▲";
+  font-size: 9px;
+  transform: rotate(180deg);
+  transition: transform 0.2s ease;
+}
+
+details[open] .accordion-header::after {
+  transform: rotate(0deg);
+}
+
+.accordion-body {
+  padding: 10px 12px;
+  background: #ffffff;
+  box-sizing: border-box;
+  width: 100%;
+}
+
+/* Restrain inner containers from pushing beyond outer borders */
+.card-body {
+  box-sizing: border-box;
+  width: 100%;
+}
+
+/* Perfect alignment row-by-row */
+.var-div {
+  margin-bottom: 12px;
+}
+
+/* Restrict all range sliders to 100% width of the parent container */
+.var-div input[type="range"] {
+  width: 100%;
+  box-sizing: border-box;
+  display: block;
+  margin-top: 4px;
+}
+
+/* Header row with label and input+unit */
+.var-header-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  margin-bottom: 6px;
+}
+
+.var-header-row label {
+  font-size: 13px;
+  font-weight: 600;
+  color: #334155;
+  margin: 0;
+  white-space: nowrap;
+  flex: 1;
+}
+
+/* Input with unit label container */
+.input-with-unit {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  flex-shrink: 0;
+}
+
+.input-with-unit input[type="number"] {
+  width: 72px;
+  height: 28px;
+  padding: 2px 2px 2px 6px;
+  font-size: 13px;
+  font-weight: 600;
+  text-align: left;
+  border: 1px solid #0d9488;
+  border-radius: 5px;
+  background-color: #f0fdfa;
+  color: #0f766e;
+  box-sizing: border-box;
+  outline: none;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+  -moz-appearance: number-input;
+  appearance: number-input;
+}
+
+/* Re-enable native stepper spin buttons inside number inputs */
+.input-with-unit input[type="number"]::-webkit-inner-spin-button,
+.input-with-unit input[type="number"]::-webkit-outer-spin-button {
+  -webkit-appearance: inner-spin-button !important;
+  appearance: inner-spin-button !important;
+  opacity: 1 !important;
+  display: block !important;
+  cursor: pointer;
+  height: 22px;
+}
+
+.input-with-unit input[type="number"]:focus {
+  border-color: #0f766e;
+  box-shadow: 0 0 0 3px rgba(13, 148, 136, 0.15);
+}
+
+/* Fixed width on unit label ensures all input boxes align straight vertically */
+.input-with-unit .unit-label {
+  font-size: 13px;
+  font-weight: 700;
+  color: #0d9488;
+  width: 16px;
+  text-align: left;
+}
+
+/* Ensure action buttons wrap cleanly inside the card width */
+.control-btn {
+  width: 100%;
+  max-width: 100%;
+  box-sizing: border-box;
+  margin-top: 10px;
+  display: block;
+}
+
+#ballistic-galvanometer-ui-panel .knob-wrapper {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  margin: 12px 0 8px 0;
+  position: relative;
+}
+
+#ballistic-galvanometer-ui-panel .knob-ticks-container {
+  position: relative;
+  width: 130px;
+  height: 130px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+#ballistic-galvanometer-ui-panel .tick-mark {
+  position: absolute;
+  width: 2px;
+  height: 10px;
+  background-color: #98a2b3;
+  border-radius: 1px;
+  transform-origin: center 54px;
+}
+
+#ballistic-galvanometer-ui-panel .rotary-knob {
+  width: 88px;
+  height: 88px;
+  border-radius: 50%;
+  position: absolute;
+  cursor: grab;
+  touch-action: none;
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.4), inset 0 2px 3px rgba(255, 255, 255, 0.4);
+  background: radial-gradient(circle at 35% 35%, #e2e8f0 0%, #94a3b8 50%, #475569 100%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: box-shadow 0.2s ease;
+}
+
+#ballistic-galvanometer-ui-panel .rotary-knob:active {
+  cursor: grabbing;
+  box-shadow: 0 3px 8px rgba(0, 0, 0, 0.6), inset 0 2px 3px rgba(255, 255, 255, 0.3);
+}
+
+#ballistic-galvanometer-ui-panel .knob-inner-ring {
+  width: 74px;
+  height: 74px;
+  border-radius: 50%;
+  background: repeating-conic-gradient(#272a30 0deg 3deg, #181a1e 3deg 6deg);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: inset 0 2px 6px rgba(0, 0, 0, 0.8);
+}
+
+#ballistic-galvanometer-ui-panel .knob-cap {
+  width: 62px;
+  height: 62px;
+  border-radius: 50%;
+  background: radial-gradient(circle at 40% 40%, #323741 0%, #17191d 80%);
+  position: relative;
+  box-shadow: inset 0 1px 2px rgba(255, 255, 255, 0.15), 0 2px 4px rgba(0, 0, 0, 0.5);
+}
+
+#ballistic-galvanometer-ui-panel .knob-indicator {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 26px;
+  height: 3px;
+  background: #fff;
+  border-radius: 2px;
+  transform-origin: 0% 50%;
+  transform: translateY(-50%);
+  box-shadow: 0 0 4px rgba(255, 255, 255, 0.8);
+}
+
+#ballistic-galvanometer-instructions {
+  position: absolute;
+  bottom: 20px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: rgba(255, 255, 255, 0.9);
+  padding: 8px 18px;
+  border-radius: 20px;
+  font-size: 0.82rem;
+  color: #374151;
+  pointer-events: none;
+  border: 1px solid rgba(0, 0, 0, 0.1);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+  z-index: 5;
+}

@@ -1,0 +1,92 @@
+/* ---- Graphs Card Wrapper ---- */
+.graphs-card {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  max-height: 16rem; /* Lock max height so it only compresses at bottom */
+  min-height: 0;
+  overflow: hidden;
+  transition: max-height 0.3s ease;
+}
+
+.graphs-card.is-hidden {
+  display: none;
+}
+
+/* ---- Graph Layout Container ---- */
+.graph-grid {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  gap: 0.5rem; /* Compact gap to maximize canvas height */
+  padding: 0.5rem;
+  min-height: 0; /* Crucial: allows flex children to shrink to fit screen */
+  overflow: hidden;
+}
+
+.graph-grid figure {
+  display: flex;
+  flex-direction: column;
+  flex: 1; /* Ensures both top & bottom graphs share height 50/50 */
+  min-width: 0;
+  min-height: 0; /* Prevents canvas from forcing expansion off-screen */
+  margin: 0;
+}
+
+.graph-grid figcaption {
+  padding-bottom: .25rem;
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: #454b4b;
+}
+
+.graph-unit {
+  color: #087d76;
+}
+
+/* ---- Canvases Responsive Fitting ---- */
+.graph-grid canvas {
+  width: 100% !important;
+  height: 100% !important;
+  max-height: 18rem; /* Keeps graph canvas strictly inside bottom bounds */
+  flex: 1;
+  min-height: 0;
+  border: 1px solid #d1dddd;
+  border-radius: 0.35rem;
+  background: #fff;
+}
+
+/* Removed hardcoded 28rem & 12rem heights that broke vertical space */
+.graph-grid figure:first-child canvas,
+.graph-grid figure:last-child canvas {
+  height: 100% !important;
+}
+
+/* ---- Live Graphs Master Container Overrides ---- */
+#graphs {
+  display: flex !important;
+  flex-direction: column !important;
+  width: 100% !important;
+  height: 100% !important;
+  gap: 0.75rem !important;
+  box-sizing: border-box !important;
+  min-height: 0 !important;
+}
+
+#graphs > div,
+#graphs .reference-card,
+#graphs .graphs-card,
+#graphs .graph-card {
+  flex: 1 1 0% !important;
+  width: 100% !important;
+  min-height: 0 !important;
+  display: flex !important;
+  flex-direction: column !important;
+}
+
+#graphs canvas {
+  width: 100% !important;
+  height: 100% !important;
+  flex: 1 !important;
+  min-height: 0 !important;
+}
