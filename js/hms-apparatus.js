@@ -423,6 +423,7 @@ const rPin2 = addCyl(leverGroup, 0.014, contactPinLength, [prongCenter + 0.03, 0
 rPin2.rotation.x = Math.PI / 2;
 
 const handleMesh = addSphere(leverGroup, 0.09, [armEnd + 0.05, 0, 0], mats.ebonite);
+handleMesh.name = 'hms-handle';
 const handleTrim = addCyl(leverGroup, 0.04, 0.04, [armEnd, 0, 0], mats.brass);
 handleTrim.rotation.z = Math.PI / 2;
 
@@ -558,6 +559,22 @@ let autoLeverCycle = false;
 let autoNextActionAt = 0;
 const GRAVITY = 8.5; 
 const EM_DAMPING = 5.0; 
+const laboratoryModelMirrors = new Set();
+
+function syncLaboratoryModels() {
+  const copyChildren = (source, target) => {
+    source.children.forEach((sourceChild, index) => {
+      const targetChild = target.children[index];
+      if (!targetChild) return;
+      targetChild.position.copy(sourceChild.position);
+      targetChild.quaternion.copy(sourceChild.quaternion);
+      targetChild.scale.copy(sourceChild.scale);
+      targetChild.visible = sourceChild.visible;
+      copyChildren(sourceChild, targetChild);
+    });
+  };
+  laboratoryModelMirrors.forEach(model => copyChildren(root, model));
+}
 
 function updateAutoControlButtons() {
 
@@ -603,6 +620,8 @@ coilPosSlider.oninput = e => {
 
 function updateStateText() {
   const norm = (coilAnchor.position.y - MIN_COIL_Y) / (MAX_COIL_Y - MIN_COIL_Y);
+  const labLeverButton = document.getElementById('lab-hms-drop');
+  if (labLeverButton) labLeverButton.textContent = norm >= 0.98 ? 'Drop' : 'Raise Coil';
   if (isDragging) {
     physicsReadout.textContent = "Pointer Drag (Manual)";
     stateReadout.textContent = `Dragging Lever (${(norm * 100).toFixed(0)}%)`;
@@ -634,14 +653,8 @@ function pullUp() {
 function release({ externalSwitch = false } = {}) {
   if (!externalSwitch && ballisticExperiment.controlSource !== 'HMS') return;
   if (!externalSwitch && !ballisticExperiment.circuitClosed) {
-    autoLeverCycle = false;
-    autoNextActionAt = 0;
-    updateAutoControlButtons();
-    physicsReadout.textContent = 'No throw: close the tapping switch after Auto Connect.';
-    stateReadout.textContent = 'Circuit open — coil held at raised position';
-    return;
+    physicsReadout.textContent = 'Circuit open — coil will drop without an induced throw';
   }
-  if (coilAnchor.position.y < MAX_COIL_Y - 0.003) return;
   animating = true;
   isFreeFalling = false;
   leverMotionState = 'MOVING_DOWN';
@@ -875,6 +888,7 @@ function animate() {
     maxPosition: MAX_COIL_Y,
     motionState: leverMotionState
   });
+  syncLaboratoryModels();
   
   controls.update();
   renderer.render(scene, camera);
@@ -936,15 +950,18 @@ window.hmsControl = {
   raiseCoil: pullUp,
   dropCoil: release,
   toggleLever() {
-    if (coilAnchor.position.y >= MAX_COIL_Y - 0.003) release();
+    const isRaised = targetY >= MAX_COIL_Y - 0.003;
+    if (isRaised) release();
     else pullUp();
+    return isRaised ? 'Drop' : 'Raise Coil';
   },
+  getLeverAction: () => coilAnchor.position.y >= MAX_COIL_Y - 0.003 ? 'Drop' : 'Raise Coil',
   getCoilPosition: () => coilAnchor.position.y
 };
 window.addEventListener('ballistic:external-switch-event', () => release({ externalSwitch: true }));
 
 export const getModel = () => {
-  const pivot = new THREE.Group();
-  pivot.add(root);
-  return pivot;
+  const model = root.clone(true);
+  laboratoryModelMirrors.add(model);
+  return model;
 };

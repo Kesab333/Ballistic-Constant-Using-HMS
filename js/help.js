@@ -2,19 +2,20 @@
   const guides = {
     experiment: {
       title: 'How to perform the experiment',
-      subtitle: 'Follow this order for every valid first-throw observation.',
+      subtitle: 'Follow the complete HMS procedure: two throws per direction, then repeat for new resistance settings.',
       steps: [
         ['Start in Laboratory view', 'Open Simulation and select Laboratory. Confirm that the room light is on and that the apparatus can be seen clearly.'],
-        ['Prepare the resistance box', 'Choose an initial resistance. Start with a moderate value, then use a different value for the next observation; the calibration graph needs at least two distinct resistance settings.'],
+        ['Prepare the resistance box', 'Begin with the protective high setting of 5 kΩ. Keep the number of HMS turns fixed for the complete set of observations.'],
         ['Make the circuit', 'Use Auto Connect for a guided ready-to-use circuit, or use Manual Connect to join every required terminal. The circuit route is HMS → resistance box → commutator → tapping switch → ballistic galvanometer → commutator.'],
         ['Arm the circuit', 'Close the tapping switch. The status message must say that the circuit is armed before a valid observation can be taken.'],
         ['Raise the HMS coil fully', 'Move the HMS coil all the way to its upper position and let it settle. Raising it fully establishes the known magnetic-flux transition.'],
         ['Release once', 'Release the coil and do not change resistance or switches while it is moving. The induced charge gives the galvanometer a first throw.'],
-        ['Read the first maximum', 'Wait for the first maximum deflection of the reflected spot. The simulation records spot displacement, first throw θ₁, damping-corrected throw θ₀, and charge Q.'],
-        ['Wait for zero and repeat', 'Wait until the galvanometer returns near zero. Change only the resistance-box setting, raise the coil fully again, and repeat. Two or more valid observations at different R values are required for a useful calibration plot.'],
-        ['Review the result', 'Use Observation to inspect the table, Graph for the calibration line, and Results for the ballistic constant. If a trial is invalid, correct the setup and repeat instead of using that reading.']
+        ['Read θ₁ and θ₃', 'Read the first maximum θ₁, then allow two more extrema so the later same-side maximum θ₃ is recorded. The lab calculates θ = θ₁(θ₁/θ₃)^(1/4).'],
+        ['Reverse and repeat', 'After the spot returns to zero, operate the commutator, raise the HMS coil again, and record θ₁ and θ₃ on the opposite side at the same resistance. The table then takes the mean corrected throw.'],
+        ['Change resistance', 'Choose the next separated resistance (for example 6 kΩ), then repeat both directions. Complete at least two resistance settings.'],
+        ['Review the result', 'Use Observation to inspect the corrected mean throws. Results reports K from all available resistance pairs and their arithmetic mean.']
       ],
-      tip: 'Do not release the HMS coil before it is fully raised. That produces an unknown flux change and the observation is not valid.'
+      tip: 'Do not change R or commutator position during a throw. Always wait for the spot to return to zero before the next release.'
     },
     apparatus: {
       title: 'Apparatus available in this simulation',
@@ -35,7 +36,7 @@
       steps: [
         ['Select Resistance Box', 'Open it from the apparatus toolbar in Simulation.'],
         ['Set a value', 'Use the available controls to choose a positive resistance. The live value appears in Calculation and is stored with every trial.'],
-        ['Take one complete observation', 'With the circuit armed and HMS raised, release the coil and allow the galvanometer to return to zero.'],
+        ['Take one complete observation', 'With the circuit armed and HMS raised, release the coil, wait for θ₁ and θ₃, then reverse the commutator and repeat before changing R.'],
         ['Change R before the next trial', 'Use a clearly different resistance. Repeating the same value does not provide the spread needed for the graph.'],
         ['Check the effect', 'A larger total resistance produces a smaller charge and a smaller first throw. Compare the stored rows in Observation.']
       ],
@@ -47,11 +48,11 @@
       steps: [
         ['HMS: raise completely', 'Use the HMS control to bring the coil to the fully raised position. The experiment accepts only this known starting position.'],
         ['HMS: release cleanly', 'Release the coil once. The downward motion changes the linked flux and induces emf in the closed circuit.'],
-        ['Galvanometer: observe the first throw', 'Watch the reflected spot and identify the first maximum displacement. The first peak, not a later oscillation, is used.'],
+        ['Galvanometer: observe θ₁ and θ₃', 'Watch the reflected spot at the first maximum and the later third maximum. Both magnitudes are used for the damping correction.'],
         ['Optical alignment', 'If the spot reading is unavailable, align the optical observation before repeating the trial. A valid spot reading is required for the table.'],
         ['Let it settle', 'Wait until the spot returns close to zero before starting another throw. Starting early contaminates the next reading.']
       ],
-      tip: 'The calculation uses the damping-corrected first throw θ₀, derived from the measured first throw θ₁.'
+      tip: 'The calculation uses θ = θ₁(θ₁/θ₃)^(1/4), then averages the corrected readings from the two directions.'
     },
     switching: {
       title: 'Switches, commutator, and wiring',
@@ -69,11 +70,11 @@
       title: 'Graphs, observations, calculations, and results',
       subtitle: 'Use these views after completing valid trials.',
       steps: [
-        ['Observation', 'The automatic table stores trial number, resistance R, spot displacement, θ₁, corrected θ₀, and charge Q. You can also record manual readings separately.'],
-        ['Calibration graph', 'The upper graph plots 1/θ₀ against R. It remains blank until valid observations exist and is most useful after two or more different R values are recorded.'],
+        ['Observation', 'The automatic table stores R and the left/right θ₁, θ₃, and corrected throws. A row is complete only after the commutator has been reversed.'],
+        ['Calibration graph', 'The upper graph plots 1/θ against R after complete readings are available for two or more resistance settings.'],
         ['Trajectory graph', 'The lower graph shows only the galvanometer’s motion during an actual throw. It is blank while the experiment is idle.'],
         ['Calculation', 'Check the live constants, total resistance, charge, and computed ballistic constant. Change instrument constants only when intentionally modelling a different instrument.'],
-        ['Results', 'Use the final ballistic constant only after valid observations. A roughly straight calibration relation is a useful quality check.']
+        ['Results', 'Use the mean ballistic constant only after complete readings at two or more resistance settings. A roughly straight calibration relation is a useful quality check.']
       ],
       tip: 'If the calibration points do not behave consistently, repeat the observation after the galvanometer settles and confirm that R was changed between trials.'
     },
@@ -96,7 +97,7 @@
         ['Circuit remains open', 'Use Auto Connect or inspect the manual route. Then close the tapping switch and look for the armed status.'],
         ['No valid throw', 'Raise the HMS coil fully, wait for it to settle, then release it. Check that the galvanometer has returned to zero before trying again.'],
         ['No spot reading', 'Select the ballistic galvanometer and correct the optical alignment before repeating the observation.'],
-        ['Graph is blank', 'Complete at least one valid first-throw observation. For a calibration trend, use two or more distinct resistance values.'],
+        ['Graph is blank', 'Complete both commutator directions at two or more distinct resistance values.'],
         ['Reset safely', 'Use Reset observations in Calculation only when you intend to discard the trial set and begin a new calibration.']
       ],
       tip: 'A careful two- or three-trial set at different resistance values is more useful than many rushed releases.'

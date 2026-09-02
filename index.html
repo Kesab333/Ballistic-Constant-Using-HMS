@@ -75,8 +75,8 @@
       <div class="main-section">
         <section id="simulation" class="main__task-div simulation-card">
           <div class="task-heading"><h2 id="workspaceTitle" class="task-title">Simulation</h2><div class="heading-actions">
-            <button id="helpButton" class="heading-button help-button" aria-label="Open simulation help">?</button>
-            <button id="fullscreenButton" class="heading-button" aria-label="View website fullscreen" title="Fullscreen">⛶</button>
+            <button id="helpButton" class="heading-button help-button section-help-button" aria-label="Open simulation help">?</button>
+            <button id="fullscreenButton" class="heading-button section-fullscreen-button" aria-label="View website fullscreen" title="Fullscreen">⛶</button>
           </div></div>
           
           <section class="apparatus-selector" aria-label="Laboratory apparatus">
@@ -147,7 +147,6 @@
 
                 <section id="commutator-stage" class="apparatus-stage" aria-label="Interactive commutator">
                   <div id="commutator-canvas-container" style="width:100%;height:100%;"></div>
-                  <div id="commutator-instructions" style="position:absolute;bottom:12px;left:50%;transform:translateX(-50%);background:rgba(255,255,255,0.85);padding:7px 18px;border-radius:20px;font-size:13px;color:#334155;pointer-events:none;">Drag to orbit · Scroll to zoom</div>
                 </section>
 
                 <output id="apparatus-runtime-error" hidden aria-live="assertive"></output>
@@ -181,35 +180,21 @@
                         min="0"
                         max="210"
                         step="1"
-                        value="0"
+                        value="5"
                       />
-                      <span class="unit-label">Ω</span>
+                      <span class="unit-label">kΩ</span>
                     </div>
                   </div>
 
-                  <!-- HMS Auto Control -->
                   <div class="lab-control-block">
-                    <label>Auto Control</label>
-
-                    <button
-                      id="lab-hms-auto"
-                      class="control-btn primary"
-                      type="button"
-                    >
-                      Auto Lever Up–Down
-                    </button>
+                    <label>HMS lever control</label>
+                    <button id="lab-hms-drop" class="control-btn secondary" type="button">Raise Coil</button>
                   </div>
 
-                  <!-- HMS Manual Control -->
+                  <!-- Commutator operation -->
                   <div class="lab-control-block">
-                    <label for="lab-hms-manual">Manual Control</label>
-
-                    <input
-                      type="range"
-                      id="lab-hms-manual"
-                      class="template-range"
-                      step="0.002"
-                    />
+                    <label>Commutator</label>
+                    <button id="lab-commutator-toggle" class="control-btn primary" type="button">Switch Polarity</button>
                   </div>
 
                   <!-- Tapping Switch -->
@@ -249,15 +234,15 @@
                   <div class="ui-row">
                     <label for="res-input">Resistance Box Setting:</label>
                     <div class="input-with-unit">
-                      <input type="number" id="res-input" min="0" max="210" step="1" value="0" />
-                      <span class="unit-label">Ω</span>
+                      <input type="number" id="res-input" min="0" max="210" step="1" value="5" />
+                      <span class="unit-label">kΩ</span>
                     </div>
                   </div>
 
                   <!-- Keys Required Display -->
                   <div class="ui-row-vertical">
                     <label>Keys to Open:</label>
-                    <div id="keys-detail" class="keys-detail-box">None (0 Ω)</div>
+                    <div id="keys-detail" class="keys-detail-box">None (0 kΩ)</div>
                   </div>
 
                   <!-- Casing Opacity Stepper + Slider -->
@@ -291,7 +276,6 @@
                     <button id="hms-release">Drop Coil</button>
                     <button id="hms-field">Toggle B-field</button>
                   </div>
-                  <button id="hms-autoCycle" class="control-btn primary" type="button">Auto Lever Up–Down</button>
                   <div class="var-div">
                     <div class="var-header-row"><label for="hms-coilPosSlider">Coil Position</label></div>
                     <input type="range" id="hms-coilPosSlider" step=".002">
@@ -461,9 +445,9 @@
                   <button type="button" class="apparatus-close-btn" aria-label="Close apparatus controls" hidden>×</button>
                 </div>
                 <div class="card-body">
-                  <p class="apparatus-info-text">
-                    Commutator control panel.
-                  </p>
+                  <p class="apparatus-info-text">Reverse the current direction by moving the rocker arm between the two polarity positions.</p>
+                  <button id="btn-toggle" class="control-btn primary" type="button">Switch Polarity</button>
+                  <p id="status-label" class="commutator-status">Position: Polarity A (+ / -)</p>
                 </div>
               </div>
 
@@ -472,21 +456,21 @@
         </section>
 
         <section id="graphs" class="main__task-div reference-card">
-          <div class="task-heading"><h2 class="task-title">Graph</h2></div>
+          <div class="task-heading"><h2 class="task-title">Graph</h2><div class="heading-actions"><button class="heading-button help-button section-help-button" aria-label="Open graph help">?</button><button class="heading-button section-fullscreen-button" aria-label="View graph fullscreen" title="Fullscreen">⛶</button></div></div>
           <div class="workspace-layout">
             <div class="workspace-primary graph-panel">
-              <figure class="graph-figure"><figcaption>Calibration plot <span data-latex="\frac{1}{\theta_0}\text{ vs. }R"></span></figcaption><canvas id="ballisticCalibrationGraph" class="graph-canvas" width="760" height="300" aria-label="Ballistic calibration graph"></canvas></figure>
+              <figure class="graph-figure"><figcaption>Calibration check <span data-latex="\frac{1}{\theta}\text{ vs. }R"></span></figcaption><canvas id="ballisticCalibrationGraph" class="graph-canvas" width="760" height="300" aria-label="Ballistic calibration graph"></canvas></figure>
               <figure class="graph-figure"><figcaption>Live galvanometer trajectory <span data-latex="\theta\text{ vs. }t"></span></figcaption><canvas id="ballisticTrajectoryGraph" class="graph-canvas" width="760" height="300" aria-label="Ballistic trajectory graph"></canvas></figure>
             </div>
             <aside class="workspace-aside">
-              <div class="info-card"><span class="info-eyebrow">Calibration relation</span><div class="sidebar-equation" data-latex="\frac{1}{\theta_0}=\frac{K_q}{n\Phi}(R+r_{\mathrm{HMS}}+G)"></div><p>A straight line is expected when readings at two or more resistance settings are recorded.</p></div>
-              <div class="info-card"><span class="info-eyebrow">How to read it</span><ol><li>Record valid first-throw observations.</li><li>Compare the measured points as resistance changes.</li><li>Use the slope to determine <span data-latex="K_q"></span>.</li></ol></div>
+              <div class="info-card"><span class="info-eyebrow">Calibration relation</span><div class="sidebar-equation" data-latex="\frac{1}{\theta}=\frac{K}{n\Phi}(R+r_{\mathrm{HMS}}+G)"></div><p>A straight line is expected after complete opposite-direction readings at two or more resistance settings.</p></div>
+              <div class="info-card"><span class="info-eyebrow">How to read it</span><ol><li>Record θ₁ and θ₃ in both directions.</li><li>Compare the mean corrected throws as resistance changes.</li><li>Use resistance pairs to determine <span data-latex="K"></span>.</li></ol></div>
             </aside>
           </div>
         </section>
 
         <section id="diagram" class="main__task-div reference-card">
-          <div class="task-heading"><h2 class="task-title">Diagram</h2></div>
+          <div class="task-heading"><h2 class="task-title">Diagram</h2><div class="heading-actions"><button class="heading-button help-button section-help-button" aria-label="Open diagram help">?</button><button class="heading-button section-fullscreen-button" aria-label="View diagram fullscreen" title="Fullscreen">⛶</button></div></div>
           <div class="workspace-layout">
             <div class="workspace-primary diagram-panel"><div class="workspace-toolbar"><label for="ballisticDiagramSelect">View</label><select id="ballisticDiagramSelect" class="formula-dropdown"><option value="images/ballistic-galvanometer-circuit_diagram.png">Ballistic Galvanometer Circuit</option><option value="images/HMS_Circuit_Diagram.png">Hibbert's Magnetic Standard Circuit</option><option value="images/lab_circuit_Connection.png">Complete Laboratory Connection</option></select></div><div class="diagram-figure"><img id="ballisticDiagramImage" src="images/ballistic-galvanometer-circuit_diagram.png"
             alt="Ballistic Galvanometer Circuit" /><map name="circuit-labels">
@@ -502,12 +486,12 @@
         </section>
 
         <section id="calculation" class="main__task-div reference-card">
-          <div class="task-heading"><h2 class="task-title">Calculation</h2></div>
-          <div class="workspace-layout"><div class="workspace-primary reference-content calculation-panel"></div><aside class="workspace-aside"><div class="info-card"><span class="info-eyebrow">Charge through the circuit</span><div class="sidebar-equation" data-latex="Q=\frac{n\Phi}{R+r_{\mathrm{HMS}}+G}"></div><p>Use the complete flux transition and the total circuit resistance.</p></div><div class="info-card"><span class="info-eyebrow">Calibration</span><div class="sidebar-equation" data-latex="K_q=\frac{Q}{\theta_0}"></div><p>Calculate after a valid, damping-corrected first throw has been recorded.</p></div></aside></div>
+          <div class="task-heading"><h2 class="task-title">Calculation</h2><div class="heading-actions"><button class="heading-button help-button section-help-button" aria-label="Open calculation help">?</button><button class="heading-button section-fullscreen-button" aria-label="View calculation fullscreen" title="Fullscreen">⛶</button></div></div>
+          <div class="workspace-layout"><div class="workspace-primary reference-content calculation-panel"></div><aside class="workspace-aside"><div class="info-card"><span class="info-eyebrow">Charge through the circuit</span><div class="sidebar-equation" data-latex="Q=\frac{n\Phi}{R+r_{\mathrm{HMS}}+G}"></div><p>Use the complete flux transition and the total circuit resistance.</p></div><div class="info-card"><span class="info-eyebrow">Damping correction</span><div class="sidebar-equation" data-latex="\theta=\theta_1\left(\frac{\theta_1}{\theta_3}\right)^{1/4}"></div><p>Use θ₁ and θ₃ from both commutator directions before calculating the mean ballistic constant.</p></div></aside></div>
         </section>
 
         <section id="formula" class="main__task-div reference-card">
-          <div class="task-heading"><h2 class="task-title">Formula</h2></div>
+          <div class="task-heading"><h2 class="task-title">Formula</h2><div class="heading-actions"><button class="heading-button help-button section-help-button" aria-label="Open formula help">?</button><button class="heading-button section-fullscreen-button" aria-label="View formula fullscreen" title="Fullscreen">⛶</button></div></div>
           <div class="workspace-layout"><div class="workspace-primary formula-workspace">
             <div class="formula-selector-card">
               <label for="formulaSelect">Select Formula:</label>
@@ -535,46 +519,44 @@
         </section>
 
         <section id="observation" class="main__task-div reference-card observation-card">
-          <div class="task-heading"><h2 class="task-title">Observation</h2></div>
+          <div class="task-heading"><h2 class="task-title">Observation</h2><div class="heading-actions"><button class="heading-button help-button section-help-button" aria-label="Open observation help">?</button><button class="heading-button section-fullscreen-button" aria-label="View observation fullscreen" title="Fullscreen">⛶</button></div></div>
           <div class="workspace-layout"><div class="workspace-primary reference-content observation-panel">
             <div class="observation-box"><span class="observation-heading">Observation</span>
               <p id="observationText">Ready. Select Release to start the gravity-driven oscillation.</p>
             </div>
             <div class="emf-table-wrap">
-              <p class="table-heading">Ballistic first-throw observations</p>
-              <table class="emf-table">
+              <p class="table-heading">Ballistic throw observations with damping correction</p>
+              <table class="emf-table observation-table">
                 <thead>
                   <tr>
-                    <th>Trial</th>
-                    <th>R (ohm)</th>
-                    <th>Spot (cm)</th>
-                    <th>theta1 (rad)</th>
-                    <th>theta0 (rad)</th>
-                    <th>Q (C)</th>
+                    <th rowspan="2">Trial<br>no.</th>
+                    <th rowspan="2">Resistance<br>in kΩ</th>
+                    <th colspan="3">Left</th>
+                    <th colspan="3">Right</th>
+                    <th rowspan="2">Mean corrected<br>throw in cm</th>
+                    <th rowspan="2"><span class="table-latex" data-latex="Q/\theta\;(\mathrm{C/cm})"></span></th>
+                  </tr>
+                  <tr>
+                    <th><span class="table-latex" data-latex="\theta_1"></span></th>
+                    <th><span class="table-latex" data-latex="\theta_3"></span></th>
+                    <th>Corrected throw</th>
+                    <th><span class="table-latex" data-latex="\theta_1"></span></th>
+                    <th><span class="table-latex" data-latex="\theta_3"></span></th>
+                    <th>Corrected throw</th>
                   </tr>
                 </thead>
                 <tbody id="emfReadings">
                   <tr>
-                    <td colspan="6">Connect the circuit, raise the HMS coil, then release it to record a first throw.</td>
+                    <td colspan="10">Set a high resistance, connect and arm the circuit, then record θ₁ and θ₃ in both commutator directions.</td>
                   </tr>
                 </tbody>
               </table>
             </div>
-            <div class="manual-observation">
-              <p class="table-heading">Manual observation record</p>
-              <form id="manualObservationForm" class="manual-observation-form">
-                <label>Resistance <span data-latex="R\;(\Omega)"></span><input id="manualResistance" type="number" min="0" step="any" required></label>
-                <label>Spot displacement (cm)<input id="manualSpot" type="number" step="any" required></label>
-                <label>First throw <span data-latex="\theta_1\;(\mathrm{rad})"></span><input id="manualTheta" type="number" step="any" required></label>
-                <button class="control-btn secondary" type="submit">Add manual reading</button>
-              </form>
-              <div class="emf-table-wrap"><table class="emf-table manual-table"><thead><tr><th>Reading</th><th><span data-latex="R\;(\Omega)"></span></th><th>Spot (cm)</th><th><span data-latex="\theta_1\;(\mathrm{rad})"></span></th></tr></thead><tbody id="manualReadings"><tr><td colspan="4">No manual readings added.</td></tr></tbody></table></div>
-            </div>
-          </div><aside class="workspace-aside"><div class="info-card"><span class="info-eyebrow">Manual observation</span><ol><li>Set a resistance value and close the circuit.</li><li>Raise and release the HMS coil.</li><li>Read the first spot displacement and retain valid trials.</li></ol></div><div class="info-card"><span class="info-eyebrow">Recorded quantities</span><p><span data-latex="R"></span>, spot displacement, <span data-latex="\theta_1"></span>, damping-corrected <span data-latex="\theta_0"></span>, and <span data-latex="Q"></span> are collected in the table.</p></div></aside></div>
+          </div><aside class="workspace-aside"><div class="info-card"><span class="info-eyebrow">Operating sequence</span><ol><li>Set R and arm the circuit.</li><li>Release the raised HMS coil and wait for θ₁ and θ₃.</li><li>Reverse the commutator and repeat before changing R.</li></ol></div><div class="info-card"><span class="info-eyebrow">Recorded quantities</span><p><span data-latex="R"></span>, left/right <span data-latex="\theta_1"></span>, <span data-latex="\theta_3"></span>, and the mean damping-corrected <span data-latex="\theta"></span> are collected in the table.</p></div></aside></div>
         </section>
 
         <section id="results" class="main__task-div reference-card results-card">
-          <div class="task-heading"><h2 class="task-title">Results</h2></div>
+          <div class="task-heading"><h2 class="task-title">Results</h2><div class="heading-actions"><button class="heading-button help-button section-help-button" aria-label="Open results help">?</button><button class="heading-button section-fullscreen-button" aria-label="View results fullscreen" title="Fullscreen">⛶</button></div></div>
           <div class="workspace-layout"><div class="workspace-primary reference-content results-panel">
             <div id="ballisticResult" class="result-summary" aria-live="polite"></div>
             <div class="readout-grid">
@@ -593,7 +575,7 @@
               <strong id="heatValue">0.000 mJ</strong>
               <i class="heat-bar"><b id="heatFill"></b></i>
             </div>
-          </div><aside class="workspace-aside"><div class="info-card"><span class="info-eyebrow">Final result</span><p>The ballistic constant becomes available after valid first-throw observations have been recorded.</p><div class="sidebar-equation" data-latex="K_q=\frac{Q}{\theta_0}"></div></div><div class="info-card"><span class="info-eyebrow">Quality check</span><p>Use readings from different resistance values. The calibration plot should be approximately linear.</p></div></aside></div>
+          </div><aside class="workspace-aside"><div class="info-card"><span class="info-eyebrow">Final result</span><p>The mean ballistic constant becomes available after two complete resistance settings have been recorded.</p><div class="sidebar-equation" data-latex="K=\frac{Q}{\theta}"></div></div><div class="info-card"><span class="info-eyebrow">Quality check</span><p>Use readings from different resistance values. The corrected throw should decrease as resistance increases.</p></div></aside></div>
         </section>
 
         <footer class="main__task-div footer">
@@ -672,7 +654,7 @@
   <script type="module" src="js/hms-apparatus.js"></script>
   <script type="module" src="js/ballistic-galvanometer.js"></script>
   <script type="module" src="js/tapping-switch.js"></script>
-  <script type="module" src="js/commutator.js"></script>
+  <script type="module" src="js/reversing_key_commutator.js"></script>
   <script type="module" src="js/ui.js"></script>
   <script src="js/help.js"></script>
   <script src="js/apparatus-selector.js"></script>

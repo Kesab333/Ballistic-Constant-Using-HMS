@@ -4,7 +4,7 @@ import { getModel as getResistanceBox } from './resistance-box.js';
 import { getModel as getHMS } from './hms-apparatus.js';
 import { getModel as getGalvanometer } from './ballistic-galvanometer.js';
 import { getModel as getTappingSwitch } from './tapping-switch.js';
-import { getModel as getCommutator } from './commutator.js';
+import { getModel as getCommutator, togglePolarity as toggleCommutatorPolarity, updatePolarityAnimation, setPolarityAngle, snapPolarity } from './reversing_key_commutator.js';
 import { createWoodTexture, createTileTexture, createVentGrille } from './lab-scene-assets.js';
 import { updateAllWires, createWire, removeWire } from './terminal-utils.js';
 import { ballisticExperiment, setElectricalConnections, updateBallisticPhysics } from './physics.js';
@@ -56,19 +56,21 @@ function updateObservationMonitor(state = ballisticExperiment) {
     ctx.textAlign = 'left';
     ctx.font = 'bold 30px sans-serif';
     ctx.fillText('Latest charge', 95, 225);
-    ctx.fillText('First throw', 95, 325);
-    ctx.fillText('Ballistic constant', 95, 425);
+    ctx.fillText('First throw θ₁', 95, 325);
+    ctx.fillText('Later throw θ₃', 95, 425);
+    ctx.fillText('Ballistic constant', 95, 525);
 
     // Values
     ctx.font = '30px monospace';
     ctx.fillText(`${Number.isFinite(state.observation.charge) ? state.observation.charge.toExponential(3) : '—'} C`, 560, 225);
-    ctx.fillText(`${Number.isFinite(state.observation.liveThrow) ? state.observation.liveThrow.toFixed(5) : '—'} rad`, 560, 325);
-    ctx.fillText(c.ballisticConstant === null ? 'Awaiting two throws' : `${c.ballisticConstant.toExponential(3)} C/rad`, 560, 425);
+    ctx.fillText(`${Number.isFinite(state.galvanometer.firstThrowSpotCm) ? state.galvanometer.firstThrowSpotCm.toFixed(3) : '—'} cm`, 560, 325);
+    ctx.fillText(`${Number.isFinite(state.galvanometer.thirdThrowSpotCm) ? state.galvanometer.thirdThrowSpotCm.toFixed(3) : '—'} cm`, 560, 425);
+    ctx.fillText(c.ballisticConstant === null ? 'Awaiting two resistance settings' : `${c.ballisticConstant.toExponential(3)} C/cm`, 560, 525);
 
     // Validation message
     ctx.font = '22px sans-serif';
     ctx.textAlign = 'center';
-    ctx.fillText(state.validationMessage, 512, 570);
+    ctx.fillText(state.validationMessage, 512, 620);
 
     // Trigger texture refresh
     observationMonitorTexture.needsUpdate = true;
@@ -97,6 +99,53 @@ let isTerminalSelectionMode = false;
 
 // Active Wires Collection
 const activeWires = [];
+
+function terminalLabel(terminal) {
+    const apparatus = terminal?.userData?.apparatusId?.replaceAll('-', ' ') || 'apparatus';
+    const id = terminal?.userData?.terminalId || 'terminal';
+    return `${apparatus}: ${id}`;
+}
+
+function showLabNotification(message, type = 'info') {
+    const output = document.getElementById('apparatus-runtime-error');
+    if (!output) return;
+    output.textContent = message;
+    output.dataset.type = type;
+    output.hidden = false;
+    window.clearTimeout(showLabNotification.timeout);
+    showLabNotification.timeout = window.setTimeout(() => { output.hidden = true; }, 6500);
+}
+
+function validateManualConnection(from, to) {
+    const fromId = fullTerminalId(from);
+    const toId = fullTerminalId(to);
+    if (!fromId || !toId) return { valid: false, reason: 'A terminal could not be identified. Select the coloured binding-post terminals.', solution: 'Click a highlighted terminal on each apparatus.' };
+    if (from.userData.apparatusId === to.userData.apparatusId) {
+        return { valid: false, reason: 'Both ends are on the same apparatus, so this bypasses the rest of the experiment.', solution: 'Connect each terminal to the next apparatus in the circuit route.' };
+    }
+    const terminalConnectionLimit = terminal => terminal.userData?.apparatusId === 'tapping-switch' ? 2 : 1;
+    const terminalAtLimit = [from, to].some(terminal => {
+        const connections = activeWires.filter(wire => {
+            const start = wire.userData?.fromTerminal?.object;
+            const end = wire.userData?.toTerminal?.object;
+            return start === terminal || end === terminal;
+        }).length;
+        return connections >= terminalConnectionLimit(terminal);
+    });
+    if (terminalAtLimit) {
+        return { valid: false, reason: 'This terminal already has all of its permitted connections.', solution: 'The two tapping-switch terminals can each form a junction for two wires; all other terminals take one wire.' };
+    }
+    const apparatusPair = [from.userData.apparatusId, to.userData.apparatusId].sort().join('|');
+    const duplicatePair = activeWires.some(wire => {
+        const start = wire.userData?.fromTerminal?.object?.userData?.apparatusId;
+        const end = wire.userData?.toTerminal?.object?.userData?.apparatusId;
+        return start && end && [start, end].sort().join('|') === apparatusPair;
+    });
+    if (duplicatePair && apparatusPair !== 'commutator|tapping-switch') {
+        return { valid: false, reason: 'Both terminals would be connected only between the same two apparatus.', solution: 'Use the remaining terminal to continue to the next apparatus in the circuit.' };
+    }
+    return { valid: true };
+}
 
 // Lab Controls fullscreen state
 let labControlsOriginalParent = null;
@@ -499,15 +548,15 @@ function init() {
 
     const spotHaloGeometry =
         new THREE.CircleGeometry(
-            0.20,
+            0.32,
             48
         );
 
     const spotHaloMaterial =
         new THREE.MeshBasicMaterial({
-            color: 0xff9a3d,
+            color: 0xffc24d,
             transparent: true,
-            opacity: 0.32,
+            opacity: 0.58,
             depthTest: false,
             depthWrite: false
         });
@@ -530,15 +579,15 @@ function init() {
 
     const spotMainGeometry =
         new THREE.CircleGeometry(
-            0.135,
+            0.22,
             48
         );
 
     const spotMainMaterial =
         new THREE.MeshBasicMaterial({
-            color: 0xffa23a,
+            color: 0xffe24a,
             transparent: true,
-            opacity: 0.92,
+            opacity: 0.96,
             depthTest: false,
             depthWrite: false
         });
@@ -561,13 +610,13 @@ function init() {
 
     const spotCoreGeometry =
         new THREE.CircleGeometry(
-            0.075,
+            0.13,
             48
         );
 
     const spotCoreMaterial =
         new THREE.MeshBasicMaterial({
-            color: 0xfff7a6,
+            color: 0xffff5c,
             transparent: true,
             opacity: 1.0,
             depthTest: false,
@@ -592,13 +641,13 @@ function init() {
 
     const spotCenterGeometry =
         new THREE.CircleGeometry(
-            0.032,
+            0.055,
             32
         );
 
     const spotCenterMaterial =
         new THREE.MeshBasicMaterial({
-            color: 0xffffd8,
+            color: 0xffffcc,
             transparent: true,
             opacity: 1.0,
             depthTest: false,
@@ -1216,7 +1265,11 @@ function moveLabControlsBackToSidebar() {
 function setupUI() {
     document.querySelectorAll('.apparatus-panel:not(#lab-ui-container)').forEach(panel => {
         panel.style.display = 'none';
+        panel.dataset.apparatusOpen = 'false';
     });
+    // A refresh always starts at the laboratory, with no stale apparatus panel
+    // left open from a previous selection.
+    hideLabControls();
 
     const uiLightSwitchBtn = document.getElementById('light-toggle-btn');
     if (uiLightSwitchBtn) {
@@ -1224,15 +1277,17 @@ function setupUI() {
     }
 
     const globalFullscreenBtn = document.getElementById('fullscreenButton');
-    if (globalFullscreenBtn) {
-        globalFullscreenBtn.addEventListener('click', () => {
+    const enterWebsiteFullscreen = () => {
             if (!document.fullscreenElement) {
                 document.documentElement.requestFullscreen().catch(err => console.log(err));
             } else {
                 document.exitFullscreen();
             }
-        });
-    }
+    };
+    document.querySelectorAll('.section-fullscreen-button').forEach(button => {
+        if (button !== globalFullscreenBtn) button.addEventListener('click', enterWebsiteFullscreen);
+    });
+    if (globalFullscreenBtn) globalFullscreenBtn.addEventListener('click', enterWebsiteFullscreen);
 
     const viewportFullscreenBtn = document.getElementById('viewportFullscreenButton');
     if (viewportFullscreenBtn) {
@@ -1251,10 +1306,14 @@ function setupUI() {
     const closeHelpBtn = document.getElementById('closeHelpButton');
     
     if (helpBtn && helpOverlay) {
-        helpBtn.addEventListener('click', () => {
+        const openHelp = () => {
             helpOverlay.hidden = false;
             helpOverlay.setAttribute('aria-hidden', 'false');
+        };
+        document.querySelectorAll('.section-help-button').forEach(button => {
+            if (button !== helpBtn) button.addEventListener('click', openHelp);
         });
+        helpBtn.addEventListener('click', openHelp);
     }
     if (closeHelpBtn && helpOverlay) {
         closeHelpBtn.addEventListener('click', () => {
@@ -1307,17 +1366,8 @@ function setupUI() {
     const resistanceInput =
         document.getElementById('res-input');
 
-    const labHmsAuto =
-        document.getElementById('lab-hms-auto');
-
-    const hmsAuto =
-        document.getElementById('hms-autoCycle');
-
-    const labHmsManual =
-        document.getElementById('lab-hms-manual');
-
-    const hmsManual =
-        document.getElementById('hms-coilPosSlider');
+    const labHmsDrop = document.getElementById('lab-hms-drop');
+    const labCommutatorToggle = document.getElementById('lab-commutator-toggle');
 
     const labSwitchToggle =
         document.getElementById('lab-switch-toggle');
@@ -1352,41 +1402,18 @@ function setupUI() {
     }
 
 
-    // ------------------------------------------------------------
-    // HMS Auto Control
-    // ------------------------------------------------------------
-
-    if (labHmsAuto && hmsAuto) {
-
-        labHmsAuto.addEventListener('click', () => {
-            hmsAuto.click();
+    if (labHmsDrop) {
+        labHmsDrop.textContent = window.hmsControl?.getLeverAction?.() || 'Raise Coil';
+        labHmsDrop.addEventListener('click', () => {
+            const nextAction = window.hmsControl?.toggleLever?.();
+            if (nextAction) labHmsDrop.textContent = nextAction;
         });
-
     }
 
-
-    // ------------------------------------------------------------
-    // HMS Manual Control: Lab -> Apparatus
-    // ------------------------------------------------------------
-
-    if (labHmsManual && hmsManual) {
-
-        labHmsManual.min = hmsManual.min;
-        labHmsManual.max = hmsManual.max;
-        labHmsManual.step = hmsManual.step;
-        labHmsManual.value = hmsManual.value;
-
-        labHmsManual.addEventListener('input', () => {
-
-            hmsManual.value =
-                labHmsManual.value;
-
-            hmsManual.dispatchEvent(
-                new Event('input', { bubbles: true })
-            );
-
+    if (labCommutatorToggle) {
+        labCommutatorToggle.addEventListener('click', () => {
+            toggleCommutatorPolarity(commutator);
         });
-
     }
 
 
@@ -1401,6 +1428,16 @@ function setupUI() {
         });
 
     }
+
+    const updateLabSwitchStatus = (closed) => {
+        if (!labSwitchToggle) return;
+        labSwitchToggle.textContent = closed ? 'Turn OFF (Open)' : 'Turn ON (Close)';
+        labSwitchToggle.setAttribute('aria-pressed', String(closed));
+    };
+    updateLabSwitchStatus(false);
+    window.addEventListener('tapping-switch:change', event => {
+        updateLabSwitchStatus(Boolean(event.detail?.closed));
+    });
 
     if (labSwitchPress && switchPress) {
 
@@ -1601,6 +1638,7 @@ function handleTerminalClick(raycaster) {
             terminal.userData.highlightMesh.visible = true;
         }
 
+        showLabNotification(`Selected ${terminalLabel(terminal)}. Now select the terminal to connect.`, 'info');
         return {
             status: 'selected_first',
             anchor: terminal
@@ -1614,18 +1652,29 @@ function handleTerminalClick(raycaster) {
 
         selectedStartAnchor = null;
 
+        showLabNotification('Terminal selection cancelled. Select a terminal to start a connection.', 'info');
+
         return {
             status: 'deselected'
         };
     }
 
-    const wire = addCircuitWire(selectedStartAnchor, terminal, 0xcc2222);
+    const startTerminal = selectedStartAnchor;
+    const validation = validateManualConnection(startTerminal, terminal);
 
-    if (selectedStartAnchor.userData.highlightMesh) {
-        selectedStartAnchor.userData.highlightMesh.visible = false;
+    if (startTerminal.userData.highlightMesh) {
+        startTerminal.userData.highlightMesh.visible = false;
     }
 
     selectedStartAnchor = null;
+
+    if (!validation.valid) {
+        showLabNotification(`Wrong connection: ${validation.reason} Solution: ${validation.solution}`, 'error');
+        return { status: 'rejected', reason: validation.reason, wire: null };
+    }
+
+    const wire = addCircuitWire(startTerminal, terminal, 0xcc2222);
+    showLabNotification(`Connected ${terminalLabel(startTerminal)} to ${terminalLabel(terminal)}.`, 'success');
 
     return {
         status: 'connected',
@@ -1765,6 +1814,7 @@ function animate() {
 
     updateBallisticGalvanometerMonitor();
     updateBallisticPhysics(performance.now() / 1000);
+    updatePolarityAnimation(commutator, performance.now());
 
     // --------------------------------------------------------
     // Render main laboratory
@@ -1814,7 +1864,7 @@ function positionApparatusOnTable(model, id, point) {
         model.updateMatrixWorld(true);
 
         const scaledBox = new THREE.Box3().setFromObject(model);
-        
+
         // Lock in scale and local offset baseline
         model.userData.initialScale = scale;
         model.userData.localMinY = scaledBox.min.y;
@@ -1835,16 +1885,25 @@ function positionApparatusOnTable(model, id, point) {
 function clearAllWires() {
     activeWires.forEach(w => removeWire(w));
     activeWires.length = 0;
+    if (selectedStartAnchor?.userData?.highlightMesh) selectedStartAnchor.userData.highlightMesh.visible = false;
+    selectedStartAnchor = null;
     syncElectricalConnections();
+    showLabNotification('All wires cleared. Manual Connect is ready for a new circuit.', 'info');
 }
 
 const circuitConnections = [
+    // 1. HMS to Resistance Box and Commutator Input
     { from: 'hms_HMS_TO_COMM', to: 'commutator_C_NAVY_BLUE', color: 0x000080 },
-    { from: 'hms_HMS_TO_RB', to: 'resistance-box_RB_HMS_BLACK', color: 0x111111 },
+    { from: 'hms_HMS_TO_RB', to: 'resistance-box_RB_HMS_BLACK', color: "green" },
     { from: 'resistance-box_RB_ORANGE', to: 'commutator_C_ORANGE', color: 0xffa500 },
+
+    // 2. Commutator Output -> Tapping Switch Terminals (First pair at SW)
     { from: 'commutator_C_RED', to: 'tapping-switch_SW_RED', color: 0xff0000 },
-    { from: 'tapping-switch_SW_BLACK', to: 'ballistic-galvanometer_BG_RED', color: 0xff0000 },
-    { from: 'ballistic-galvanometer_BG_BLACK', to: 'commutator_C_SKY_BLUE', color: 0x00bfff }
+    { from: 'commutator_C_SKY_BLUE', to: 'tapping-switch_SW_BLACK', color: 0x00bfff },
+
+    // 3. Tapping Switch Terminals -> Ballistic Galvanometer (Second pair at SW - Junction Node)
+    { from: 'tapping-switch_SW_RED', to: 'ballistic-galvanometer_BG_RED', color: 0xff0000 },
+    { from: 'tapping-switch_SW_BLACK', to: 'ballistic-galvanometer_BG_BLACK', color: "orange" }
 ];
 
 function autoConnectCircuit() {
@@ -1855,7 +1914,7 @@ function autoConnectCircuit() {
         'hms': new THREE.Vector3(-2.2, TABLETOP_SURFACE_Y, -0.4),
         'resistance-box': new THREE.Vector3(-0.7, TABLETOP_SURFACE_Y, -0.8),
         'commutator': new THREE.Vector3(0.4, TABLETOP_SURFACE_Y, -0.2),
-        'tapping-switch': new THREE.Vector3(1.6, TABLETOP_SURFACE_Y, -0.6),
+        'tapping-switch': new THREE.Vector3(1.4, TABLETOP_SURFACE_Y, 0.4), // Positioned lower right
         'ballistic-galvanometer': new THREE.Vector3(2.3, TABLETOP_SURFACE_Y, 0.3)
     };
 
@@ -1868,6 +1927,14 @@ function autoConnectCircuit() {
                 positionApparatusOnTable(model, id, defaultPositions[id]);
             }
         }
+        
+        // Rotate the Tapping Switch so terminals point cleanly toward the circuit
+        if (id === 'tapping-switch') {
+            const swModel = placedApparatus.find(m => m.userData.apparatusId === 'tapping-switch');
+            if (swModel) {
+                swModel.rotation.y = Math.PI; // Flipped 180° (use Math.PI * 2 for 360° / full rotation)
+            }
+        }
     });
 
     circuitConnections.forEach(conn => {
@@ -1877,7 +1944,9 @@ function autoConnectCircuit() {
             addCircuitWire(fromTerm, toTerm, conn.color, conn.from, conn.to);
         }
     });
+
     syncElectricalConnections();
+    showLabNotification('Circuit connected properly in parallel.', 'success');
 }
 
 function findTerminalById(id) {
@@ -1911,12 +1980,198 @@ let selectedApparatusForDrag = null;
 let isDraggingOnTable = false;
 const dragStartPosition = new THREE.Vector2();
 
+function getPlacedApparatusRoot(object) {
+    let current = object;
+    while (current) {
+        if (placedApparatus.includes(current)) return current;
+        current = current.parent;
+    }
+    return null;
+}
+
 function setupRaycasterForInteractions() {
     const canvas = renderer.domElement;
     const raycaster = new THREE.Raycaster();
     const mouse = new THREE.Vector2();
+    let switchPointerHandled = false;
+    let suppressSwitchClick = false;
+    let draggingCommutator = false;
+    let commutatorDragStartPointerAngle = 0;
+    let commutatorDragStartArmAngle = 0;
+    let activeApparatusControl = null;
+    let activeControlStartX = 0;
+    let activeControlStartY = 0;
+    let activeControlValue = 0;
+
+    const getPlacedSwitchLever = () => {
+        const switchModel = placedApparatus.find(model => model.userData.apparatusId === 'tapping-switch');
+        return switchModel?.getObjectByName('tapping-switch-lever');
+    };
+
+    const pointAtEvent = (event) => {
+        const rect = canvas.getBoundingClientRect();
+        mouse.x = ((event.clientX - rect.left) / rect.width) * 2 - 1;
+        mouse.y = -((event.clientY - rect.top) / rect.height) * 2 + 1;
+        raycaster.setFromCamera(mouse, camera);
+    };
+
+    const getPlacedCommutatorArm = () => {
+        return commutator?.getObjectByName('commutator-arm');
+    };
+
+    const getPlacedControl = () => {
+        const controlsToCheck = [
+            ['hms', 'hms-handle'],
+            ['ballistic-galvanometer', 'bg-zero-knob'],
+            ['ballistic-galvanometer', 'bg-lamp'],
+            ['ballistic-galvanometer', 'bg-stand']
+        ];
+        for (const [apparatusId, objectName] of controlsToCheck) {
+            const model = placedApparatus.find(item => item.userData.apparatusId === apparatusId);
+            const object = model?.getObjectByName(objectName);
+            if (object) {
+                const hits = raycaster.intersectObject(object, true);
+                if (hits.length) return { apparatusId, object, hit: hits[0] };
+            }
+        }
+        const resistanceBox = placedApparatus.find(item => item.userData.apparatusId === 'resistance-box');
+        if (resistanceBox) {
+            const sockets = [];
+            resistanceBox.traverse(object => {
+                if (object.name === 'rb-socket') sockets.push(object);
+            });
+            const hits = raycaster.intersectObjects(sockets, true);
+            if (hits.length) return { apparatusId: 'resistance-box', object: hits[0].object, hit: hits[0] };
+        }
+        return null;
+    };
+
+    const updateCommutatorDrag = event => {
+        pointAtEvent(event);
+        const arm = getPlacedCommutatorArm();
+        if (!arm) return;
+        const plane = new THREE.Plane(new THREE.Vector3(0, 1, 0), -arm.getWorldPosition(new THREE.Vector3()).y);
+        const hitPoint = new THREE.Vector3();
+        if (!raycaster.ray.intersectPlane(plane, hitPoint)) return;
+        const localPoint = commutator.worldToLocal(hitPoint);
+        const pointerAngle = Math.atan2(localPoint.z, localPoint.x);
+        const delta = Math.atan2(
+            Math.sin(pointerAngle - commutatorDragStartPointerAngle),
+            Math.cos(pointerAngle - commutatorDragStartPointerAngle)
+        );
+        setPolarityAngle(commutator, commutatorDragStartArmAngle - delta);
+    };
+
+    canvas.addEventListener('pointerdown', event => {
+        if (isTerminalSelectionMode || window.terminalSelectionMode) return;
+        pointAtEvent(event);
+        const control = getPlacedControl();
+        if (control) {
+            activeControlStartX = event.clientX;
+            activeControlStartY = event.clientY;
+            activeControlValue = control.apparatusId === 'hms'
+                ? window.hmsControl?.getCoilPosition?.() || 0
+                : control.apparatusId === 'ballistic-galvanometer'
+                    ? Number(document.getElementById('ballistic-galvanometer-knob')?.value || 0)
+                    : 0;
+            activeApparatusControl = control;
+            controls.enabled = false;
+            canvas.setPointerCapture(event.pointerId);
+            event.stopImmediatePropagation();
+            return;
+        }
+        const arm = getPlacedCommutatorArm();
+        if (!arm) return;
+        pointAtEvent(event);
+        draggingCommutator = raycaster.intersectObject(arm, true).length > 0;
+        if (draggingCommutator) {
+            const plane = new THREE.Plane(new THREE.Vector3(0, 1, 0), -arm.getWorldPosition(new THREE.Vector3()).y);
+            const hitPoint = new THREE.Vector3();
+            if (!raycaster.ray.intersectPlane(plane, hitPoint)) {
+                draggingCommutator = false;
+                return;
+            }
+            const localPoint = commutator.worldToLocal(hitPoint);
+            commutatorDragStartPointerAngle = Math.atan2(localPoint.z, localPoint.x);
+            commutatorDragStartArmAngle = arm.rotation.y;
+            controls.enabled = false;
+            canvas.setPointerCapture(event.pointerId);
+            event.stopImmediatePropagation();
+        }
+    }, true);
+
+    canvas.addEventListener('pointermove', event => {
+        if (activeApparatusControl) {
+            const { apparatusId } = activeApparatusControl;
+            if (apparatusId === 'hms') {
+                window.hmsHandleControl?.setY(activeControlValue - (event.clientY - activeControlStartY) * 0.01);
+            } else if (apparatusId === 'ballistic-galvanometer') {
+                const deltaX = event.clientX - activeControlStartX;
+                const deltaY = event.clientY - activeControlStartY;
+                if (activeApparatusControl.object.name === 'bg-zero-knob') {
+                    window.bgKnobControl?.rotate(activeControlValue + deltaX * 0.8);
+                } else if (activeApparatusControl.object.name === 'bg-stand') {
+                    window.bgStandControl?.adjust('x', deltaX * 0.002);
+                    window.bgStandControl?.adjust('z', -deltaY * 0.002);
+                    activeControlStartX = event.clientX;
+                    activeControlStartY = event.clientY;
+                } else if (activeApparatusControl.object.name === 'bg-lamp') {
+                    window.bgStandControl?.adjust('lampY', -deltaY * 0.01);
+                    window.bgStandControl?.adjust('lampRot', deltaX * 0.5);
+                    activeControlStartX = event.clientX;
+                    activeControlStartY = event.clientY;
+                }
+            }
+            event.stopImmediatePropagation();
+            return;
+        }
+        if (!draggingCommutator) return;
+        updateCommutatorDrag(event);
+        event.stopImmediatePropagation();
+    }, true);
+
+    canvas.addEventListener('pointerup', event => {
+        if (activeApparatusControl) {
+            const control = activeApparatusControl;
+            activeApparatusControl = null;
+            controls.enabled = !isRotationLocked;
+            if (control.apparatusId === 'resistance-box') {
+                window.resistanceBoxControl?.toggleSocket(control.object.userData.coilIndex);
+            }
+            if (canvas.hasPointerCapture(event.pointerId)) canvas.releasePointerCapture(event.pointerId);
+            event.stopImmediatePropagation();
+            return;
+        }
+        if (!draggingCommutator) return;
+        draggingCommutator = false;
+        controls.enabled = !isRotationLocked;
+        snapPolarity(commutator);
+        if (canvas.hasPointerCapture(event.pointerId)) canvas.releasePointerCapture(event.pointerId);
+        event.stopImmediatePropagation();
+    }, true);
+
+    canvas.addEventListener('pointerdown', (event) => {
+        if (isTerminalSelectionMode || window.terminalSelectionMode) return;
+        const lever = getPlacedSwitchLever();
+        if (!lever) return;
+        pointAtEvent(event);
+        switchPointerHandled = raycaster.intersectObject(lever, true).length > 0;
+        if (switchPointerHandled) event.stopPropagation();
+    }, true);
+
+    canvas.addEventListener('pointerup', (event) => {
+        if (!switchPointerHandled) return;
+        switchPointerHandled = false;
+        suppressSwitchClick = true;
+        window.tappingSwitchControl?.toggle();
+        event.stopPropagation();
+    }, true);
 
     canvas.addEventListener('click', (e) => {
+        if (suppressSwitchClick) {
+            suppressSwitchClick = false;
+            return;
+        }
         const rect = canvas.getBoundingClientRect();
         mouse.x = ((e.clientX - rect.left) / rect.width) * 2 - 1;
         mouse.y = -((e.clientY - rect.top) / rect.height) * 2 + 1;
@@ -1926,6 +2181,14 @@ function setupRaycasterForInteractions() {
         if (lightIntersects.length > 0) {
             toggleRoomLights();
             return;
+        }
+
+        if (!isTerminalSelectionMode && !window.terminalSelectionMode) {
+            const lever = getPlacedSwitchLever();
+            if (lever && raycaster.intersectObject(lever, true).length > 0) {
+                window.tappingSwitchControl?.toggle();
+                return;
+            }
         }
 
         if (isTerminalSelectionMode || window.terminalSelectionMode) {
@@ -2001,14 +2264,19 @@ function setupDragAndDrop() {
         mouse.x = ((e.clientX - rect.left) / rect.width) * 2 - 1;
         mouse.y = -((e.clientY - rect.top) / rect.height) * 2 + 1;
         raycaster.setFromCamera(mouse, camera);
+
+        if (isTerminalSelectionMode || window.terminalSelectionMode) {
+            const terminalHits = raycaster.intersectObjects(
+                getAllPlacedTerminals().map(terminal => terminal.object),
+                true
+            );
+            if (terminalHits.length) return;
+        }
         
         const intersects = raycaster.intersectObjects(placedApparatus, true);
         if (intersects.length > 0) {
-            let obj = intersects[0].object;
-            while (obj && !obj.userData.apparatusId) {
-                obj = obj.parent;
-            }
-            if (obj && obj.userData.apparatusId) {
+            const obj = getPlacedApparatusRoot(intersects[0].object);
+            if (obj) {
                 selectedApparatusForDrag = obj;
                 isDraggingOnTable = false;
                 dragStartPosition.set(e.clientX, e.clientY);
@@ -2065,6 +2333,7 @@ function addApparatusToTable(id, point) {
     if (instantiatedApparatus.has(id)) {
         model = placedApparatus.find(m => m.userData.apparatusId === id);
         if (model) {
+            if (id === 'commutator') commutator = model;
             positionApparatusOnTable(model, id, point);
         }
         refreshLabControlsVisibility();
@@ -2081,6 +2350,7 @@ function addApparatusToTable(id, point) {
     }
     if (model) {
         model.userData.apparatusId = id;
+        if (id === 'commutator') commutator = model;
         scene.add(model);
         placedApparatus.push(model);
         instantiatedApparatus.add(id);

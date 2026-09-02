@@ -8,7 +8,7 @@ const apparatusPanels = {
   'hms': document.getElementById('hms-hud'),
   'ballistic-galvanometer': document.getElementById('ballistic-galvanometer-ui-panel'),
   'tapping-switch': document.getElementById('tapping-switch-control-panel'),
-  'commutator': document.getElementById('commutator-ui-panel')
+  'commutator': document.getElementById('commutator-control-panel')
 };
 
 function selectApparatus(apparatus) {

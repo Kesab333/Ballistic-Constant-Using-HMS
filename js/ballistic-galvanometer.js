@@ -1,7 +1,7 @@
 import * as THREE from 'three';
 import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
 import { addTerminal } from './terminal-utils.js';
-import { getGalvanometerAngle } from './physics.js';
+import { getGalvanometerAngle, simulateGalvanometerImpulse } from './physics.js';
 
 const apparatusHost = document.getElementById('ballistic-galvanometer-canvas-container');
 const $ = id => document.getElementById(id),
@@ -207,12 +207,15 @@ const mG = G(scn),
 const aKn = G(G(cG, [0, 6.2, 0]), [0, 0.12, 0]),
     miG = G(coG, [0, 1.1, 0]),
     bmG = G(mG);
+aKn.name = 'bg-zero-knob';
 
 // Stand Hierarchy
 const lG = G(mG, [0, 0, 14.0]);
+lG.name = 'bg-stand';
 const scG = G(lG, [0, 4.7, 0]);
 const lpG = G(lG, [0, 3.5, 0]);
 const bxG = G(lpG, [0, 0, -0.45]);
+bxG.name = 'bg-lamp';
 
 // --- GALVANOMETER BODY ---
 M(C(2.8, 3, 0.4, 64), base, bG, [0, 0.2, 0]).receiveShadow = true;
@@ -522,8 +525,9 @@ const uRt = () => {
         window.ballisticGalvanometerObservation.visible = false;
     };
 
-    // No optical path / lights off.
-    if (!iWn(wLm, wMr) || window.labLightsOn === false) {
+    // The optical lamp and monitor are self-lit instruments, so their
+    // reflected spot stays readable even when the room light is switched off.
+    if (!iWn(wLm, wMr)) {
         return hd();
     }
 
@@ -883,8 +887,11 @@ if (angleSlider) {
 const impulseBtn = $('ballistic-galvanometer-btn-impulse');
 if (impulseBtn) {
     impulseBtn.onclick = () => {
-        // A ballistic response may only start from an HMS flux transition.
-        if (window.hmsControl) window.hmsControl.dropCoil();
+        const angleDegrees = parseFloat($('ballistic-galvanometer-coil-angle')?.value || '0');
+        const requestedAngle = (Number.isFinite(angleDegrees) && Math.abs(angleDegrees) > 0.01)
+            ? angleDegrees * PI / 180
+            : 10 * PI / 180;
+        simulateGalvanometerImpulse(requestedAngle);
     };
 }
 
@@ -957,6 +964,8 @@ rnd.render = (activeScene, activeCamera) => {
     }
 };
 
+const laboratoryModelMirrors = new Set();
+
 const anim = t => {
     requestAnimationFrame(anim);
     // The authoritative physics module integrates the circuit impulse and oscillator.
@@ -965,6 +974,7 @@ const anim = t => {
     if (Number.isFinite(physicalAngle)) sCl(physicalAngle);
     ctrl.update();
     uRt();
+    syncLaboratoryModels();
     rnd.render(scn, cam);
 };
 anim(0);
@@ -1045,6 +1055,20 @@ document.querySelectorAll('#ballistic-galvanometer-ui-panel details.bg-accordion
 
 window.bgKnobControl = {
     rotate: uKnob
+};
+
+window.bgStandControl = {
+    adjust(key, delta) {
+        const inputId = key === 'lampRot'
+            ? 'ballistic-galvanometer-lamp-rot'
+            : `ballistic-galvanometer-stand-${key}`;
+        const input = $(inputId);
+        if (!input) return;
+        const min = Number(input.min || -Infinity);
+        const max = Number(input.max || Infinity);
+        input.value = Math.max(min, Math.min(max, Number(input.value) + delta));
+        uSd();
+    }
 };
 
 // ============================================
@@ -1129,10 +1153,24 @@ mG.add(terminalGroup);
 // EXPORT
 // ============================================
 
+function syncLaboratoryModels() {
+    const copyChildren = (source, target) => {
+        if (!target) return;
+        source.children.forEach((sourceChild, index) => {
+            const targetChild = target.children[index];
+            if (!targetChild) return;
+            targetChild.position.copy(sourceChild.position);
+            targetChild.quaternion.copy(sourceChild.quaternion);
+            targetChild.scale.copy(sourceChild.scale);
+            targetChild.visible = sourceChild.visible;
+            copyChildren(sourceChild, targetChild);
+        });
+    };
+    laboratoryModelMirrors.forEach(model => copyChildren(mG, model));
+}
+
 export const getModel = () => {
-    const pivot = new THREE.Group();
-    pivot.add(mG);
-    pivot.add(lG);
-    pivot.add(bmG);
-    return pivot;
+    const model = mG.clone(true);
+    laboratoryModelMirrors.add(model);
+    return model;
 };

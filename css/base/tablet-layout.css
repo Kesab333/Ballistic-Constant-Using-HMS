@@ -122,6 +122,9 @@
      5. Cards, Tables & Mathematical Renders
      -------------------------------------------------------------------------- */
   .main__task-div {
+    height: calc(100vh - 13rem);
+    min-height: calc(100vh - 13rem);
+    max-height: calc(100vh - 13rem);
     border-radius: 0.8rem;
   }
 

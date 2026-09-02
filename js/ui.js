@@ -9,17 +9,18 @@ let lastCalibrationSignature = '';
 let lastTrajectoryPointCount = -1;
 
 const FORMULAS = [
-  { id: 'charge', label: 'Ballistic constant', latex: String.raw`Q=K_q\theta_0`, usage: 'Use this after each valid first throw to relate the known charge to the damping-corrected angular throw.', variables: [['Q', 'Charge delivered during the flux transition (C)'], ['K_q', 'Ballistic constant of the galvanometer (C rad⁻¹)'], ['\\theta_0', 'Damping-corrected first angular throw (rad)']] },
+  { id: 'charge', label: 'Ballistic constant', latex: String.raw`Q=K\theta`, usage: 'Use the mean damping-corrected scale throw after both commutator directions have been recorded.', variables: [['Q', 'Charge delivered during the flux transition (C)'], ['K', 'Ballistic constant of the galvanometer (C cm⁻¹)'], ['\\theta', 'Mean damping-corrected throw (cm)']] },
   { id: 'emf', label: 'Hibbert induced emf', latex: String.raw`\varepsilon=-n\frac{d\Phi}{dt}`, usage: 'Use this to describe the emf induced while the HMS coil moves and its linked magnetic flux changes.', variables: [['\\varepsilon', 'Induced electromotive force (V)'], ['n', 'Number of turns in the HMS coil'], ['\\Phi', 'Magnetic flux per turn (Wb)'], ['t', 'Time (s)']] },
   { id: 'current', label: 'Circuit current', latex: String.raw`I=\frac{\varepsilon}{R+r_{\mathrm{HMS}}+G}`, usage: 'Use this to find the induced current from the emf and the complete resistance in the discharge circuit.', variables: [['I', 'Induced circuit current (A)'], ['R', 'Resistance-box setting (Ω)'], ['r_{\\mathrm{HMS}}', 'HMS winding resistance (Ω)'], ['G', 'Galvanometer resistance (Ω)']] },
   { id: 'total-charge', label: 'Known HMS charge', latex: String.raw`Q=\int I\,dt=\frac{n\Phi}{R+r_{\mathrm{HMS}}+G}`, usage: 'Use this to calculate the known charge supplied by a complete change of HMS flux through the connected circuit.', variables: [['Q', 'Total charge through the galvanometer (C)'], ['n', 'HMS turns'], ['\\Phi', 'Maximum flux per turn (Wb)'], ['R+r_{\\mathrm{HMS}}+G', 'Total circuit resistance (Ω)']] },
-  { id: 'calibration', label: 'Resistance–throw graph', latex: String.raw`\frac{1}{\theta_0}=\frac{K_q}{n\Phi}(R+r_{\mathrm{HMS}}+G)`, usage: 'Use the reciprocal corrected-throw versus resistance plot to check linearity and estimate the internal resistance.', variables: [['\\theta_0', 'Corrected first angular throw (rad)'], ['R', 'Resistance-box setting (Ω)'], ['K_q', 'Ballistic constant (C rad⁻¹)'], ['n\\Phi', 'Flux linkage of the HMS (Wb-turn)']] }
+  { id: 'damping', label: 'Damping correction', latex: String.raw`\theta=\theta_1\left(\frac{\theta_1}{\theta_3}\right)^{1/4}`, usage: 'Apply this separately to the θ₁ and θ₃ scale readings in each direction before taking their mean.', variables: [['\\theta_1', 'First throw (cm)'], ['\\theta_3', 'Third throw (cm)'], ['\\theta', 'Damping-corrected throw (cm)']] },
+  { id: 'calibration', label: 'Ballistic-constant pair', latex: String.raw`K=\frac{n\Phi}{R_1-R_2}\frac{\theta_{R_2}-\theta_{R_1}}{\theta_{R_1}\theta_{R_2}}`, usage: 'Calculate K for several pairs of complete resistance readings and report their arithmetic mean.', variables: [['K', 'Ballistic constant (C cm⁻¹)'], ['\\theta_R', 'Mean corrected throw at resistance R (cm)'], ['n\\Phi', 'Flux linkage of the HMS (Wb-turn)']] }
 ];
 
 const DIAGRAM_INFO = {
   'images/ballistic-galvanometer-circuit_diagram.png': {
     caption: 'Ballistic galvanometer circuit used to measure the first angular throw.',
-    content: `<div class="info-card"><span class="info-eyebrow">Ballistic galvanometer</span><p>A sensitive moving-coil instrument that measures charge from its first deflection.</p><div class="sidebar-equation" data-latex="Q=K_q\\theta_0"></div></div><div class="info-card"><span class="info-eyebrow">Key components</span><p><span data-latex="G"></span> is the galvanometer and <span data-latex="R"></span> sets the circuit resistance.</p></div>`
+    content: `<div class="info-card"><span class="info-eyebrow">Ballistic galvanometer</span><p>A sensitive moving-coil instrument that measures charge from its corrected scale throw.</p><div class="sidebar-equation" data-latex="Q=K\\theta"></div></div><div class="info-card"><span class="info-eyebrow">Key components</span><p><span data-latex="G"></span> is the galvanometer and <span data-latex="R"></span> sets the circuit resistance.</p></div>`
   },
   'images/HMS_Circuit_Diagram.png': {
     caption: 'HMS connection showing the magnetic standard used as the known-flux source.',
@@ -44,9 +45,9 @@ function buildCalculation() {
   const panel = $('calculation')?.querySelector('.calculation-panel');
   if (!panel) return;
   panel.innerHTML = `
-    <p>Set the virtual-instrument constants, record first throws, and use the live values below to check the calibration.</p>
+    <p>Keep the HMS turns fixed, record θ₁ and θ₃ in both directions, and use the live values below to check the calibration.</p>
     <div class="ballistic-input-grid">
-      <label>Control mode <select id="ballisticControlSource"><option value="HMS">HMS Lever</option><option value="SWITCH">External Switch</option></select></label>
+
       <label>HMS turns <span data-latex="n"></span><input id="ballisticTurns" type="number" min="1" step="1" value="100"></label>
       <label>Maximum flux <span data-latex="\\Phi\\;(\\mathrm{Wb})"></span><input id="ballisticFlux" type="number" min="0" step="any" value="0.0002"></label>
       <label>Galvanometer resistance <span data-latex="G\\;(\\Omega)"></span><input id="ballisticResistance" type="number" min="0" step="any" value="500"></label>
@@ -64,7 +65,6 @@ function buildCalculation() {
     configureExperimentParameters(values);
   };
   Object.keys(fields).forEach(id => $(id).addEventListener('change', update));
-  $('ballisticControlSource').addEventListener('change', event => setControlSource(event.target.value));
   $('ballisticResetExperiment').addEventListener('click', resetBallisticExperiment);
   renderStaticLatex(panel); update();
 }
@@ -137,13 +137,39 @@ function buildManualObservation() {
   renderManualObservations();
 }
 
+function formatReading(value, digits = 2) {
+  return value === null || value === undefined || Number.isNaN(value) ? '—' : number(value, digits);
+}
+
 function renderObservation(state) {
   if ($('observationText')) $('observationText').textContent = `${state.validationMessage} Circuit: ${state.circuitClosed ? 'CLOSED' : 'OPEN'}; HMS coil: ${state.hms.position}.`;
   const rows = $('emfReadings');
   if (!rows) return;
   rows.innerHTML = state.observation.trials.length
-    ? state.observation.trials.map(row => `<tr><td>${row.trial}</td><td>${number(row.R, 2)}</td><td>${row.spotCm === null ? 'Optics not aligned' : number(row.spotCm, 2)}</td><td>${number(row.theta, 5)}</td><td>${number(row.correctedThrow, 5)}</td><td>${number(row.charge, 8)}</td></tr>`).join('')
-    : '<tr><td colspan="6">No valid first-throw observations recorded.</td></tr>';
+    ? state.observation.trials.map(row => {
+        const leftTheta1 = row.leftTheta1 ?? row.theta ?? null;
+        const leftTheta3 = row.leftTheta3 ?? null;
+        const leftMean = row.leftCorrected ?? null;
+        const rightTheta2 = row.rightTheta1 ?? null;
+        const rightTheta4 = row.rightTheta3 ?? null;
+        const rightMean = row.rightCorrected ?? null;
+        const corrected = row.correctedMeanCm ?? row.correctedThrow ?? null;
+        const constant = row.ballisticConstantCm ?? ((row.charge && corrected) ? row.charge / corrected : null);
+        return `<tr>
+          <td>${row.trial}</td>
+          <td>${number(row.R / 1000, 3)}</td>
+          <td>${formatReading(leftTheta1, 5)}</td>
+          <td>${formatReading(leftTheta3, 5)}</td>
+          <td>${formatReading(leftMean, 5)}</td>
+          <td>${formatReading(rightTheta2, 5)}</td>
+          <td>${formatReading(rightTheta4, 5)}</td>
+          <td>${formatReading(rightMean, 5)}</td>
+          <td>${formatReading(corrected, 5)}</td>
+          <td>${formatReading(constant, 8)}</td>
+        </tr>`;
+      }).join('')
+    : '<tr><td colspan="10">No complete opposite-direction observations recorded.</td></tr>';
+  renderStaticLatex(rows);
 }
 
 function calculationReadout(latex, value) {
@@ -153,15 +179,17 @@ function calculationReadout(latex, value) {
 function renderCalculation(state) {
   const out = $('ballisticCalculationOutput');
   if (!out) return;
+  if ($('ballisticTurns')) $('ballisticTurns').value = state.hmsStandard.turns ?? '';
+  if ($('ballisticFlux')) $('ballisticFlux').value = state.hmsStandard.maximumFlux ?? '';
   const c = state.calibration, circuit = state.circuit;
   out.innerHTML = [
     calculationReadout('n', number(state.hmsStandard.turns, 0)),
     calculationReadout('\\Phi\\;(\\mathrm{Wb/turn})', number(state.hmsStandard.maximumFlux, 7)),
     calculationReadout('r_{\\mathrm{HMS}}\\;(\\Omega)', number(state.hmsStandard.windingResistance, 2)),
-    calculationReadout('R\\;(\\Omega)', number(circuit.externalResistance, 2)),
-    calculationReadout('R_{\\mathrm{total}}\\;(\\Omega)', number(circuit.totalResistance, 2)),
+    calculationReadout('R\\;(\\mathrm{k\\Omega})', number(circuit.externalResistance / 1000, 3)),
+    calculationReadout('R_{\\mathrm{total}}\\;(\\mathrm{k\\Omega})', number(circuit.totalResistance / 1000, 3)),
     calculationReadout('Q\\;(\\mathrm{C})', number(circuit.charge, 8)),
-    calculationReadout('K_q\\;(\\mathrm{C\\,rad^{-1}})', c.ballisticConstant === null ? 'Awaiting valid observations' : number(c.ballisticConstant, 8)),
+    calculationReadout('K\\;(\\mathrm{C/cm})', c.ballisticConstant === null ? 'Awaiting complete opposite-direction observations' : number(c.ballisticConstant, 8)),
     calculationReadout('r_{\\mathrm{HMS}}+G\\;(\\Omega)', c.fittedInternalResistance === null ? 'Requires two resistance values' : number(c.fittedInternalResistance, 2))
   ].join('');
   renderStaticLatex(out);
@@ -172,8 +200,8 @@ function renderResult(state) {
   if (!result) return;
   const c = state.calibration;
   result.innerHTML = c.ballisticConstant === null
-    ? `<p><strong>Experiment status:</strong> ${state.status}</p><p><span data-latex="K_q"></span> is awaiting valid first-throw observations. Valid trials: <strong>${state.observation.trials.length}</strong>.</p>`
-    : `<p><strong>Calibration complete</strong> — Ballistic galvanometer calibrated using Hibbert’s Magnetic Standard.</p><p><span data-latex="K_q=${number(c.ballisticConstant, 8)}\\;\\mathrm{C\\,rad^{-1}}"></span></p><p>Valid trials: <strong>${state.observation.trials.length}</strong>; fitted <span data-latex="r_{\\mathrm{HMS}}+G"></span> = <strong>${number(c.fittedInternalResistance, 2)} Ω</strong>.</p>`;
+    ? `<p><strong>Experiment status:</strong> ${state.status}</p><p><span data-latex="K"></span> awaits complete θ₁/θ₃ readings in both commutator directions. Resistance settings started: <strong>${state.observation.trials.length}</strong>.</p>`
+    : `<p><strong>Calibration complete</strong> — Ballistic galvanometer calibrated using Hibbert’s Magnetic Standard.</p><p><span data-latex="K=${number(c.ballisticConstant, 8)}\\;\\mathrm{C/cm}"></span></p><p>Complete resistance settings: <strong>${state.observation.trials.filter(row => row.complete).length}</strong>; fitted <span data-latex="r_{\\mathrm{HMS}}+G"></span> = <strong>${number(c.fittedInternalResistance, 2)} Ω</strong>.</p>`;
   renderStaticLatex(result);
 }
 
@@ -222,11 +250,11 @@ function draw(canvas, points, xKey, yKey, xLabel, yLabel) {
 function renderGraphs(state) {
   if ($('graphs')?.hidden) return;
   const calibrationPoints = state.observation.trials
-    .filter(point => point.correctedThrow > 0)
-    .map(point => ({ R: point.R, inverseThrow: 1 / point.correctedThrow }));
+    .filter(point => point.complete && point.correctedThrow > 0)
+    .map(point => ({ R: point.R / 1000, inverseThrow: 1 / point.correctedThrow }));
   const calibrationSignature = calibrationPoints.map(point => `${point.R}:${point.inverseThrow}`).join('|');
   if (graphNeedsRefresh || calibrationSignature !== lastCalibrationSignature) {
-    draw($('ballisticCalibrationGraph'), calibrationPoints, 'R', 'inverseThrow', 'R (Ω)', '1/θ₀ (rad⁻¹)');
+    draw($('ballisticCalibrationGraph'), calibrationPoints, 'R', 'inverseThrow', 'R (kΩ)', '1/θ (cm⁻¹)');
     lastCalibrationSignature = calibrationSignature;
   }
 

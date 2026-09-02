@@ -281,9 +281,9 @@
 /* Neutralise the obsolete graph-card rules that forced this view into a
    collapsing single-column flex container. */
 #graphs {
-  height: min(54rem, calc(100vh - 15rem)) !important;
-  min-height: 0 !important;
-  max-height: 54rem;
+  height: calc(100vh - 15rem) !important;
+  min-height: calc(100vh - 15rem) !important;
+  max-height: calc(100vh - 15rem) !important;
 }
 
 #graphs[hidden] {
@@ -544,12 +544,20 @@
 .emf-table td {
   padding: .8rem;
   border: 1px solid #d6e4e2;
-  text-align: left;
+  text-align: center;
+  vertical-align: middle;
 }
 
 .emf-table th {
   background: #eaf6f4;
   color: #075f5a;
+}
+
+.emf-table .table-latex {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 100%;
 }
 
 .manual-observation {

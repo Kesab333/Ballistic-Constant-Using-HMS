@@ -210,6 +210,13 @@ html, body {
   display: flex !important;
 }
 
+.main-section > .main__task-div:not(.footer) {
+  height: calc(100vh - 15rem);
+  min-height: calc(100vh - 15rem);
+  max-height: calc(100vh - 15rem);
+  overflow: hidden;
+}
+
 .simulation-card {
   display: flex !important;
   flex-direction: column;
@@ -288,6 +295,7 @@ html, body {
     var(--clr-side-background3),
     var(--clr-side-background2)
   );
+  flex: 0 0 3.2rem;
 }
 
 /* --------------------------------------------------------------------------

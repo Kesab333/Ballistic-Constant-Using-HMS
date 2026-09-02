@@ -53,23 +53,23 @@ function createTopPlateTexture() {
   ctx.fillStyle = '#ffffff'; ctx.textAlign = 'center';
   
   ctx.font = 'bold 36px sans-serif'; ctx.fillText('RESISTANCE BOX', 512, 62);
-  ctx.font = 'bold 32px sans-serif'; ctx.fillText('CONSTANTAN COILS', 512, 582);
+  ctx.font = 'bold 28px sans-serif'; ctx.fillText('COIL VALUES IN kΩ', 512, 582);
   
   // Front Row Values
-  ctx.font = 'bold 30px sans-serif';
-  ctx.fillText('100', 250, 508);
-  ctx.fillText('50', 423, 508);
-  ctx.fillText('20', 601, 508);
-  ctx.fillText('20', 774, 508);
+  ctx.font = 'bold 26px sans-serif';
+  ctx.fillText('100k', 250, 508);
+  ctx.fillText('50k', 423, 508);
+  ctx.fillText('20k', 601, 508);
+  ctx.fillText('20k', 774, 508);
   
   // Mid Value
-  ctx.fillText('10', 810, 345);
+  ctx.fillText('10k', 810, 345);
   
   // Back Row Values
-  ctx.fillText('1', 250, 142);
-  ctx.fillText('2', 423, 142);
-  ctx.fillText('2', 601, 142);
-  ctx.fillText('5', 774, 142);
+  ctx.fillText('1k', 250, 142);
+  ctx.fillText('2k', 423, 142);
+  ctx.fillText('2k', 601, 142);
+  ctx.fillText('5k', 774, 142);
   
   const tex = new THREE.CanvasTexture(canvas);
   tex.colorSpace = THREE.SRGBColorSpace;
@@ -265,6 +265,23 @@ function createLBlockGeo(isTop) {
 
 // --- SCENE CONSTRUCTION ---
 const machine = new THREE.Group();
+const laboratoryModelMirrors = new Set();
+
+function syncLaboratoryModels() {
+  const copyChildren = (source, target) => {
+    if (!target) return;
+    source.children.forEach((sourceChild, index) => {
+      const targetChild = target.children[index];
+      if (!targetChild) return;
+      targetChild.position.copy(sourceChild.position);
+      targetChild.quaternion.copy(sourceChild.quaternion);
+      targetChild.scale.copy(sourceChild.scale);
+      targetChild.visible = sourceChild.visible;
+      copyChildren(sourceChild, targetChild);
+    });
+  };
+  laboratoryModelMirrors.forEach(model => copyChildren(machine, model));
+}
 scene.add(machine);
 
 // 1. CASING & CORNER JOINTS
@@ -434,21 +451,28 @@ const internalAssembly = new THREE.Group();
 machine.add(internalAssembly);
 
 const dX = -0.35;
+const formatResistance = value => value >= 1000 ? `${value / 1000} kΩ` : `${value} Ω`;
 const coilValues = [
-  { ohm: 1,   x: -2.215 + dX, z: -0.95, rWire: 0.042, turns: 5  },
-  { ohm: 2,   x: -0.74 + dX,  z: -0.95, rWire: 0.034, turns: 7  },
-  { ohm: 2,   x: 0.74 + dX,   z: -0.95, rWire: 0.034, turns: 7  },
-  { ohm: 5,   x: 2.215 + dX,  z: -0.95, rWire: 0.025, turns: 11 },
-  { ohm: 10,  x: 2.95 + dX,   z: 0,     rWire: 0.019, turns: 16 },
-  { ohm: 20,  x: 2.215 + dX,  z: 0.95,  rWire: 0.014, turns: 22 },
-  { ohm: 20,  x: 0.74 + dX,   z: 0.95,  rWire: 0.014, turns: 22 },
-  { ohm: 50,  x: -0.74 + dX,  z: 0.95,  rWire: 0.009, turns: 32 },
-  { ohm: 100, x: -2.215 + dX, z: 0.95,  rWire: 0.006, turns: 44 }
+  { ohm: 1000,   x: -2.215 + dX, z: -0.95, rWire: 0.042, turns: 5  },
+  { ohm: 2000,   x: -0.74 + dX,  z: -0.95, rWire: 0.034, turns: 7  },
+  { ohm: 2000,   x: 0.74 + dX,   z: -0.95, rWire: 0.034, turns: 7  },
+  { ohm: 5000,   x: 2.215 + dX,  z: -0.95, rWire: 0.025, turns: 11 },
+  { ohm: 10000,  x: 2.95 + dX,   z: 0,     rWire: 0.019, turns: 16 },
+  { ohm: 20000,  x: 2.215 + dX,  z: 0.95,  rWire: 0.014, turns: 22 },
+  { ohm: 20000,  x: 0.74 + dX,   z: 0.95,  rWire: 0.014, turns: 22 },
+  { ohm: 50000,  x: -0.74 + dX,  z: 0.95,  rWire: 0.009, turns: 32 },
+  { ohm: 100000, x: -2.215 + dX, z: 0.95,  rWire: 0.006, turns: 44 }
 ];
 
 const plugs = [];
 const socketHitboxes = [];
 const socketHitboxMat = new THREE.MeshBasicMaterial({ visible: false });
+function toggleResistanceSocket(coilIndex) {
+  const plug = plugs[coilIndex];
+  if (!plug) return;
+  plug.connected = !plug.connected;
+  updateCircuit(true);
+}
 
 function createFunctionalPlug(coilIndex, x, z, angle = 0) {
   const g = new THREE.Group();
@@ -465,6 +489,7 @@ function createFunctionalPlug(coilIndex, x, z, angle = 0) {
   
   // Static invisible socket hitbox so user can re-insert key when socket is empty
   const socketHitbox = new THREE.Mesh(new THREE.CylinderGeometry(0.35, 0.35, 0.8, 16), socketHitboxMat);
+  socketHitbox.name = 'rb-socket';
   socketHitbox.position.set(x, 3.4, z);
   socketHitbox.userData = { isSocket: true, coilIndex };
   deckHardware.add(socketHitbox);
@@ -593,33 +618,34 @@ function updateCircuit(updateInputUI = true) {
 
     if (isOpened) {
       wireMats[i].emissive.setHex(0x551100); 
-      openKeys.push(`${p.ohm} Ω`);
+      openKeys.push(formatResistance(p.ohm));
     } else {
       wireMats[i].emissive.setHex(0x000000); 
     }
   });
+  syncLaboratoryModels();
 
   // UI Element Updates
   const resValElem = document.getElementById('res-val');
   if (resValElem) resValElem.innerText = total;
 
   const resInputElem = document.getElementById('res-input');
-  if (resInputElem && updateInputUI) resInputElem.value = total;
+  if (resInputElem && updateInputUI) resInputElem.value = total / 1000;
 
   const keysDetailElem = document.getElementById('keys-detail');
   if (keysDetailElem) {
-    keysDetailElem.textContent = openKeys.length > 0 ? openKeys.join(', ') : 'None (0 Ω)';
+    keysDetailElem.textContent = openKeys.length > 0 ? openKeys.join(', ') : 'None (0 kΩ)';
   }
   // Shared apparatus state consumed by the experiment physics, not a duplicate UI calculation.
   window.resistanceBoxState = { resistance: total, openKeys: [...openKeys] };
   window.dispatchEvent(new CustomEvent('ballistic:resistance-change', { detail: window.resistanceBoxState }));
   const labResistanceInput = document.getElementById('lab-total-resistance');
-  if (labResistanceInput) labResistanceInput.value = total;
+  if (labResistanceInput) labResistanceInput.value = total / 1000;
 }
 
 // Function to find and snap to the nearest achievable resistance combination
 function setTargetResistance(target) {
-  target = Math.max(0, Math.min(210, Number(target) || 0));
+  target = Math.max(0, Math.min(210000, Number(target) || 0));
   
   let minDiff = Infinity;
   let bestOpenIndices = [];
@@ -712,7 +738,7 @@ if (opacityStepper) {
 }
 
 if (resInputElem) {
-  resInputElem.addEventListener('change', () => setTargetResistance(resInputElem.value));
+resInputElem.addEventListener('change', () => setTargetResistance(Number(resInputElem.value) * 1000));
 }
 
 const resizeResistanceBox = () => {
@@ -727,10 +753,12 @@ new ResizeObserver(resizeResistanceBox).observe(app);
 window.addEventListener('resize', resizeResistanceBox);
 window.addEventListener('apparatus:resize', resizeResistanceBox);
 
-updateCircuit(true);
+// Begin with the large resistance used during initial adjustment.
+setTargetResistance(5000);
 
 function render() {
   requestAnimationFrame(render);
+  syncLaboratoryModels();
   if (!app.classList.contains('is-active')) return;
   controls.update();
   renderer.render(scene, camera);
@@ -738,7 +766,12 @@ function render() {
 render();
 
 export const getModel = () => {
-  const pivot = new THREE.Group();
-  pivot.add(machine);
-  return pivot;
+  // Do not re-parent the stage model: that blanked this view after a drop.
+  const model = machine.clone(true);
+  laboratoryModelMirrors.add(model);
+  return model;
+};
+
+window.resistanceBoxControl = {
+  toggleSocket: toggleResistanceSocket
 };

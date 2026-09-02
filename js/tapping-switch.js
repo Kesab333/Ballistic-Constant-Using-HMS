@@ -9,7 +9,7 @@ if (!apparatusHost) throw new Error('tapping-switch-stage not found');
 // ============================================
 // FIX: Define angle constants BEFORE they are used
 // ============================================
-const OFF_ANGLE = 0.085;
+const OFF_ANGLE = 0.38;
 const ON_ANGLE = 0.000;
 
 const scene = new THREE.Scene();
@@ -182,6 +182,7 @@ scene.add(screw2);
 
 // --- Lever & Tapping Knob ---
 const leverGroup = new THREE.Group();
+leverGroup.name = 'tapping-switch-lever';
 leverGroup.position.set(CLAMP_FRONT_X, 0.58, PIVOT_Z);
 
 // FIX 1: Set initial visual state to OFF (Open) position
@@ -302,6 +303,38 @@ let targetAngle = OFF_ANGLE;
 let isKeyON = false;
 let isLocked = false;
 let isDraggingKey = false;
+const laboratoryModelMirrors = new Set();
+
+function syncLaboratorySwitches() {
+    const sourceChildren = scene.children.filter(child => {
+        if (!child.isMesh && !child.isGroup) return false;
+        return !(child.isGridHelper || (
+            child.geometry?.type === 'PlaneGeometry' &&
+            child.geometry.parameters?.width === 30
+        ));
+    });
+    const copyChildren = (source, target) => {
+        if (!target) return;
+        source.children.forEach((sourceChild, index) => {
+            const targetChild = target.children[index];
+            if (!targetChild) return;
+            targetChild.position.copy(sourceChild.position);
+            targetChild.quaternion.copy(sourceChild.quaternion);
+            targetChild.scale.copy(sourceChild.scale);
+            targetChild.visible = sourceChild.visible;
+            copyChildren(sourceChild, targetChild);
+        });
+    };
+    laboratoryModelMirrors.forEach(model => {
+        sourceChildren.forEach((source, index) => copyChildren(source, model.children[index]));
+        const mirroredLever = model.getObjectByName('tapping-switch-lever');
+        if (mirroredLever) {
+            mirroredLever.rotation.copy(leverGroup.rotation);
+            mirroredLever.position.copy(leverGroup.position);
+            mirroredLever.scale.copy(leverGroup.scale);
+        }
+    });
+}
 
 const statusDot = document.getElementById('tapping-switch-status-dot');
 const statusText = document.getElementById('tapping-switch-status-text');
@@ -312,9 +345,6 @@ function setKeyState(active) {
     isKeyON = active;
     targetAngle = active ? ON_ANGLE : OFF_ANGLE;
     
-    // FIX 2: Immediately update rotation state for imported 3D scene instances
-    leverGroup.rotation.z = targetAngle;
-
     if (statusDot) {
         if (active) statusDot.classList.add('active');
         else statusDot.classList.remove('active');
@@ -324,6 +354,10 @@ function setKeyState(active) {
         statusText.style.color = active ? '#28a745' : '#333';
     }
     setSwitchClosed(active);
+    syncLaboratorySwitches();
+    window.dispatchEvent(new CustomEvent('tapping-switch:change', {
+        detail: { closed: active }
+    }));
 }
 
 if (toggleBtn) {
@@ -332,6 +366,14 @@ if (toggleBtn) {
         setKeyState(isLocked);
     });
 }
+
+window.tappingSwitchControl = {
+    toggle() {
+        isLocked = !isLocked;
+        setKeyState(isLocked);
+        return isLocked;
+    }
+};
 
 if (pressBtn) {
     pressBtn.addEventListener('mousedown', () => setKeyState(true));
@@ -400,6 +442,7 @@ function animate() {
     
     // FIX 3: Always update lever animation regardless of active viewport tab
     leverGroup.rotation.z += (targetAngle - leverGroup.rotation.z) * 0.25;
+    syncLaboratorySwitches();
 
     if (!apparatusHost.classList.contains('is-active')) return;
     controls.update();
@@ -433,8 +476,9 @@ export const getModel = () => {
             return;
         }
 
-        pivot.add(child);
+        pivot.add(child.clone(true));
     });
 
+    laboratoryModelMirrors.add(pivot);
     return pivot;
 };

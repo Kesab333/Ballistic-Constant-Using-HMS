@@ -2,6 +2,17 @@
 
 import * as THREE from 'three';
 
+export const COMMUTATOR_TERMINAL_POSITIONS = {
+    handle: [
+        { id: 'C_NAVY_BLUE', color: 0x000080, position: new THREE.Vector3(-2.5, 1.1, 0) },
+        { id: 'C_ORANGE', color: 0xffa500, position: new THREE.Vector3(2.5, 1.1, 0) }
+    ],
+    plate: [
+        { id: 'C_RED', color: 0xff0000, position: new THREE.Vector3(3, 2.2, 0) },
+        { id: 'C_SKY_BLUE', color: 0x00bfff, position: new THREE.Vector3(-3, 2.2, 0) }
+    ]
+};
+
 // ============================================================
 // TERMINALS
 // ============================================================
@@ -33,8 +44,7 @@ export function addTerminal(
 
     hit.userData = {
         isTerminalHit: true,
-        terminalId: id,
-        terminalAnchor: anchor
+        terminalId: id
     };
 
     anchor.add(hit);
@@ -181,8 +191,10 @@ export function updateWireGeometry(wireMesh) {
     // A coincident or invalid endpoint must never produce an oversized tube.
     if (!Number.isFinite(dist) || dist < 0.002) return;
 
-    // Increase vertical lift out of binding post to clear apparatus tops
-    const lift = 0.25 + Math.min(dist * 0.08, 0.3);
+    // Leave each binding post vertically, then travel above the apparatus.
+    // Keeping every middle control point above both endpoints prevents the
+    // spline from dipping through a casing between two terminals.
+    const lift = 0.20 + Math.min(dist * 0.10, 0.35);
 
     const connectorDirection = (anchor) => {
         const local = anchor.userData?.connectorDirection;
@@ -194,18 +206,21 @@ export function updateWireGeometry(wireMesh) {
     const exit1 = p1.clone().add(connectorDirection(startAnchor).multiplyScalar(lift));
     const exit2 = p2.clone().add(connectorDirection(endAnchor).multiplyScalar(lift));
 
-    // Midpoint height droops relative to higher terminal without clipping tops
+    // Route overhead rather than sagging through the equipment body.
     const midX = (p1.x + p2.x) / 2;
     const midZ = (p1.z + p2.z) / 2;
-    
-    const midY = Math.max(p1.y, p2.y) + 0.05 - Math.min(dist * 0.08, 0.25);
+    const midY = Math.max(exit1.y, exit2.y) + 0.08;
 
     const midPoint = new THREE.Vector3(midX, midY, midZ);
+    const overStart = exit1.clone().lerp(midPoint, 0.32);
+    const overEnd = exit2.clone().lerp(midPoint, 0.32);
 
     const controlPoints = [
         p1,
         exit1,
+        overStart,
         midPoint,
+        overEnd,
         exit2,
         p2
     ];
