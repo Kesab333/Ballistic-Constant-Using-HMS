@@ -25,7 +25,7 @@ export const ballisticExperiment = {
   observation: { liveThrow: null, laterThrow: null, correctedThrow: null, charge: null, flux: null, ballisticConstant: null, trials: [], trajectory: [] },
   // Calibrated virtual-instrument constants. They are editable in Calculation, not guessed at run time.
   mechanics: { momentOfInertia: 1.0e-6, torsionalConstant: 2.5e-6, dampingCoefficient: 2.0e-7, torqueConstant: 4.0e-3 },
-  status: 'Connect the circuit, close the tapping switch, raise the HMS coil, then release it.',
+  status: 'Connect the circuit, open the tapping switch, raise the HMS coil, then release it.',
   validationMessage: 'Circuit is open.', connections: []
 };
 
@@ -77,9 +77,9 @@ function updateCircuitState() {
   exp.circuit.totalResistance = exp.circuit.externalResistance + exp.galvanometer.resistance + exp.hmsStandard.windingResistance;
   exp.circuit.expectedCharge = validNumber(exp.hmsStandard.turns, true) && validNumber(exp.hmsStandard.maximumFlux, true)
     ? exp.hmsStandard.turns * exp.hmsStandard.maximumFlux / exp.circuit.totalResistance : null;
-  exp.circuitClosed = topologyComplete && switchClosed;
+  exp.circuitClosed = topologyComplete && !switchClosed;
   if (!topologyComplete) exp.validationMessage = 'Circuit open: connect HMS → resistance box → commutator → tapping switch → BG → commutator.';
-  else if (!switchClosed) exp.validationMessage = 'Circuit complete. Close the tapping switch to arm the experiment.';
+  else if (switchClosed) exp.validationMessage = 'Circuit bypassed: the closed tapping switch shunts the BG. Open it to arm the experiment.';
   else if (!exp.circuit.transientActive) exp.validationMessage = 'Circuit armed. Raise the HMS coil fully, then release it.';
   publish(true);
 }
@@ -198,7 +198,7 @@ export function setElectricalConnections(connections) {
 }
 export function setSwitchClosed(isClosed) {
   const changed = switchClosed !== Boolean(isClosed); switchClosed = Boolean(isClosed); updateCircuitState();
-  if (changed && switchClosed && ballisticExperiment.controlSource === 'SWITCH' && !ballisticExperiment.circuit.transientActive) window.dispatchEvent(new CustomEvent('ballistic:external-switch-event'));
+  if (changed && !switchClosed && ballisticExperiment.controlSource === 'SWITCH' && !ballisticExperiment.circuit.transientActive) window.dispatchEvent(new CustomEvent('ballistic:external-switch-event'));
 }
 export function setCommutatorPolarity(polarity) {
   ballisticExperiment.commutator.polarity = Number(polarity) < 0 ? -1 : 1;

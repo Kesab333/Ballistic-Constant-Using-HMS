@@ -7,7 +7,7 @@
         ['Start in Laboratory view', 'Open Simulation and select Laboratory. Confirm that the room light is on and that the apparatus can be seen clearly.'],
         ['Prepare the resistance box', 'Begin with the protective high setting of 5 kΩ. Keep the number of HMS turns fixed for the complete set of observations.'],
         ['Make the circuit', 'Use Auto Connect for a guided ready-to-use circuit, or use Manual Connect to join every required terminal. The circuit route is HMS → resistance box → commutator → tapping switch → ballistic galvanometer → commutator.'],
-        ['Arm the circuit', 'Close the tapping switch. The status message must say that the circuit is armed before a valid observation can be taken.'],
+        ['Arm the circuit', 'Open the tapping switch. A closed switch bypasses the BG; the status message must say that the circuit is armed before a valid observation can be taken.'],
         ['Raise the HMS coil fully', 'Move the HMS coil all the way to its upper position and let it settle. Raising it fully establishes the known magnetic-flux transition.'],
         ['Release once', 'Release the coil and do not change resistance or switches while it is moving. The induced charge gives the galvanometer a first throw.'],
         ['Read θ₁ and θ₃', 'Read the first maximum θ₁, then allow two more extrema so the later same-side maximum θ₃ is recorded. The lab calculates θ = θ₁(θ₁/θ₃)^(1/4).'],
@@ -25,7 +25,7 @@
         ['Resistance box', 'Sets the external resistance R in the circuit. Its value directly changes total resistance, charge, and the calibration graph.'],
         ['HMS', 'Hibbert’s Magnetic Standard is the known flux source. Raise the coil completely and release it to create the controlled flux transition.'],
         ['Ballistic galvanometer', 'Displays the angular response and reflected-spot reading. The first maximum deflection is the measurement used for calibration.'],
-        ['Tapping switch', 'Opens or closes the circuit. Close it to arm the experiment; leave it open while changing connections.'],
+        ['Tapping switch', 'A closed switch bypasses the BG. Open it to route the experiment current through the BG; close it before changing connections.'],
         ['Commutator', 'Routes the circuit connections. Use its terminals correctly when making a manual circuit; incorrect or incomplete wiring keeps the experiment open.']
       ],
       tip: 'Each apparatus has its own panel. Close an apparatus panel before selecting another if you need a less cluttered simulation view.'
@@ -61,7 +61,7 @@
         ['Auto Connect', 'Use Auto Connect when learning the procedure. It creates the required connections automatically.'],
         ['Manual Connect', 'Use Manual Connect to practise wiring. Join the highlighted terminals in the required circuit route and verify the status message.'],
         ['Clear Wires', 'Use Clear Wires only when you intentionally want to rebuild the circuit. It opens the circuit and invalidates an in-progress setup.'],
-        ['Tapping switch', 'Close it only after all wires are correct; this arms the experiment. Open it before altering any wire or resistance value.'],
+        ['Tapping switch', 'Open it only after all wires are correct; this arms the BG path. Close it before altering any wire or resistance value.'],
         ['Commutator', 'Keep the commutator terminal path consistent with the diagram. A missing terminal prevents the circuit from becoming complete.']
       ],
       tip: 'Always use the on-screen circuit-status message as the final check; a visually connected wire is not enough if it is attached to the wrong terminal.'
@@ -94,7 +94,7 @@
       title: 'Troubleshooting and good practice',
       subtitle: 'Use these checks whenever a throw is not recorded or a result looks unreliable.',
       steps: [
-        ['Circuit remains open', 'Use Auto Connect or inspect the manual route. Then close the tapping switch and look for the armed status.'],
+        ['Circuit remains open', 'Use Auto Connect or inspect the manual route. Then open the tapping switch and look for the armed status.'],
         ['No valid throw', 'Raise the HMS coil fully, wait for it to settle, then release it. Check that the galvanometer has returned to zero before trying again.'],
         ['No spot reading', 'Select the ballistic galvanometer and correct the optical alignment before repeating the observation.'],
         ['Graph is blank', 'Complete both commutator directions at two or more distinct resistance values.'],

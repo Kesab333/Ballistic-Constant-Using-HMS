@@ -1431,7 +1431,7 @@ function setupUI() {
 
     const updateLabSwitchStatus = (closed) => {
         if (!labSwitchToggle) return;
-        labSwitchToggle.textContent = closed ? 'Turn OFF (Open)' : 'Turn ON (Close)';
+        labSwitchToggle.textContent = closed ? 'Open to Route Through BG' : 'Close to Bypass BG';
         labSwitchToggle.setAttribute('aria-pressed', String(closed));
     };
     updateLabSwitchStatus(false);

@@ -683,8 +683,8 @@ if (autoCycleBtn) {
       return;
     }
     if (!autoLeverCycle && !ballisticExperiment.circuitClosed) {
-      physicsReadout.textContent = 'No throw: Auto Connect wires the circuit; now close the Tapping Switch.';
-      stateReadout.textContent = 'Circuit open — switch must be ON (CLOSED)';
+      physicsReadout.textContent = 'No throw: Auto Connect wires the circuit; now open the Tapping Switch.';
+      stateReadout.textContent = 'BG path open — switch must be OFF (OPEN)';
       return;
     }
 
