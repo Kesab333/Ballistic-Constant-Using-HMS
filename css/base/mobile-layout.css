@@ -16,7 +16,7 @@
     width: 100% !important;
     height: auto !important;
     min-height: 100% !important;
-    padding-bottom: 5rem !important;
+    padding-bottom: 4rem !important; /* Reduced from 5rem to tighten the gap above the nav rail */
     -webkit-overflow-scrolling: touch !important;
   }
 
@@ -26,13 +26,14 @@
   .main__task-div {
     display: flex !important;
     flex-direction: column !important;
-    padding: 0.35rem !important;
+    padding: 0 !important; /* Removes the 0.35rem side spacing to flush the app to the edges */
     gap: 0.5rem !important;
     width: 100% !important;
     height: auto !important;
     min-height: 0 !important;
     max-height: none !important;
     overflow: visible !important;
+    border-radius: 0 !important; /* Optional: removes rounded corners on mobile for a native app feel */
   }
 
   /* ---- HEADER ---- */
@@ -715,4 +716,528 @@
 .apparatus-panel[data-apparatus-open="false"],
 .apparatus-panel[style*="display: none"] {
   display: none !important;
+}
+
+
+/* ==========================================================================
+   FINAL MOBILE LAYOUT PATCH
+   --------------------------------------------------------------------------
+   Purpose:
+   1) Remove viewport-sized "dead" space between content/footer/nav.
+   2) Keep the bottom selector rail independent of section layout.
+   3) Make Observation tables scroll inside their own wrappers.
+   4) Make Simulation height width-driven (not vh-driven) so browser chrome,
+      tab switches, and short sections cannot create stale vertical space.
+   --------------------------------------------------------------------------
+   This block intentionally comes LAST so it overrides earlier mobile rules.
+   ========================================================================== */
+
+@media screen and (max-width: 768px) {
+
+  /* -----------------------------------------------------------------------
+     A. PAGE HEIGHT: natural document flow only
+     -----------------------------------------------------------------------
+     The old combination of body min-height + flex containers + footer
+     margin-top:auto can manufacture a large empty flex region on short tabs.
+     The page itself should grow only as much as its active content requires.
+     ----------------------------------------------------------------------- */
+
+  html {
+    width: 100% !important;
+    height: auto !important;
+    min-height: 0 !important;
+    overflow-x: hidden !important;
+    overflow-y: auto !important;
+    background: #f8fafc !important;
+  }
+
+  body {
+    display: block !important;
+    width: 100% !important;
+    height: auto !important;
+    min-height: 0 !important;
+    margin: 0 !important;
+    padding-top: 0 !important;
+    padding-left: 0 !important;
+    padding-right: 0 !important;
+
+    /*
+     * Reserve only the fixed rail's real footprint.
+     * Because the rail is fixed, this reserve sits underneath it at the
+     * bottom of the document instead of creating a visible gap above it.
+     */
+    padding-bottom: calc(3.5rem + env(safe-area-inset-bottom)) !important;
+
+    overflow-x: hidden !important;
+    overflow-y: auto !important;
+    overscroll-behavior-x: none !important;
+    background: #f8fafc !important;
+    -webkit-overflow-scrolling: touch !important;
+
+    /* Scroll/focus targets stop above the fixed rail. */
+    scroll-padding-bottom: calc(3.5rem + env(safe-area-inset-bottom)) !important;
+  }
+
+  /*
+   * Do not let the application shell manufacture a 100%-viewport flex item.
+   * Keep flex where useful, but make these shells content-sized.
+   */
+  .container,
+  .main,
+  .main-section,
+  .main__task-div {
+    width: 100% !important;
+    height: auto !important;
+    min-height: 0 !important;
+    max-height: none !important;
+    flex: 0 0 auto !important;
+    margin: 0 !important;
+  }
+
+  .container,
+  .main,
+  .main-section {
+    overflow: visible !important;
+  }
+
+  /*
+   * Hidden sections must be zero-dimensional. This is deliberately broader
+   * than the previous selector set so a hidden task cannot retain height,
+   * padding, or flex participation.
+   */
+  .main__task-div[hidden],
+  .main__task-div[aria-hidden="true"],
+  .main__task-div.is-hidden,
+  .main__task-div[style*="display: none"],
+  .main__task-div[style*="display:none"],
+  section[hidden],
+  section[aria-hidden="true"],
+  section.is-hidden,
+  section[style*="display: none"],
+  section[style*="display:none"] {
+    display: none !important;
+    flex: none !important;
+    width: 0 !important;
+    height: 0 !important;
+    min-height: 0 !important;
+    max-height: 0 !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    border: 0 !important;
+    overflow: hidden !important;
+  }
+
+  /*
+   * Active sections are content-sized. Do NOT give every tab a flex:1 or
+   * viewport height; short tabs should remain short.
+   */
+  .main__task-div:not([hidden]):not([aria-hidden="true"]) {
+    flex: 0 0 auto !important;
+    height: auto !important;
+    min-height: 0 !important;
+    max-height: none !important;
+    overflow: visible !important;
+  }
+
+  /* -----------------------------------------------------------------------
+     B. FOOTER: natural position, never a spacer
+     ----------------------------------------------------------------------- */
+
+  .footer {
+    flex: 0 0 auto !important;
+    position: relative !important;
+    width: 100% !important;
+    height: auto !important;
+    min-height: 0 !important;
+    max-height: none !important;
+
+    /*
+     * Critical fix: remove the auto-margin that was filling leftover
+     * viewport space on short sections.
+     */
+    margin: 0 !important;
+
+    padding: 0.4rem 0.8rem !important;
+    box-sizing: border-box !important;
+    text-align: center !important;
+    line-height: 1.2 !important;
+    font-size: 0.75rem !important;
+  }
+
+  /* -----------------------------------------------------------------------
+     C. BOTTOM SELECTOR RAIL: fixed, isolated, predictable geometry
+     ----------------------------------------------------------------------- */
+
+  .sidebar {
+    position: fixed !important;
+    top: auto !important;
+    left: 0 !important;
+    right: 0 !important;
+    bottom: 0 !important;
+
+    width: 100% !important;
+    height: calc(3.5rem + env(safe-area-inset-bottom)) !important;
+    min-height: calc(3.5rem + env(safe-area-inset-bottom)) !important;
+    max-height: calc(3.5rem + env(safe-area-inset-bottom)) !important;
+
+    box-sizing: border-box !important;
+    margin: 0 !important;
+    padding: 0.35rem 0.5rem env(safe-area-inset-bottom) !important;
+
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    flex: none !important;
+
+    overflow: hidden !important;
+    overscroll-behavior: contain !important;
+    isolation: isolate !important;
+    contain: layout paint !important;
+
+    background: #ffffff !important;
+    border: 0 !important;
+    border-top: 1px solid #cbd5e1 !important;
+    border-radius: 0.75rem 0.75rem 0 0 !important;
+    box-shadow: 0 -4px 12px rgba(0, 0, 0, 0.08) !important;
+    z-index: 10000 !important;
+  }
+
+  .sidebar .tool-menu {
+    display: flex !important;
+    flex: 0 0 auto !important;
+    flex-direction: row !important;
+    align-items: center !important;
+    justify-content: center !important;
+    width: max-content !important;
+    max-width: 100% !important;
+    height: 100% !important;
+    margin: 0 auto !important;
+    padding: 0 !important;
+    gap: 0.4rem !important;
+    overflow-x: auto !important;
+    overflow-y: hidden !important;
+    scrollbar-width: none !important;
+  }
+
+  .sidebar .tool-menu::-webkit-scrollbar {
+    display: none !important;
+  }
+
+  .sidebar .tool-list {
+    display: flex !important;
+    flex: 0 0 auto !important;
+    flex-direction: column !important;
+    align-items: center !important;
+    justify-content: center !important;
+    width: auto !important;
+    height: 100% !important;
+    min-width: 0 !important;
+    margin: 0 !important;
+    padding: 0 !important;
+  }
+
+  .sidebar .tool-link,
+  .sidebar .rail-button {
+    flex: 0 0 2.5rem !important;
+    width: 2.5rem !important;
+    height: 2.5rem !important;
+    min-width: 2.5rem !important;
+    min-height: 2.5rem !important;
+    max-width: 2.5rem !important;
+    max-height: 2.5rem !important;
+    margin: 0 !important;
+  }
+
+  /*
+   * Keep table/canvas z-indexes below the rail. Observation's sticky first
+   * column can stay sticky without ever covering the selector rail.
+   */
+  .sidebar,
+  .sidebar * {
+    z-index: auto !important;
+  }
+
+  .sidebar {
+    z-index: 10000 !important;
+  }
+
+  /* -----------------------------------------------------------------------
+     D. OBSERVATION: keep horizontal scrolling inside the table only
+     ----------------------------------------------------------------------- */
+
+  #observation,
+  #observation.observation-panel,
+  .observation-panel,
+  .observation-card {
+    position: relative !important;
+    z-index: 0 !important;
+    width: 100% !important;
+    height: auto !important;
+    min-height: 0 !important;
+    max-height: none !important;
+    margin: 0 !important;
+    padding: 0.75rem !important;
+    box-sizing: border-box !important;
+    overflow: visible !important;
+    isolation: auto !important;
+  }
+
+  #observation .table-wrapper,
+  #observation .table-responsive,
+  #observation .observation-table-wrapper,
+  .observation-card .table-wrapper,
+  .observation-panel .table-responsive,
+  .manual-observation-form .table-responsive,
+  #observation table {
+    position: relative !important;
+    display: block !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    height: auto !important;
+    min-height: 0 !important;
+    max-height: none !important;
+    margin: 0 0 0.6rem 0 !important;
+    overflow-x: auto !important;
+    overflow-y: visible !important;
+    -webkit-overflow-scrolling: touch !important;
+    overscroll-behavior-x: contain !important;
+    box-sizing: border-box !important;
+  }
+
+  #observation table {
+    width: max-content !important;
+    min-width: 100% !important;
+    margin-bottom: 0 !important;
+    white-space: nowrap !important;
+  }
+
+  #observation th,
+  #observation td,
+  .observation-card th,
+  .observation-card td,
+  .observation-panel th,
+  .observation-panel td {
+    white-space: nowrap !important;
+  }
+
+  /*
+   * Sticky first column stays below the fixed navigation rail.
+   * A modest z-index is enough for horizontal scrolling.
+   */
+  #observation table tr th:first-child,
+  #observation table tr td:first-child,
+  .observation-card table tr th:first-child,
+  .observation-card table tr td:first-child,
+  .observation-panel table tr th:first-child,
+  .observation-panel table tr td:first-child {
+    position: sticky !important;
+    left: 0 !important;
+    z-index: 1 !important;
+  }
+
+  /* No wrapper in Observation should accidentally become the page scroller. */
+  #observation .container,
+  #observation .table-wrapper,
+  #observation .table-responsive {
+    min-height: 0 !important;
+  }
+
+  /* -----------------------------------------------------------------------
+     E. SIMULATION: deterministic, content-sized, width-driven viewport
+     -----------------------------------------------------------------------
+     Do not use vh here. Mobile browser chrome changes viewport height, and
+     a vh-based canvas can force page-height recalculation when tabs switch.
+     Width-driven height is much more stable for a 3D workspace.
+     ----------------------------------------------------------------------- */
+
+  #simulation,
+  #simulation.simulation-card,
+  #simulationWindow,
+  #simulation .workspace-layout,
+  #simulation .lab-stage,
+  #simulation .workspace-primary {
+    position: relative !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    height: auto !important;
+    min-height: 0 !important;
+    max-height: none !important;
+    flex: 0 0 auto !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    overflow: visible !important;
+    box-sizing: border-box !important;
+  }
+
+  #simulation .workspace-viewport,
+  #simulation #workspaceViewport,
+  #simulation .three-viewport,
+  #simulation .apparatus-wrap,
+  #simulation .simulation-window,
+  .simulation-card .three-viewport,
+  .simulation-card .apparatus-wrap {
+    position: relative !important;
+    display: block !important;
+
+    width: 100% !important;
+    max-width: 100% !important;
+
+    /*
+     * Stable on mobile: approximately 4:3 to 16:10 depending on width,
+     * without depending on browser viewport height.
+     */
+    height: clamp(240px, 68vw, 420px) !important;
+    min-height: 240px !important;
+    max-height: 420px !important;
+    aspect-ratio: 1.45 / 1 !important;
+
+    flex: 0 0 auto !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    overflow: hidden !important;
+    box-sizing: border-box !important;
+
+    background: #f1f5f9 !important;
+    touch-action: pan-y !important;
+  }
+
+  #simulation canvas,
+  .simulation-card canvas,
+  #threeViewport canvas,
+  .apparatus-wrap canvas {
+    display: block !important;
+    position: absolute !important;
+    inset: 0 !important;
+
+    width: 100% !important;
+    height: 100% !important;
+    min-width: 0 !important;
+    min-height: 0 !important;
+    max-width: none !important;
+    max-height: none !important;
+
+    margin: 0 !important;
+    padding: 0 !important;
+    box-sizing: border-box !important;
+    touch-action: pan-y !important;
+  }
+
+  /*
+   * Every simulation control panel is content-sized. Nothing gets a stale
+   * desktop height carried into the mobile tab.
+   */
+  #simulation .experiment-sidepanel,
+  #simulation .side-details,
+  #simulation .workspace-aside,
+  #simulation .control-card,
+  #simulation .panel-card,
+  .experiment-sidepanel,
+  .side-details {
+    display: flex !important;
+    flex: 0 0 auto !important;
+    flex-direction: column !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    height: auto !important;
+    min-height: 0 !important;
+    max-height: none !important;
+    margin: 0 !important;
+    box-sizing: border-box !important;
+    overflow: visible !important;
+  }
+
+  #simulation .variables-sections,
+  #simulation .var-div,
+  #simulation .side-details > div {
+    width: 100% !important;
+    height: auto !important;
+    min-height: 0 !important;
+    max-height: none !important;
+    flex: 0 0 auto !important;
+    overflow: visible !important;
+  }
+
+  /*
+   * Horizontal controls stay in one compact row and never determine the
+   * vertical size of the simulation viewport.
+   */
+  #simulation .control-presets,
+  #simulation .preset-grid,
+  #simulation .mode-button-group,
+  #simulation .tab-container {
+    display: flex !important;
+    flex: 0 0 auto !important;
+    flex-direction: row !important;
+    flex-wrap: nowrap !important;
+    align-items: center !important;
+    justify-content: flex-start !important;
+
+    width: 100% !important;
+    max-width: 100% !important;
+    height: auto !important;
+    min-height: 0 !important;
+
+    margin: 0 !important;
+    padding: 0.45rem 0.4rem !important;
+    gap: 0.35rem !important;
+
+    overflow-x: auto !important;
+    overflow-y: hidden !important;
+    -webkit-overflow-scrolling: touch !important;
+    scrollbar-width: none !important;
+
+    box-sizing: border-box !important;
+  }
+
+  #simulation .control-presets::-webkit-scrollbar,
+  #simulation .preset-grid::-webkit-scrollbar,
+  #simulation .mode-button-group::-webkit-scrollbar,
+  #simulation .tab-container::-webkit-scrollbar {
+    display: none !important;
+  }
+
+  #simulation .control-presets button,
+  #simulation .preset-grid button,
+  #simulation .mode-button-group button,
+  #simulation .tab-container button {
+    flex: 0 0 auto !important;
+    min-width: max-content !important;
+    white-space: nowrap !important;
+  }
+
+  /* Fullscreen is the one intentional exception to normal mobile sizing. */
+  .apparatus-wrap:fullscreen,
+  #simulationWindow:fullscreen,
+  #workspaceViewport:fullscreen {
+    position: fixed !important;
+    inset: 0 !important;
+    width: 100vw !important;
+    height: 100dvh !important;
+    min-height: 100dvh !important;
+    max-height: none !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    overflow: hidden !important;
+  }
+
+  /* -----------------------------------------------------------------------
+     F. GENERAL CARD CONTAINMENT
+     ----------------------------------------------------------------------- */
+
+  .formula-display-grid,
+  .graph-grid,
+  .reference-card,
+  .formula-card,
+  .calculation-card,
+  .observation-card,
+  .observation-panel,
+  .graph-card,
+  .graph-panel,
+  .graph-figure {
+    height: auto !important;
+    min-height: 0 !important;
+    max-height: none !important;
+    flex: 0 0 auto !important;
+    overflow: visible !important;
+  }
 }
