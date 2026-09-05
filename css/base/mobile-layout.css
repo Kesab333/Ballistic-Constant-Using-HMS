@@ -5,27 +5,34 @@
 
 @media screen and (max-width: 768px) {
 
-  /* ---- BASE RESET ---- */
+  /* ---- BASE RESET (Unlocks Page-Level Scrolling) ---- */
   *, *::before, *::after {
     box-sizing: border-box !important;
   }
 
-  body, html {
+  html, body {
     overflow-x: hidden !important;
+    overflow-y: auto !important;
     width: 100% !important;
     height: auto !important;
     min-height: 100% !important;
-    padding-bottom: 4rem !important;
+    padding-bottom: 5rem !important;
+    -webkit-overflow-scrolling: touch !important;
   }
 
-  .container {
+  .container,
+  .main,
+  .main-section,
+  .main__task-div {
     display: flex !important;
     flex-direction: column !important;
     padding: 0.35rem !important;
     gap: 0.5rem !important;
     width: 100% !important;
     height: auto !important;
-    min-height: calc(100vh - 4.2rem) !important;
+    min-height: 0 !important;
+    max-height: none !important;
+    overflow: visible !important;
   }
 
   /* ---- HEADER ---- */
@@ -136,12 +143,13 @@
   }
 
   /* =======================================================
-     SIMULATION SECTION COMPLETE REPAIR
+     SIMULATION SECTION SCROLL & LAYOUT REPAIR
      ======================================================= */
 
-  /* 1. Reset Main Simulation Layout into a single vertical stack */
+  /* 1. Reset Main Simulation Layout into a non-blocked vertical stack */
   #simulation,
   .simulation-card,
+  #simulationWindow,
   #simulation .workspace-layout,
   #simulation .lab-stage,
   #simulation .workspace-primary {
@@ -151,12 +159,13 @@
     max-width: 100% !important;
     height: auto !important;
     min-height: 0 !important;
+    max-height: none !important;
     margin: 0 !important;
     padding: 0 !important;
     overflow: visible !important;
   }
 
-  /* 2. Top Navigation Tabs: Force into 1 single horizontal swipe row */
+  /* 2. Top Navigation Tabs: Single-row horizontal scroll */
   #simulation .control-presets,
   #simulation .preset-grid,
   #simulation .mode-button-group,
@@ -178,9 +187,9 @@
     background: #ffffff !important;
     border-bottom: 1px solid #cbd5e1 !important;
     box-sizing: border-box !important;
+    flex-shrink: 0 !important;
   }
 
-  /* Style individual top buttons to fit neatly */
   #simulation .control-presets button,
   #simulation .preset-grid button,
   #simulation .mode-button-group button,
@@ -194,7 +203,7 @@
     margin: 0 !important;
   }
 
-  /* 3. 3D Canvas Viewport: Clean fit directly below top tabs */
+  /* 3. 3D Canvas Viewport (Allows vertical touch pass-through) */
   #simulation .workspace-viewport,
   #simulation #workspaceViewport,
   #simulation .three-viewport,
@@ -205,14 +214,15 @@
     display: block !important;
     width: 100% !important;
     max-width: 100% !important;
-    height: 48vh !important;
-    min-height: 280px !important;
-    max-height: 450px !important;
+    height: 42vh !important;
+    min-height: 260px !important;
+    max-height: 400px !important;
     position: relative !important;
     overflow: hidden !important;
     background: #f1f5f9 !important;
     margin: 0 !important;
     padding: 0 !important;
+    touch-action: pan-y !important; /* Permits vertical page swipe over canvas */
   }
 
   #simulation canvas,
@@ -225,9 +235,10 @@
     position: absolute !important;
     top: 0 !important;
     left: 0 !important;
+    touch-action: pan-y !important;
   }
 
-  /* 4. Control Panels (Fixes Giant White Vertical Pillars) */
+  /* 4. Control Panels Stacking */
   #simulation .experiment-sidepanel,
   #simulation .side-details,
   #simulation .workspace-aside,
@@ -245,9 +256,9 @@
     background: #ffffff !important;
     border-top: 1px solid #e2e8f0 !important;
     box-sizing: border-box !important;
+    overflow: visible !important;
   }
 
-  /* Force variables and accordion panels inside control cards to stack vertically */
   #simulation .variables-sections,
   #simulation .var-div,
   #simulation .side-details > div {
@@ -257,6 +268,7 @@
     height: auto !important;
     min-height: 0 !important;
     gap: 0.5rem !important;
+    overflow: visible !important;
   }
 
   /* ---- FULLSCREEN OVERRIDE ---- */
