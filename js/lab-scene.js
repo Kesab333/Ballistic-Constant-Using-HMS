@@ -1107,98 +1107,72 @@ function isLaboratoryMode() {
 
 function hideLabControls() {
     const labControls = document.getElementById('lab-controls');
-    if (labControls) labControls.hidden = true;
-}
-
-function showLabControls() {
-    const labControls = document.getElementById('lab-controls');
-
-    if (!labControls) return;
-
-    if (
-        isLaboratoryMode() &&
-        areAllLabApparatusPresent()
-    ) {
-        labControls.hidden = false;
-    } else {
+    if (labControls) {
         labControls.hidden = true;
+        labControls.style.setProperty('display', 'none', 'important');
     }
 }
 
 function hideAllApparatusControls() {
-    document
-        .querySelectorAll('.apparatus-panel')
-        .forEach(panel => {
-            panel.style.display = 'none';
-            panel.dataset.apparatusOpen = 'false';
-        });
+    document.querySelectorAll('.apparatus-panel').forEach(panel => {
+        panel.style.setProperty('display', 'none', 'important');
+        panel.dataset.apparatusOpen = 'false';
+    });
+}
 
-    // The commutator panel is also an apparatus panel.
-    document
-        .getElementById('commutator-control-panel')
-        ?.style.setProperty('display', 'none');
+function showLabControls() {
+    const labControls = document.getElementById('lab-controls');
+    if (!labControls) return;
+
+    // ONLY show Lab Controls if:
+    // 1. We are in laboratory mode
+    // 2. ALL required apparatuses are dragged onto the table
+    // 3. NO individual apparatus is currently selected
+    if (isLaboratoryMode() && areAllLabApparatusPresent() && !currentlySelectedApparatus) {
+        labControls.hidden = false;
+        labControls.style.setProperty('display', 'flex', 'important');
+    } else {
+        labControls.hidden = true;
+        labControls.style.setProperty('display', 'none', 'important');
+    }
 }
 
 function showControlsOnRightSide(apparatusId) {
-
-    hideLabControls();
+    currentlySelectedApparatus = apparatusId;
     hideAllApparatusControls();
 
     const targetPanelId = getApparatusPanelId(apparatusId);
-
-    if (!targetPanelId) {
-        // No dedicated control panel.
-        showLabControls();
-        return;
-    }
-
-    const panel = document.getElementById(targetPanelId);
+    const panel = targetPanelId ? document.getElementById(targetPanelId) : null;
 
     if (panel) {
-        panel.style.display = 'flex';
+        // Hide lab controls while an individual apparatus control is active
+        hideLabControls();
+        panel.style.setProperty('display', 'flex', 'important');
         panel.dataset.apparatusOpen = 'true';
+    } else {
+        refreshLabControlsVisibility();
     }
 }
 
 function closeCurrentApparatusControls() {
-
-    hideAllApparatusControls();
-
     currentlySelectedApparatus = null;
-
+    hideAllApparatusControls();
     refreshLabControlsVisibility();
-    refreshApparatusCloseButtons();
 }
 
 function refreshLabControlsVisibility() {
-
     if (!isLaboratoryMode()) {
         hideLabControls();
         hideAllApparatusControls();
         return;
     }
 
-    const openPanel = document.querySelector(
-        '.apparatus-panel[data-apparatus-open="true"]'
-    );
-
-    if (openPanel) {
-        hideLabControls();
-        return;
+    if (currentlySelectedApparatus) {
+        showControlsOnRightSide(currentlySelectedApparatus);
+    } else {
+        hideAllApparatusControls();
+        showLabControls();
     }
-
-    showLabControls();
-}
-
-function refreshApparatusCloseButtons() {
-
-    const laboratory = isLaboratoryMode();
-
-    document
-        .querySelectorAll('.apparatus-close-btn')
-        .forEach(button => {
-            button.hidden = !laboratory;
-        });
 }
 
 function moveLabControlsIntoFullscreen() {
@@ -2281,6 +2255,9 @@ function setupDragAndDrop() {
                 isDraggingOnTable = false;
                 dragStartPosition.set(e.clientX, e.clientY);
             }
+        } else {
+            // Clicked background / empty table space -> deselect
+            closeCurrentApparatusControls();
         }
     });
 
@@ -2314,13 +2291,14 @@ function setupDragAndDrop() {
     const endTableDrag = () => {
         if (selectedApparatusForDrag) {
             if (!isDraggingOnTable) {
-                currentlySelectedApparatus = selectedApparatusForDrag;
+                // Clicked on an apparatus - show its controls
                 const id = selectedApparatusForDrag.userData.apparatusId;
-                showControlsOnRightSide(id); 
+                showControlsOnRightSide(id);
             }
             controls.enabled = !isRotationLocked;
             selectedApparatusForDrag = null;
             isDraggingOnTable = false;
+            refreshLabControlsVisibility();
         }
     };
 
@@ -2377,8 +2355,10 @@ function addApparatusToTable(id, point) {
                 child.userData.highlightMesh = highlight;
             }
         });
+        
+        // Re-evaluate visibility (Lab controls will only show once all 5 are present)
+        refreshLabControlsVisibility();
     }
-    refreshLabControlsVisibility();
 }
 
 function enableTerminalInspector() {

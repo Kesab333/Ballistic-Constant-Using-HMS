@@ -706,3 +706,13 @@
     overflow: visible !important;
   }
 }
+
+/* ==========================================================================
+   ENSURE HIDDEN STATE OVERRIDES SIDEPANEL !IMPORTANT RULES (Mobile)
+   ========================================================================== */
+/* Ensure hidden state overrides sidepanel !important rules */
+.simulation-card .experiment-sidepanel [hidden],
+.apparatus-panel[data-apparatus-open="false"],
+.apparatus-panel[style*="display: none"] {
+  display: none !important;
+}
