@@ -67,6 +67,26 @@
   transform: scale(1.06);
 }
 
+.fullscreen-lab-controls-close-icon {
+  display: none;
+}
+
+.fullscreen-lab-controls-btn {
+  display: none;
+}
+
+.apparatus-wrap:fullscreen .fullscreen-lab-controls-btn {
+  display: flex;
+}
+
+.fullscreen-lab-controls-btn.is-open .fullscreen-lab-controls-open-icon {
+  display: none;
+}
+
+.fullscreen-lab-controls-btn.is-open .fullscreen-lab-controls-close-icon {
+  display: block;
+}
+
 .rotation-lock-btn.is-locked {
   background: #059669;
   color: #ffffff;

@@ -1201,6 +1201,8 @@ function moveLabControlsIntoFullscreen() {
     labControls.classList.add(
         'is-fullscreen-lab-controls'
     );
+
+    updateFullscreenLabControlsButton(true);
 }
 
 function moveLabControlsBackToSidebar() {
@@ -1234,6 +1236,17 @@ function moveLabControlsBackToSidebar() {
     labControls.classList.remove(
         'is-fullscreen-lab-controls'
     );
+
+    updateFullscreenLabControlsButton(false);
+}
+
+function updateFullscreenLabControlsButton(isOpen) {
+    const button = document.getElementById('fullscreenLabControlsButton');
+    if (!button) return;
+
+    button.classList.toggle('is-open', isOpen);
+    button.setAttribute('aria-label', isOpen ? 'Close lab controls' : 'Open lab controls');
+    button.setAttribute('title', isOpen ? 'Close Lab Controls' : 'Open Lab Controls');
 }
 
 function setupUI() {
@@ -1271,6 +1284,21 @@ function setupUI() {
                 simWindow.requestFullscreen().catch(err => console.log(err));
             } else {
                 document.exitFullscreen();
+            }
+        });
+    }
+
+    const fullscreenLabControlsBtn = document.getElementById('fullscreenLabControlsButton');
+    if (fullscreenLabControlsBtn) {
+        fullscreenLabControlsBtn.addEventListener('click', () => {
+            const labControls = document.getElementById('lab-controls');
+            if (!labControls) return;
+
+            if (labControls.classList.contains('is-fullscreen-lab-controls')) {
+                moveLabControlsBackToSidebar();
+                refreshLabControlsVisibility();
+            } else {
+                moveLabControlsIntoFullscreen();
             }
         });
     }
@@ -1487,9 +1515,7 @@ function setupUI() {
 
             if (isLabFullscreen) {
 
-                if (isLaboratoryMode()) {
-                    moveLabControlsIntoFullscreen();
-                }
+                updateFullscreenLabControlsButton(false);
 
             } else {
 
