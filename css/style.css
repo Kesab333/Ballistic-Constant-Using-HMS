@@ -14,6 +14,7 @@
 @import './components/graphs.css';
 @import './components/reference.css';
 @import './components/workspace.css';
+@import './components/dashboard.css';
 @import './reversing_key_commutator.css';
 
 /* ---- Utilities & Overlays ---- */

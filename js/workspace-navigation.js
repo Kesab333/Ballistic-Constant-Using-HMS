@@ -3,6 +3,8 @@ const workspaceLinks = [...document.querySelectorAll('.workspace-link')];
 const workspaceTitle = document.getElementById('workspaceTitle');
 
 function showWorkspace(name) {
+  // Dismiss dashboard if active
+  document.body.classList.remove('dashboard-active');
   workspaceSections.forEach((section) => {
     const isFooter = section.tagName === 'FOOTER';
     const isSelected = section.id === name;
@@ -28,4 +30,10 @@ workspaceLinks.forEach((link) => {
   link.addEventListener('click', () => showWorkspace(link.dataset.workspace));
 });
 
+document.querySelectorAll('.dashboard-close-btn').forEach((button) => {
+  button.addEventListener('click', () => showWorkspace('simulation'));
+});
+
 showWorkspace('simulation');
+
+window.showWorkspace = showWorkspace;

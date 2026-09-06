@@ -217,6 +217,18 @@ html, body {
   overflow: hidden;
 }
 
+/* Dashboard/landing states must not keep the viewport-sized workspace shell. */
+body.dashboard-active .container,
+body.dashboard-active .main,
+body.dashboard-active .main-section {
+  min-height: 0;
+  height: auto;
+}
+
+body.dashboard-active .main-section {
+  flex: 0 0 auto;
+}
+
 .simulation-card {
   display: flex !important;
   flex-direction: column;

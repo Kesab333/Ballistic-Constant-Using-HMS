@@ -10,7 +10,7 @@ import { updateAllWires, createWire, removeWire } from './terminal-utils.js';
 import { ballisticExperiment, setElectricalConnections, updateBallisticPhysics } from './physics.js';
 
 let scene, camera, renderer, controls, simulationViewport;
-let labTable, surfaceGrid, commutator;
+let labTable, liveMonitorGroup, surfaceGrid, commutator;
 
 // ============================================================
 // MONITOR T — DEDICATED OPTICAL OBSERVATION
@@ -737,6 +737,22 @@ function init() {
     
     setupRaycasterForInteractions();
     enableTerminalInspector();
+    window.dispatchEvent(new CustomEvent('lab:ready'));
+}
+
+function getLabEnvironmentClone() {
+    if (!scene) return null;
+
+    const environment = scene.clone(true);
+    environment.children
+        .filter(child => child.userData?.apparatusId)
+        .forEach(child => environment.remove(child));
+
+    return environment;
+}
+
+function getMonitorTPreviewTexture() {
+    return monitorScaleTexture || null;
 }
 
 // ============================================================
@@ -889,7 +905,8 @@ function buildRoom() {
     // MONITOR T SCREEN
     // ============================================================
 
-    const liveMonitorGroup = new THREE.Group();
+    liveMonitorGroup = new THREE.Group();
+    liveMonitorGroup.userData.labRole = 'monitor-t';
 
     const liveFrame =
         new THREE.Mesh(
@@ -1037,6 +1054,7 @@ function buildRoom() {
 
 function createTable() {
     labTable = new THREE.Group();
+    labTable.userData.labRole = 'table';
     
     const woodMap = createWoodTexture();
     const woodTopMaterial = new THREE.MeshStandardMaterial({ color: 0xffffff, roughness: 0.92, metalness: 0.0, map: woodMap });
@@ -1160,10 +1178,28 @@ function closeCurrentApparatusControls() {
     refreshLabControlsVisibility();
 }
 
+function refreshApparatusCloseButtons() {
+    document
+        .querySelectorAll('.apparatus-close-btn')
+        .forEach(button => {
+            if (button.dataset.closeHandlerAttached === 'true') {
+                return;
+            }
+
+            button.addEventListener('click', (event) => {
+                event.preventDefault();
+                event.stopPropagation();
+
+                closeCurrentApparatusControls();
+            });
+
+            button.dataset.closeHandlerAttached = 'true';
+        });
+}
+
 function refreshLabControlsVisibility() {
     if (!isLaboratoryMode()) {
         hideLabControls();
-        hideAllApparatusControls();
         return;
     }
 
@@ -1344,19 +1380,7 @@ function setupUI() {
     // APPARATUS CONTROL CLOSE BUTTONS
     // ============================================================
 
-    document
-        .querySelectorAll('.apparatus-close-btn')
-        .forEach(button => {
-
-            button.addEventListener('click', (event) => {
-
-                event.preventDefault();
-                event.stopPropagation();
-
-                closeCurrentApparatusControls();
-            });
-
-        });
+    refreshApparatusCloseButtons();
 
     // ============================================================
     // GLOBAL LAB CONTROL BUTTONS
@@ -2436,6 +2460,8 @@ function cleanup() {
 export { 
     init, 
     animate, 
+    getLabEnvironmentClone,
+    getMonitorTPreviewTexture,
     addApparatusToTable, 
     autoConnectCircuit,
     clearAllWires,

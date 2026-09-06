@@ -281,9 +281,9 @@
 /* Neutralise the obsolete graph-card rules that forced this view into a
    collapsing single-column flex container. */
 #graphs {
-  height: calc(100vh - 15rem) !important;
-  min-height: calc(100vh - 15rem) !important;
-  max-height: calc(100vh - 15rem) !important;
+  height: min(54rem, calc(100vh - 15rem)) !important;
+  min-height: 0 !important;
+  max-height: 54rem;
 }
 
 #graphs[hidden] {
@@ -394,14 +394,19 @@
   min-height: 0;
   place-items: center;
   padding: 1rem;
+  overflow: hidden;
 }
 
 .reference-card img,
 .diagram-panel .reference-card img {
+  display: block;
   width: min(100%, 62rem);
+  max-width: 100%;
+  height: auto;
   min-height: 0;
-  max-height: min(62vh, 46rem);
+  max-height: 100%;
   padding: .5rem;
+  box-sizing: border-box;
   object-fit: contain;
 }
 

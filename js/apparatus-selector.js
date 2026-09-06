@@ -29,7 +29,10 @@ function selectApparatus(apparatus) {
   // Switch the active apparatus control panel in the right sidebar
   Object.entries(apparatusPanels).forEach(([name, panel]) => {
     if (!panel) return;
-    if (name === apparatus) {
+    const isSelected = name === apparatus;
+    panel.dataset.apparatusOpen = String(isSelected);
+
+    if (isSelected) {
       panel.style.display = 'block';
       panel.hidden = false;
     } else {

@@ -44,7 +44,7 @@
 .heading-button {
   display: grid;
   place-items: center;
-  width: 2.7rem;
+  min-width: 2.7rem;
   height: 2.7rem;
   border: 1px solid #ffffff90;
   border-radius: .4rem;
@@ -53,6 +53,10 @@
   font-size: 1.8rem;
   font-weight: 700;
   line-height: 1;
+}
+
+.heading-button:not(.dashboard-close-btn) {
+  width: 2.7rem;
 }
 
 .heading-button:hover { background: #ffffff38; }
