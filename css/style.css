@@ -314,6 +314,11 @@
     pointer-events: none;
 }
 
+  .apparatus-wrap:fullscreen #lab-controls-fullscreen-host {
+    display: block !important;
+    z-index: 100;
+  }
+
 #lab-controls-fullscreen-host #lab-controls {
     pointer-events: auto;
 }
