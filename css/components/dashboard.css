@@ -3,12 +3,6 @@
    ========================================================================== */
 
 /* ---- Dashboard Active State: Hide sidebar & main content except footer ---- */
-html.dashboard-active,
-body.dashboard-active {
-  height: auto !important;
-  min-height: 0 !important;
-}
-
 body.dashboard-active .sidebar {
   display: none !important;
 }
@@ -45,17 +39,6 @@ body.dashboard-active .main {
   display: flex;
   flex-direction: column;
   gap: 0.8rem;
-}
-
-body.dashboard-active .container,
-body.dashboard-active .main,
-body.dashboard-active .main-section {
-  min-height: 0 !important;
-  height: auto !important;
-}
-
-body.dashboard-active .container {
-  padding-bottom: 0 !important;
 }
 
 /* ---- Dashboard Container ---- */

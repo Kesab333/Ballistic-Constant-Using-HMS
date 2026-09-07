@@ -77,48 +77,25 @@ export function initDashboard({ onSelectSection, onReturnHome } = {}) {
   document.querySelectorAll('.workspace-link').forEach(link => {
     link.addEventListener('click', () => {
       document.body.classList.remove('dashboard-active');
-      document.documentElement.classList.remove('dashboard-active');
-      document.documentElement.style.removeProperty('height');
-      document.body.style.removeProperty('height');
-      document.body.style.removeProperty('min-height');
-      document.querySelector('.container')?.style.removeProperty('min-height');
     });
   });
 
   function showDashboard() {
     document.body.classList.add('dashboard-active');
-    document.documentElement.classList.add('dashboard-active');
-
-    document.documentElement.style.setProperty('height', 'auto', 'important');
-    document.body.style.setProperty('height', 'auto', 'important');
-    document.body.style.setProperty('min-height', '0', 'important');
-    document.querySelector('.container')?.style.setProperty('min-height', '0', 'important');
 
     // Deactivate sidebar highlights
     document.querySelectorAll('.workspace-link').forEach(l => l.classList.remove('is-active'));
     
-    // Enforce dashboard visibility even when mobile layout rules use !important.
+    // Clear inline display styles so dashboard.css hiding works
     document.querySelectorAll('.main__task-div').forEach(sec => {
-      if (sec.classList.contains('footer')) {
-        sec.style.setProperty('display', 'block', 'important');
-      } else {
-        sec.style.setProperty('display', 'none', 'important');
-      }
+      sec.style.removeProperty('display');
     });
-
-    dashboardView.style.setProperty('display', 'flex', 'important');
 
     if (typeof onReturnHome === 'function') onReturnHome();
   }
 
   function openSection(workspaceId) {
     document.body.classList.remove('dashboard-active');
-    document.documentElement.classList.remove('dashboard-active');
-
-    document.documentElement.style.removeProperty('height');
-    document.body.style.removeProperty('height');
-    document.body.style.removeProperty('min-height');
-    document.querySelector('.container')?.style.removeProperty('min-height');
 
     if (typeof window.showWorkspace === 'function') {
       window.showWorkspace(workspaceId);
