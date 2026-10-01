@@ -66,23 +66,11 @@
       ],
       tip: 'Always use the on-screen circuit-status message as the final check; a visually connected wire is not enough if it is attached to the wrong terminal.'
     },
-    graph: {
-      title: 'Graphs, observations, calculations, and results',
-      subtitle: 'Use these views after completing valid trials.',
-      steps: [
-        ['Observation', 'The automatic table stores R and the left/right θ₁, θ₃, and corrected throws. A row is complete only after the commutator has been reversed.'],
-        ['Calibration graph', 'The upper graph plots 1/θ against R after complete readings are available for two or more resistance settings.'],
-        ['Trajectory graph', 'The lower graph shows only the galvanometer’s motion during an actual throw. It is blank while the experiment is idle.'],
-        ['Calculation', 'Check the live constants, total resistance, charge, and computed ballistic constant. Change instrument constants only when intentionally modelling a different instrument.'],
-        ['Results', 'Use the mean ballistic constant only after complete readings at two or more resistance settings. A roughly straight calibration relation is a useful quality check.']
-      ],
-      tip: 'If the calibration points do not behave consistently, repeat the observation after the galvanometer settles and confirm that R was changed between trials.'
-    },
     mobile: {
       title: 'Using the lab on a phone or small screen',
       subtitle: 'The lab works on smaller screens, but landscape is strongly recommended.',
       steps: [
-        ['Use landscape mode', 'Rotate the phone horizontally before using Simulation, Diagram, Graph, or the manual-wiring controls. It gives the apparatus and control panels enough width.'],
+        ['Use landscape mode', 'Rotate the phone horizontally before using Simulation, Diagram, or the manual-wiring controls. It gives the apparatus and control panels enough width.'],
         ['Use the bottom navigation', 'On a phone, the section icons become a fixed bottom bar. Tap an icon to replace the current workspace.'],
         ['Scroll inside the active view', 'Tables, diagrams, and the calculation panel may scroll horizontally or vertically. This is expected on a narrow screen.'],
         ['Use fullscreen for the apparatus', 'Use the fullscreen control when you need to inspect or manipulate the 3D laboratory more precisely.'],
@@ -97,7 +85,6 @@
         ['Circuit remains open', 'Use Auto Connect or inspect the manual route. Then open the tapping switch and look for the armed status.'],
         ['No valid throw', 'Raise the HMS coil fully, wait for it to settle, then release it. Check that the galvanometer has returned to zero before trying again.'],
         ['No spot reading', 'Select the ballistic galvanometer and correct the optical alignment before repeating the observation.'],
-        ['Graph is blank', 'Complete both commutator directions at two or more distinct resistance values.'],
         ['Reset safely', 'Use Reset observations in Calculation only when you intend to discard the trial set and begin a new calibration.']
       ],
       tip: 'A careful two- or three-trial set at different resistance values is more useful than many rushed releases.'

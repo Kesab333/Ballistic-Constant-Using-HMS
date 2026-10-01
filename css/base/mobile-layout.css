@@ -746,6 +746,7 @@
     width: 100% !important;
     height: auto !important;
     min-height: 0 !important;
+    padding-bottom: 0 !important;
     overflow-x: hidden !important;
     overflow-y: auto !important;
     background: #f8fafc !important;
@@ -1239,5 +1240,25 @@
     max-height: none !important;
     flex: 0 0 auto !important;
     overflow: visible !important;
+  }
+
+  /* The ID-based simulation mobile rules otherwise outrank the dashboard hide rule. */
+  body.dashboard-active #simulation {
+    display: none !important;
+    flex: none !important;
+    width: 0 !important;
+    height: 0 !important;
+    min-height: 0 !important;
+    max-height: 0 !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    border: 0 !important;
+    overflow: hidden !important;
+  }
+
+  /* The dashboard hides the fixed rail, so it does not need bottom reserve space. */
+  body.dashboard-active {
+    padding-bottom: 0 !important;
+    scroll-padding-bottom: 0 !important;
   }
 }

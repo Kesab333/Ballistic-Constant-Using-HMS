@@ -6,7 +6,6 @@ const DASHBOARD_SECTIONS = [
   { id: 'formula', title: 'Formula', iconSrc: './images/formula.svg', workspace: 'formula' },
   { id: 'simulation', title: 'Simulation', iconSrc: './images/simulation.svg', workspace: 'simulation' },
   { id: 'observation', title: 'Observation', iconSrc: './images/observation.svg', workspace: 'observation' },
-  { id: 'graphs', title: 'Live Graph', iconSrc: './images/graphbutton.svg', workspace: 'graphs' },
   { id: 'calculation', title: 'Calculation', iconSrc: './images/calculation.svg', workspace: 'calculation' },
   { id: 'results', title: 'Results', iconSrc: './images/results.svg', workspace: 'results' }
 ];
@@ -49,7 +48,6 @@ export function initDashboard({ onSelectSection, onReturnHome } = {}) {
   renderFormulaCardLatex();
 
   // Initialize interactive preview loops
-  initLiveGraphPreview();
   initObservationFluctuation();
   initSimulationMiniPreview();
 
@@ -195,14 +193,6 @@ function getCardPreviewHTML(sectionId) {
         </div>
       `;
 
-    case 'graphs':
-      return `
-        <div class="dash-graph-bg">
-          <span class="dash-graph-label">Galvanometer Deflection θ vs Time (t)</span>
-          <canvas id="dashGraphCanvas" class="dash-graph-canvas"></canvas>
-        </div>
-      `;
-
     case 'calculation':
       return `
         <div class="dash-calc-bg">
@@ -274,100 +264,6 @@ function renderFormulaCardLatex() {
   } else {
     setTimeout(renderFormulaCardLatex, 300);
   }
-}
-
-/**
- * Live Graph: Continuous moving Ballistic Galvanometer Damped Oscillation Wave
- */
-let graphAnimId = null;
-function initLiveGraphPreview() {
-  const canvas = document.getElementById('dashGraphCanvas');
-  if (!canvas) return;
-
-  const ctx = canvas.getContext('2d');
-  let t = 0;
-
-  function draw() {
-    if (!document.body.classList.contains('dashboard-active')) {
-      graphAnimId = requestAnimationFrame(draw);
-      return;
-    }
-
-    const rect = canvas.getBoundingClientRect();
-    const dpr = window.devicePixelRatio || 1;
-    const w = Math.round(rect.width * dpr);
-    const h = Math.round(rect.height * dpr);
-
-    if (w > 0 && h > 0 && (canvas.width !== w || canvas.height !== h)) {
-      canvas.width = w;
-      canvas.height = h;
-    }
-
-    if (canvas.width === 0 || canvas.height === 0) {
-      graphAnimId = requestAnimationFrame(draw);
-      return;
-    }
-
-    ctx.save();
-    ctx.scale(dpr, dpr);
-    const width = rect.width;
-    const height = rect.height;
-
-    // Background: Pure White
-    ctx.fillStyle = '#ffffff';
-    ctx.fillRect(0, 0, width, height);
-
-    // Light-grey horizontal grid lines
-    ctx.strokeStyle = '#e2e8f0';
-    ctx.lineWidth = 1;
-    const numGridLines = 5;
-    for (let i = 1; i < numGridLines; i++) {
-      const y = (height / numGridLines) * i;
-      ctx.beginPath();
-      ctx.moveTo(0, y);
-      ctx.lineTo(width, y);
-      ctx.stroke();
-    }
-
-    // Center Zero Baseline
-    const centerY = height / 2;
-    ctx.strokeStyle = '#cbd5e1';
-    ctx.lineWidth = 1.2;
-    ctx.beginPath();
-    ctx.moveTo(0, centerY);
-    ctx.lineTo(width, centerY);
-    ctx.stroke();
-
-    // Damped Ballistic Galvanometer Oscillatory Wave
-    ctx.strokeStyle = '#089b93';
-    ctx.lineWidth = 2.0;
-    ctx.lineJoin = 'round';
-    ctx.lineCap = 'round';
-
-    ctx.beginPath();
-    t += 0.045; // smooth scrolling speed
-
-    // Damped harmonic motion with successive peaks
-    const wavelength = 65; // period in pixels
-    const damping = 0.0035;
-
-    for (let x = 0; x <= width; x += 1.5) {
-      const phase = (x / wavelength) * Math.PI * 2 - t;
-      const decayFactor = Math.exp(-((x % (width * 0.95)) * damping));
-      const envelope = 0.38 * height * decayFactor;
-      const y = centerY - Math.sin(phase) * envelope;
-
-      if (x === 0) ctx.moveTo(x, y);
-      else ctx.lineTo(x, y);
-    }
-    ctx.stroke();
-
-    ctx.restore();
-    graphAnimId = requestAnimationFrame(draw);
-  }
-
-  if (graphAnimId) cancelAnimationFrame(graphAnimId);
-  graphAnimId = requestAnimationFrame(draw);
 }
 
 /**

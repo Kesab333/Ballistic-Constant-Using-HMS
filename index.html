@@ -29,7 +29,6 @@
   <!-- Layout Styles & Component Styles -->
   <link rel="stylesheet" href="css/components/apparatus.css?v=2" />
   <link rel="stylesheet" href="css/base/desktop-layout.css" />
-  <link rel="stylesheet" href="css/components/graphs.css" />
   <link rel="stylesheet" href="css/components/reference.css" />
   <link rel="stylesheet" href="css/base/tablet-layout.css" media="screen and (min-width: 769px) and (max-width: 1024px)" />
   <link rel="stylesheet" href="css/base/mobile-layout.css" media="screen and (max-width: 768px)" />
@@ -62,8 +61,6 @@
             aria-label="Simulation"></button><span>Simulation</span></li>
         <li class="tool-list"><button class="tool-link icon-observation workspace-link" data-workspace="observation"
             aria-label="Observation"></button><span>Observation</span></li>
-        <li class="tool-list"><button id="railGraphButton" class="rail-button icon-graph workspace-link" data-workspace="graphs"
-            aria-label="Show graphs"></button><span>Graph</span></li>
         <li class="tool-list"><button class="tool-link icon-calculation workspace-link" data-workspace="calculation"
             aria-label="Calculation"></button><span>Calculation</span></li>
         <li class="tool-list"><button class="tool-link icon-results workspace-link" data-workspace="results"
@@ -195,28 +192,21 @@
                         min="0"
                         max="210"
                         step="1"
-                        value="0"
+                        value="5"
                       />
-                      <span class="unit-label">Ω</span>
+                      <span class="unit-label">kΩ</span>
                     </div>
                   </div>
 
-                  <!-- HMS operation -->
                   <div class="lab-control-block">
-                    <label>Raise and Drop</label>
-
-                    <button
-                      id="lab-hms-raise"
-                      class="control-btn primary"
-                      type="button"
-                    >
-                      Raise Coil
-                    </button>
+                    <label>HMS lever control</label>
+                    <button id="lab-hms-drop" class="control-btn secondary" type="button">Raise Coil</button>
                   </div>
 
+                  <!-- Commutator operation -->
                   <div class="lab-control-block">
-                    <label>Release</label>
-                    <button id="lab-hms-drop" class="control-btn secondary" type="button">Drop Coil</button>
+                    <label>Commutator</label>
+                    <button id="lab-commutator-toggle" class="control-btn primary" type="button">Switch Polarity</button>
                   </div>
 
                   <!-- Tapping Switch -->
@@ -256,8 +246,8 @@
                   <div class="ui-row">
                     <label for="res-input">Resistance Box Setting:</label>
                     <div class="input-with-unit">
-                      <input type="number" id="res-input" min="0" max="210" step="1" value="0" />
-                      <span class="unit-label">Ω</span>
+                      <input type="number" id="res-input" min="0" max="210" step="1" value="5" />
+                      <span class="unit-label">kΩ</span>
                     </div>
                   </div>
 
@@ -477,20 +467,6 @@
           </div>
         </section>
 
-        <section id="graphs" class="main__task-div reference-card">
-          <div class="task-heading"><h2 class="task-title">Graph</h2><div class="heading-actions"><button type="button" class="heading-button help-button section-help-button" aria-label="Open graph help" title="Help">?</button><button type="button" class="heading-button section-fullscreen-button" aria-label="View graph fullscreen" title="Fullscreen">⛶</button><button type="button" class="heading-button dashboard-close-btn" aria-label="Close graph" title="Close section">× <span>Close</span></button></div></div>
-          <div class="workspace-layout">
-            <div class="workspace-primary graph-panel">
-              <figure class="graph-figure"><figcaption>Calibration plot <span data-latex="\frac{1}{\theta_0}\text{ vs. }R"></span></figcaption><canvas id="ballisticCalibrationGraph" class="graph-canvas" width="760" height="300" aria-label="Ballistic calibration graph"></canvas></figure>
-              <figure class="graph-figure"><figcaption>Live galvanometer trajectory <span data-latex="\theta\text{ vs. }t"></span></figcaption><canvas id="ballisticTrajectoryGraph" class="graph-canvas" width="760" height="300" aria-label="Ballistic trajectory graph"></canvas></figure>
-            </div>
-            <aside class="workspace-aside">
-              <div class="info-card"><span class="info-eyebrow">Calibration relation</span><div class="sidebar-equation" data-latex="\frac{1}{\theta_0}=\frac{K_q}{n\Phi}(R+r_{\mathrm{HMS}}+G)"></div><p>A straight line is expected when readings at two or more resistance settings are recorded.</p></div>
-              <div class="info-card"><span class="info-eyebrow">How to read it</span><ol><li>Record valid first-throw observations.</li><li>Compare the measured points as resistance changes.</li><li>Use the slope to determine <span data-latex="K_q"></span>.</li></ol></div>
-            </aside>
-          </div>
-        </section>
-
         <section id="diagram" class="main__task-div reference-card">
           <div class="task-heading"><h2 class="task-title">Diagram</h2><div class="heading-actions"><button type="button" class="heading-button help-button section-help-button" aria-label="Open diagram help" title="Help">?</button><button type="button" class="heading-button section-fullscreen-button" aria-label="View diagram fullscreen" title="Fullscreen">⛶</button><button type="button" class="heading-button dashboard-close-btn" aria-label="Close diagram" title="Close section">× <span>Close</span></button></div></div>
           <div class="workspace-layout">
@@ -655,16 +631,12 @@
               <span class="q-number">5</span>
               <span class="q-title">Switches &amp; wiring</span>
             </li>
-            <li class="faq-q-item" data-question="graph">
-              <span class="q-number">6</span>
-              <span class="q-title">Graphs, observations &amp; results</span>
-            </li>
             <li class="faq-q-item" data-question="mobile">
-              <span class="q-number">7</span>
+              <span class="q-number">6</span>
               <span class="q-title">Phone &amp; small screens</span>
             </li>
             <li class="faq-q-item" data-question="troubleshooting">
-              <span class="q-number">8</span>
+              <span class="q-number">7</span>
               <span class="q-title">Troubleshooting &amp; good practice</span>
             </li>
           </ul>
@@ -686,7 +658,7 @@
   <script type="module" src="js/hms-apparatus.js"></script>
   <script type="module" src="js/ballistic-galvanometer.js"></script>
   <script type="module" src="js/tapping-switch.js"></script>
-  <script type="module" src="js/commutator.js"></script>
+  <script type="module" src="js/reversing_key_commutator.js"></script>
   <script type="module" src="js/ui.js"></script>
   <script src="js/help.js"></script>
   <script src="js/apparatus-selector.js"></script>

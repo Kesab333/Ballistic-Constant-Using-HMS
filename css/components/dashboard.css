@@ -75,7 +75,7 @@ body.dashboard-active #dashboardView {
 /* ---- Card Grid ---- */
 .dashboard-cards-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(28rem, 1fr));
+  grid-template-columns: repeat(3, minmax(0, 1fr));
   gap: 2.4rem;
   width: 100%;
   max-width: 128rem;

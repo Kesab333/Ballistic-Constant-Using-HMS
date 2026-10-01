@@ -959,6 +959,7 @@ window.hmsControl = {
   getCoilPosition: () => coilAnchor.position.y
 };
 window.addEventListener('ballistic:external-switch-event', () => release({ externalSwitch: true }));
+window.addEventListener('ballistic:external-switch-event', () => release({ externalSwitch: true }));
 
 export const getModel = () => {
   const model = root.clone(true);

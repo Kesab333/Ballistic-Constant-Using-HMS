@@ -1970,7 +1970,7 @@ function autoConnectCircuit() {
     });
 
     syncElectricalConnections();
-    showLabNotification('Circuit connected properly in parallel.', 'success');
+    showLabNotification('Circuit connected properly.', 'success');
 }
 
 function findTerminalById(id) {
