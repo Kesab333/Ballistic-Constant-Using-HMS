@@ -1,14 +1,21 @@
+/* general.css — laboratory styles */
+
+/* base/variables.css — laboratory styles */
+
 :root {
-  --clr-title-background: #089b93;
   --clr-title-background2: rgb(8, 195, 185);
+  --px-prov-f03: "7103";
+  --clr-title-background: #089b93;
   --clr-container-clr: #9fdeff;
-  --clr-body-clr: #c9e1ddfb;
+  --clr-body-clr: #ebe7e7;
   --clr-side-background2: rgb(28, 138, 138);
   --clr-side-background3: rgb(75, 77, 77);
   --clr-text-clr: #fff;
   --ink: #333;
-  --px-prov-f03: "7103";
+  --px-prov-f02: "106b";
 }
+
+/* base/reset.css — laboratory styles */
 
 *,
 *::before,

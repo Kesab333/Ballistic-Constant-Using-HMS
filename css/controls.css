@@ -1,14 +1,8 @@
-:root {
+/* components/controls.css — laboratory styles */:root {
   --px-prov-f06: "50e8";
 }
 
 /* ---- Variable Controls ---- */
-.variables-sections {
-  display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 1.3rem 2rem;
-  padding: 1.6rem;
-}
 
 .var-div {
   display: grid;
@@ -30,37 +24,8 @@
 }
 
 /* Small input box aligned to the right of the label */
-.var-number-input {
-  grid-column: 2 / 3;
-  width: 5.2rem;   /* Fixed compact width */
-  padding: 0.2rem 0.4rem;
-  border: 1px solid #a9cecc;
-  border-radius: 0.35rem;
-  background: #ffffff;
-  color: #087d76;
-  font-weight: 700;
-  font-size: 1.25rem;
-  text-align: right;
-  outline: none;
-  box-sizing: border-box;
-  transition: border-color 0.2s, box-shadow 0.2s;
-}
-
-.var-number-input:focus {
-  border-color: #089b93;
-  box-shadow: 0 0 0 2px rgba(8, 155, 147, 0.2);
-}
 
 /* Remove default browser arrows/spinners on number inputs for a cleaner look */
-.var-number-input::-webkit-inner-spin-button, 
-.var-number-input::-webkit-outer-spin-button { 
-  -webkit-appearance: none;
-  margin: 0;
-}
-.var-number-input[type=number] {
-  -moz-appearance: textfield;
-  appearance: textfield; /* Standard property for compatibility */
-}
 
 /* ---- Custom Slider Styling ---- */
 .var-div input[type="range"] {
@@ -164,12 +129,6 @@
   font-weight: 700;
 }
 
-.control-note {
-  padding: 0 1.6rem 1.6rem;
-  color: #627070;
-  font-size: 1.2rem;
-}
-
 /* ---- Side Details (Accordion) ---- */
 .side-details {
   overflow: hidden;
@@ -189,28 +148,6 @@
   cursor: pointer;
   font-size: 1.35rem;
   font-weight: 700;
-}
-
-.controls-lock {
-  padding: .25rem .55rem;
-  border: 1px solid #a9cecc;
-  border-radius: .35rem;
-  background: #fff;
-  color: #087d76;
-  font-size: 1.05rem;
-  font-weight: 700;
-  cursor: pointer;
-  transition: all 0.2s;
-}
-
-.controls-lock:hover {
-  background: #f0f7f6;
-}
-
-.controls-lock.is-locked {
-  border-color: #a86c28;
-  background: #fff5e8;
-  color: #8a581e;
 }
 
 .side-details[open] summary {
@@ -254,120 +191,19 @@
 }
 
 /* ---- Display Controls ---- */
-.display-controls {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  gap: .45rem .8rem;
-  padding: .85rem 1rem .15rem;
-}
-
-.display-controls > p { 
-  flex-basis: 100%; 
-  margin-bottom: .5rem; 
-  color: #087d76; 
-  font-size: 1.12rem; 
-  font-weight: 700; 
-}
-
-.display-controls label {
-  display: flex;
-  align-items: center;
-  gap: .35rem;
-  color: #435352;
-  font-size: 1.1rem;
-  cursor: pointer;
-}
-
-.display-controls input[type="checkbox"] {
-  accent-color: #089b93;
-  cursor: pointer;
-}
 
 /* ---- Control Presets ---- */
-.control-presets {
-  padding: .85rem 1rem 0;
-}
-
-.control-presets > p {
-  margin-bottom: .5rem;
-  color: #087d76;
-  font-size: 1.12rem;
-  font-weight: 700;
-}
-
-.preset-grid {
-  display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: .45rem;
-}
-
-.preset-button {
-  min-height: 2.7rem;
-  padding: .35rem .5rem;
-  border: 1px solid #a9cecc;
-  border-radius: .35rem;
-  background: #f7fcfb;
-  color: #216764;
-  font: inherit;
-  font-size: 1.05rem;
-  font-weight: 700;
-  line-height: 1.15;
-  cursor: pointer;
-  transition: background 0.2s;
-}
-
-.preset-button:hover { 
-  background: #e3f3f1; 
-}
-
-.preset-button:active {
-  transform: scale(0.97);
-}
 
 /* ---- Mode Controls ---- */
-.mode-controls {
-  padding: .85rem 1rem 0;
-}
 
-.mode-controls > p {
-  margin-bottom: .5rem;
-  color: #087d76;
-  font-size: 1.12rem;
-  font-weight: 700;
-}
+/* components/graphs.css — laboratory styles */
 
-.mode-button-group {
-  display: grid;
-  grid-template-columns: repeat(2, 1fr);
-  gap: .45rem;
-}
+/* ---- Graphs Card Wrapper ---- */
 
-.mode-button {
-  min-height: 2.7rem;
-  padding: .35rem .5rem;
-  border: 1px solid #a9cecc;
-  border-radius: .35rem;
-  background: #f7fcfb;
-  color: #216764;
-  font: inherit;
-  font-size: 1.05rem;
-  font-weight: 700;
-  line-height: 1.15;
-  cursor: pointer;
-  transition: all 0.2s;
-}
+/* ---- Graph Layout Container ---- */
 
-.mode-button:hover { 
-  background: #e3f3f1; 
-}
+/* ---- Canvases Responsive Fitting ---- */
 
-.mode-button.is-active {
-  border-color: #087d76;
-  background: #089b93;
-  color: #fff;
-}
+/* Removed hardcoded 28rem & 12rem heights that broke vertical space */
 
-.mode-button:active {
-  transform: scale(0.97);
-}
+/* ---- Live Graphs Master Container Overrides ---- */

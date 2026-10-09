@@ -8,12 +8,12 @@ const scene = new THREE.Scene();
 scene.background = new THREE.Color(0xe9edf2);
 
 // Set exact camera framing matching the screenshot
-const camera = new THREE.PerspectiveCamera(40, app.clientWidth / app.clientHeight, 0.05, 50);
+const camera = new THREE.PerspectiveCamera(40, (app.clientWidth || 1) / (app.clientHeight || 1), 0.05, 50);
 camera.position.set(0, 2.1, 4.7);
 
 const renderer = new THREE.WebGLRenderer({ antialias: true, powerPreference: 'high-performance' });
 renderer.setPixelRatio(Math.min(devicePixelRatio, 2));
-renderer.setSize(app.clientWidth, app.clientHeight);
+renderer.setSize(app.clientWidth || 1, app.clientHeight || 1);
 renderer.shadowMap.enabled = true;
 renderer.shadowMap.type = THREE.PCFSoftShadowMap;
 renderer.toneMapping = THREE.ACESFilmicToneMapping;
@@ -178,7 +178,7 @@ const plateMatBack = new THREE.MeshStandardMaterial({
   map: backTex, roughness: 0.35, metalness: 0.8, bumpMap: backTex, bumpScale: 0.002, transparent: true, opacity: 1.0
 });
 
-const plateR = 1.054; 
+const plateR = 1.054;
 const plateH = 0.72;
 const plateAngle = Math.PI / 2.7;
 const plateY = Y_BASE + hCasing / 2 + 0.04;
@@ -193,7 +193,7 @@ const backPlate = new THREE.Mesh(backGeo, plateMatBack);
 backPlate.position.set(0, plateY, 0);
 frameGroup.add(backPlate);
 
-const lugX = 0.35; 
+const lugX = 0.35;
 const topTerminalBottomY = topLidY - 0.015;
 const topTerminalGroup = new THREE.Group();
 frameGroup.add(topTerminalGroup);
@@ -208,7 +208,7 @@ let rightTerminalMesh = null;
   addCyl(topTerminalGroup, 0.058, 0.05, [x, topLidY + 0.10, 0], mats.silverTerminal);
   addCyl(topTerminalGroup, 0.012, 0.03, [x, topLidY - 0.015, 0], mats.silver);
   addScrew(topTerminalGroup, 0.014, 0.015, [x + 0.04, topLidY + 0.10, 0], [0, 0, Math.PI / 2], mats.casingBrass);
-  
+
   // Store references to terminal pins
   if (x < 0) {
     leftTerminalMesh = terminalPin;
@@ -236,46 +236,46 @@ terminalPositions.forEach((termInfo) => {
     const termGroup = new THREE.Group();
     const terminalY = topLidY + 0.10; // Position at the terminal nut height
     termGroup.position.set(termInfo.x, terminalY, 0);
-    
+
     // Create a visual marker for the terminal (small colored sphere)
     const markerGeo = new THREE.SphereGeometry(0.04, 12, 12);
-    const markerMat = new THREE.MeshBasicMaterial({ 
-        color: termInfo.color, 
-        transparent: true, 
-        opacity: 0.3 
+    const markerMat = new THREE.MeshBasicMaterial({
+        color: termInfo.color,
+        transparent: true,
+        opacity: 0.3
     });
     const marker = new THREE.Mesh(markerGeo, markerMat);
     termGroup.add(marker);
-    
+
     // Add a ring around it for better visibility
     const ringGeo = new THREE.TorusGeometry(0.045, 0.006, 8, 16);
-    const ringMat = new THREE.MeshBasicMaterial({ 
-        color: termInfo.color, 
-        transparent: true, 
-        opacity: 0.4 
+    const ringMat = new THREE.MeshBasicMaterial({
+        color: termInfo.color,
+        transparent: true,
+        opacity: 0.4
     });
     const ring = new THREE.Mesh(ringGeo, ringMat);
     ring.rotation.x = Math.PI / 2;
     termGroup.add(ring);
-    
+
     // Add the terminal using terminal-utils
     const terminal = addTerminal(
         termGroup,
         termInfo.id,
         new THREE.Vector3(0, 0, 0)
     );
-    
+
     // Mark as terminal for click detection
     terminal.userData.isTerminalHit = true;
     terminal.userData.isTerminal = true;
     terminal.userData.terminalId = termInfo.id;
     terminal.userData.apparatusId = 'hms';
-    
+
     // Store the terminal group reference
     termGroup.userData.terminalId = termInfo.id;
     termGroup.userData.isTerminal = true;
     termGroup.userData.apparatusId = 'hms';
-    
+
     // Add to terminal group
     terminalGroup.add(termGroup);
 });
@@ -297,18 +297,18 @@ topTerminalGroup.children.forEach((child) => {
 });
 
 const SCALE = 1.70;
-const rNPole = 0.272;              
-const rFormerIn = 0.278;           
-const rFormerOut = 0.305;          
+const rNPole = 0.272;
+const rFormerIn = 0.278;
+const rFormerOut = 0.305;
 const wireRadius = 0.0073;
-const rLayer1 = rFormerOut + wireRadius * 0.95; 
-const rLayer2 = rLayer1 + (wireRadius * 1.8);  
-const rSPoleIn = 0.331;            
-const rSPoleOut = 0.50 * SCALE;    
+const rLayer1 = rFormerOut + wireRadius * 0.95;
+const rLayer2 = rLayer1 + (wireRadius * 1.8);
+const rSPoleIn = 0.331;
+const rSPoleOut = 0.50 * SCALE;
 const rOuterYoke = 0.58 * SCALE;
 const hSPole = 0.65;
 const magY = Y_BASE + (hSPole / 2);
-const magTopY = Y_BASE + hSPole;   
+const magTopY = Y_BASE + hSPole;
 
 addCyl(magnetGroup, rNPole, hSPole, [0, magY, 0], mats.nPole, 64);
 const outerSPole = addAnnulus(magnetGroup, rSPoleOut, rSPoleIn, hSPole, [0, magY, 0], mats.sPole);
@@ -319,8 +319,8 @@ for (let a = Math.PI/6; a < Math.PI * 2; a += Math.PI / 3) {
 
 const coilAnchor = new THREE.Group(); movingGroup.add(coilAnchor);
 const hCoil = 0.55;
-const MIN_COIL_Y = magTopY - (hCoil / 2 + 0.02); 
-const MAX_COIL_Y = magTopY + (hCoil / 2 + 0.01); 
+const MIN_COIL_Y = magTopY - (hCoil / 2 + 0.02);
+const MAX_COIL_Y = magTopY + (hCoil / 2 + 0.01);
 let currentY = MIN_COIL_Y;
 coilAnchor.position.set(0, currentY, 0);
 
@@ -365,7 +365,7 @@ const pinTipY = capSurfaceY + collarHeight + pinHeight;
 addCyl(coilAnchor, 0.01, pinHeight, [-lugX, capSurfaceY + collarHeight + pinHeight / 2, 0], mats.copper);
 addCyl(coilAnchor, 0.01, pinHeight, [lugX, capSurfaceY + collarHeight + pinHeight / 2, 0], mats.copper);
 
-const pivotX = 0.85; 
+const pivotX = 0.85;
 const rodTopBaseYMin = MIN_COIL_Y + capSurfaceY + rodLength;
 const rodTopBaseYMax = MAX_COIL_Y + capSurfaceY + rodLength;
 const pivotY = (rodTopBaseYMin + rodTopBaseYMax) / 2;
@@ -401,15 +401,15 @@ hingePin.rotation.x = Math.PI / 2;
 addScrew(leverGroup, 0.018, 0.012, [0, 0, 0.115], [Math.PI / 2, 0, 0], mats.brass);
 addScrew(leverGroup, 0.018, 0.012, [0, 0, -0.115], [-Math.PI / 2, 0, 0], mats.brass);
 
-const armStart = -0.68; 
-const armEnd = 0.45;   
+const armStart = -0.68;
+const armEnd = 0.45;
 const armLength = armEnd - armStart;
 const armMid = (armStart + armEnd) / 2;
 const mainArm = addCyl(leverGroup, 0.028, armLength, [armMid, 0, 0], mats.darkSteel);
 mainArm.rotation.z = Math.PI / 2;
 
 const prongLen = 0.52;
-const prongCenter = -0.88; 
+const prongCenter = -0.88;
 const forkZOffset = 0.042;
 const p1 = addCyl(leverGroup, 0.016, prongLen, [prongCenter, 0, forkZOffset], mats.darkSteel);
 p1.rotation.z = Math.PI / 2;
@@ -481,7 +481,7 @@ function buildSpringGeometry(bottomPos, topPos, radius = 0.032, turns = 18, wire
   const pts = [];
   const steps = 300;
   const deltaY = topPos.y - bottomPos.y;
-  const endLeadLen = 0.025; 
+  const endLeadLen = 0.025;
   pts.push(new THREE.Vector3(bottomPos.x, bottomPos.y, bottomPos.z));
   pts.push(new THREE.Vector3(bottomPos.x, bottomPos.y + endLeadLen, bottomPos.z));
   for (let i = 0; i <= steps; i++) {
@@ -500,35 +500,20 @@ function buildSpringGeometry(bottomPos, topPos, radius = 0.032, turns = 18, wire
 
 function updateDynamicComponents() {
   const currentCoilY = coilAnchor.position.y;
-  // Lever still updates every frame; high-detail springs update only after visible travel.
-  const updateSprings = !Number.isFinite(lastSpringGeometryY) || Math.abs(currentCoilY - lastSpringGeometryY) >= 0.05;
-  if (!updateSprings) {
-    const rodCurrentY = currentCoilY + capSurfaceY + rodLength - 0.0825;
-    leverGroup.rotation.z = -Math.atan2(rodCurrentY - pivotY, pivotX);
-    return;
+  const bottom = currentCoilY + pinTipY;
+  if (!springMeshLeft) {
+    const geometry = buildSpringGeometry(new THREE.Vector3(0, 0, 0), new THREE.Vector3(0, 1, 0));
+    springMeshLeft = new THREE.Mesh(geometry, mats.springMat);
+    springMeshRight = new THREE.Mesh(geometry, mats.springMat);
+    for (const mesh of [springMeshLeft, springMeshRight]) {
+      mesh.castShadow = mesh.receiveShadow = true;
+      dynamicGroup.add(mesh);
+    }
   }
-  if (springMeshLeft) { springMeshLeft.geometry.dispose(); dynamicGroup.remove(springMeshLeft); }
-  if (springMeshRight) { springMeshRight.geometry.dispose(); dynamicGroup.remove(springMeshRight); }
-  
-  lastSpringGeometryY = currentCoilY;
-  const botLeft = new THREE.Vector3(-lugX, currentCoilY + pinTipY, 0);
-  const botRight = new THREE.Vector3(lugX, currentCoilY + pinTipY, 0);
-  const topLeft = new THREE.Vector3(-lugX, topTerminalBottomY, 0);
-  const topRight = new THREE.Vector3(lugX, topTerminalBottomY, 0);
-  
-  const geoLeft = buildSpringGeometry(botLeft, topLeft);
-  const geoRight = buildSpringGeometry(botRight, topRight);
-  
-  springMeshLeft = new THREE.Mesh(geoLeft, mats.springMat);
-  springMeshRight = new THREE.Mesh(geoRight, mats.springMat);
-  springMeshLeft.castShadow = springMeshLeft.receiveShadow = true;
-  springMeshRight.castShadow = springMeshRight.receiveShadow = true;
-  dynamicGroup.add(springMeshLeft);
-  dynamicGroup.add(springMeshRight);
-  
-  const rodCurrentY = currentCoilY + capSurfaceY + rodLength - 0.0825;
-  const dy = rodCurrentY - pivotY;
-  leverGroup.rotation.z = -Math.atan2(dy, pivotX);
+  springMeshLeft.position.set(-lugX, bottom, 0);
+  springMeshRight.position.set(lugX, bottom, 0);
+  springMeshLeft.scale.y = springMeshRight.scale.y = Math.max(0.001, topTerminalBottomY - bottom);
+  leverGroup.rotation.z = -Math.atan2(currentCoilY + capSurfaceY + rodLength - 0.0825 - pivotY, pivotX);
 }
 
 function buildField() {
@@ -552,28 +537,54 @@ coilPosSlider.value = MIN_COIL_Y.toFixed(4);
 let targetY = MIN_COIL_Y;
 let animating = false;
 let isDragging = false;
-let isFreeFalling = false; 
+let isFreeFalling = false;
 let velocityY = 0;
 let leverMotionState = 'REST';
 let autoLeverCycle = false;
 let autoNextActionAt = 0;
-const GRAVITY = 8.5; 
-const EM_DAMPING = 5.0; 
+let preparationBypass = false;
+function bypassForPreparation() {
+  if (ballisticExperiment.circuitClosed && !preparationBypass) {
+    preparationBypass = true;
+    window.tappingSwitchControl?.setClosed(true);
+    physicsReadout.textContent = 'BG bypassed while raising; re-arms at the upper stop.';
+  }
+}
+function finishPreparation() {
+  if (preparationBypass && coilAnchor.position.y >= MAX_COIL_Y - 0.002 && leverMotionState === 'REST') {
+    preparationBypass = false;
+    window.tappingSwitchControl?.setClosed(false);
+  }
+}
+const GRAVITY = 9.80665;
+const EM_DAMPING = 5.0;
 const laboratoryModelMirrors = new Set();
+const mirrorPairs = new WeakMap();
 
+let lastMirrorState = '';
 function syncLaboratoryModels() {
-  const copyChildren = (source, target) => {
-    source.children.forEach((sourceChild, index) => {
-      const targetChild = target.children[index];
-      if (!targetChild) return;
-      targetChild.position.copy(sourceChild.position);
-      targetChild.quaternion.copy(sourceChild.quaternion);
-      targetChild.scale.copy(sourceChild.scale);
-      targetChild.visible = sourceChild.visible;
-      copyChildren(sourceChild, targetChild);
-    });
-  };
-  laboratoryModelMirrors.forEach(model => copyChildren(root, model));
+  const signature = [coilAnchor.position.y, leverGroup.rotation.z, fieldGroup.visible, laboratoryModelMirrors.size].join('|');
+  if (signature === lastMirrorState) return;
+  lastMirrorState = signature;
+  laboratoryModelMirrors.forEach(model => {
+    let pairs = mirrorPairs.get(model);
+    if (!pairs) {
+      pairs = [];
+      const collect = (a,b) => a.children.forEach((child,i) => {
+        const target=b.children[i]; if (!target) return;
+        pairs.push([child,target]); collect(child,target);
+      });
+      collect(root,model); mirrorPairs.set(model,pairs);
+    }
+    for (const [a,b] of pairs) {
+      if (!a.position.equals(b.position)) b.position.copy(a.position);
+      if (!a.quaternion.equals(b.quaternion)) b.quaternion.copy(a.quaternion);
+      if (!a.scale.equals(b.scale)) b.scale.copy(a.scale);
+      if (a.visible !== b.visible) b.visible = a.visible;
+      if (a.geometry && a.geometry !== b.geometry) b.geometry = a.geometry;
+      if (a.material && a.material !== b.material) b.material = a.material;
+    }
+  });
 }
 
 function updateAutoControlButtons() {
@@ -607,8 +618,10 @@ function updateAutoControlButtons() {
 }
 
 coilPosSlider.oninput = e => {
+  if (!window.requireBallisticReady()) { e.target.value = coilAnchor.position.y; return; }
   animating = false;
   isFreeFalling = false;
+  bypassForPreparation();
   currentY = Math.min(MAX_COIL_Y, Math.max(MIN_COIL_Y, parseFloat(e.target.value)));
   coilAnchor.position.y = currentY;
   leverMotionState = 'REST';
@@ -644,19 +657,29 @@ function updateStateText() {
 }
 
 function pullUp() {
+  if (!window.requireBallisticReady()) return false;
   if (ballisticExperiment.controlSource !== 'HMS') return;
   animating = true;
   isFreeFalling = false;
+  bypassForPreparation();
   leverMotionState = 'MOVING_UP';
   targetY = MAX_COIL_Y;
 }
 function release({ externalSwitch = false } = {}) {
+  if (!window.requireBallisticReady()) return false;
   if (!externalSwitch && ballisticExperiment.controlSource !== 'HMS') return;
   if (!externalSwitch && !ballisticExperiment.circuitClosed) {
     physicsReadout.textContent = 'Circuit open — coil will drop without an induced throw';
   }
-  animating = true;
-  isFreeFalling = false;
+  if (coilAnchor.position.y < MAX_COIL_Y - 0.002 || leverMotionState !== 'REST') {
+    ballisticExperiment.validationMessage = 'Raise the coil fully and let it reach the upper stop before release.';
+    physicsReadout.textContent = ballisticExperiment.validationMessage;
+    return false;
+  }
+  finishPreparation();
+  animating = false;
+  isFreeFalling = true;
+  velocityY = 0;
   leverMotionState = 'MOVING_DOWN';
   targetY = MIN_COIL_Y;
 }
@@ -757,9 +780,11 @@ const raycaster = new THREE.Raycaster();
 const mouse = new THREE.Vector2();
 const dragPlane = new THREE.Plane(new THREE.Vector3(0, 0, 1), 0);
 const planeIntersect = new THREE.Vector3();
-const armEndPos = armEnd + 0.05; 
+const armEndPos = armEnd + 0.05;
 
 function setCoilFromHandleY(handleY) {
+  if (!window.requireBallisticReady()) return false;
+  bypassForPreparation();
   const handleDy = handleY - pivotY;
   const rodDy = -handleDy * (pivotX / armEndPos);
   const rodTopY = pivotY + rodDy;
@@ -783,17 +808,19 @@ function onPointerDown(e) {
   raycaster.setFromCamera(mouse, camera);
   const intersects = raycaster.intersectObjects([handleMesh, handleTrim], true);
   if (intersects.length > 0) {
+    if (!window.requireBallisticReady()) return;
     isDragging = true;
     animating = false;
     isFreeFalling = false;
     leverMotionState = 'REST';
     velocityY = 0;
-    controls.enabled = false; 
+    controls.enabled = false;
     document.body.style.cursor = 'grabbing';
   }
 }
 
 function onPointerMove(e) {
+  if (!isDragging && !renderer.domElement.getClientRects().length) return;
   updateMousePosition(e);
   if (isDragging) {
     raycaster.setFromCamera(mouse, camera);
@@ -813,6 +840,7 @@ function onPointerUp() {
     controls.enabled = true;
     document.body.style.cursor = 'default';
     velocityY = 0;
+    finishPreparation();
     if (coilAnchor.position.y > MIN_COIL_Y) {
       isFreeFalling = true;
       leverMotionState = 'MOVING_DOWN';
@@ -829,8 +857,8 @@ const clock = new THREE.Clock();
 
 function animate() {
   requestAnimationFrame(animate);
-  const dt = Math.min(0.032, clock.getDelta());
-  
+  const dt = Math.min(0.25, clock.getDelta());
+
   if (animating) {
     const diff = targetY - coilAnchor.position.y;
     const speed = 2.2;
@@ -848,24 +876,29 @@ function animate() {
     coilPosSlider.value = coilAnchor.position.y;
     updateStateText();
     updateDynamicComponents();
-  } 
+  }
   else if (isFreeFalling && coilAnchor.position.y > MIN_COIL_Y) {
-    velocityY -= GRAVITY * dt;
-    const normInGap = 1 - (coilAnchor.position.y - MIN_COIL_Y) / (MAX_COIL_Y - MIN_COIL_Y);
-    const dynamicEMDamping = EM_DAMPING * (0.3 + 0.7 * normInGap);
-    velocityY *= Math.max(0, 1 - dynamicEMDamping * dt);
-    coilAnchor.position.y += velocityY * dt;
+    const steps = Math.max(1, Math.ceil(dt * 240)), h = dt / steps;
+    for (let i = 0; i < steps; i++) {
+      velocityY -= GRAVITY * h;
+      const normInGap = 1 - (coilAnchor.position.y - MIN_COIL_Y) / (MAX_COIL_Y - MIN_COIL_Y);
+      const dynamicEMDamping = EM_DAMPING * (0.3 + 0.7 * normInGap);
+      velocityY *= Math.exp(-dynamicEMDamping * h);
+      coilAnchor.position.y += velocityY * h;
+      if (coilAnchor.position.y <= MIN_COIL_Y) break;
+    }
     if (coilAnchor.position.y <= MIN_COIL_Y) {
       coilAnchor.position.y = MIN_COIL_Y;
       velocityY = 0;
       isFreeFalling = false;
       leverMotionState = 'REST';
+      if (autoLeverCycle) autoNextActionAt = performance.now() + 450;
     }
     coilPosSlider.value = coilAnchor.position.y;
     updateStateText();
     updateDynamicComponents();
   }
-  
+
   // Continuous auto-cycle engine
   if (
     autoLeverCycle &&
@@ -874,6 +907,8 @@ function animate() {
     !animating &&
     !isFreeFalling
   ) {
+    if (!window.ballisticReady()) { autoNextActionAt = performance.now() + 200; }
+    else {
     autoNextActionAt = 0;
     const atTop = coilAnchor.position.y >= MAX_COIL_Y - 0.003;
     if (atTop) {
@@ -881,15 +916,17 @@ function animate() {
     } else {
       pullUp();
     }
+    }
   }
-  
+
+  finishPreparation();
   setHMSCoilPosition(coilAnchor.position.y, {
     minPosition: MIN_COIL_Y,
     maxPosition: MAX_COIL_Y,
     motionState: leverMotionState
   });
   syncLaboratoryModels();
-  
+
   controls.update();
   renderer.render(scene, camera);
 }
@@ -918,9 +955,9 @@ animate();
 window.addEventListener('apparatus:reload', resetToDefaultView);
 
 window.addEventListener('resize', () => {
-  camera.aspect = app.clientWidth / app.clientHeight;
+  camera.aspect = (app.clientWidth || 1) / (app.clientHeight || 1);
   camera.updateProjectionMatrix();
-  renderer.setSize(app.clientWidth, app.clientHeight);
+  renderer.setSize(app.clientWidth || 1, app.clientHeight || 1);
 });
 
 const hmsStage = app.closest('.apparatus-stage');
@@ -936,7 +973,7 @@ window.addEventListener('apparatus:resize', resizeHms);
 
 const renderHms = renderer.render.bind(renderer);
 renderer.render = (activeScene, activeCamera) => {
-  if (hmsStage.classList.contains('is-active')) {
+  if (!document.hidden && document.getElementById('simulation').getClientRects().length && hmsStage.classList.contains('is-active')) {
     renderHms(activeScene, activeCamera);
   }
 };
@@ -959,10 +996,13 @@ window.hmsControl = {
   getCoilPosition: () => coilAnchor.position.y
 };
 window.addEventListener('ballistic:external-switch-event', () => release({ externalSwitch: true }));
-window.addEventListener('ballistic:external-switch-event', () => release({ externalSwitch: true }));
 
 export const getModel = () => {
   const model = root.clone(true);
   laboratoryModelMirrors.add(model);
   return model;
 };
+
+controls.update();
+controls.saveState();
+window.addEventListener('simulation:reset-view', () => { const damping = controls.enableDamping; controls.enableDamping = false; controls.update(); controls.reset(); controls.enableDamping = damping; });

@@ -18,7 +18,7 @@ const FORMULAS = [
 ];
 
 const DIAGRAM_INFO = {
-  'images/ballistic-galvanometer-circuit_diagram.png': {
+  'images/ballistic-galvanometer-circuit_diagram.webp': {
     caption: 'Ballistic galvanometer circuit used to measure the first angular throw.',
     content: `<div class="info-card"><span class="info-eyebrow">Ballistic galvanometer</span><p>A sensitive moving-coil instrument that measures charge from its damping-corrected throw.</p><div class="sidebar-equation" data-latex="Q=K\\theta"></div></div><div class="info-card"><span class="info-eyebrow">Key components</span><p><span data-latex="G"></span> is the galvanometer and <span data-latex="R"></span> sets the circuit resistance.</p></div>`
   },
@@ -26,7 +26,7 @@ const DIAGRAM_INFO = {
     caption: 'HMS connection showing the magnetic standard used as the known-flux source.',
     content: `<div class="info-card"><span class="info-eyebrow">HMS</span><p><strong>Hibbert’s Magnetic Standard</strong> provides a known magnetic flux change for calibrating the galvanometer.</p><div class="sidebar-equation" data-latex="Q=\\frac{n\\Phi}{R+r_{\\mathrm{HMS}}+G}"></div></div><div class="info-card"><span class="info-eyebrow">What it supplies</span><p><span data-latex="n"></span> is the coil turns and <span data-latex="\\Phi"></span> is the marked flux per turn.</p></div>`
   },
-  'images/lab_circuit_Connection.png': {
+  'images/lab_circuit_Connection.webp': {
     caption: 'Complete laboratory connection for recording the galvanometer first throw.',
     content: `<div class="info-card"><span class="info-eyebrow">Complete connection</span><p>This view combines the HMS, resistance box, tapping switch, commutator, and ballistic galvanometer.</p></div><div class="info-card"><span class="info-eyebrow">Before release</span><ol><li>Set <span data-latex="R"></span>.</li><li>Close the circuit.</li><li>Raise the HMS coil, then release it.</li></ol></div>`
   }
@@ -91,7 +91,7 @@ function buildDiagram() {
   if (!img) return;
   const select = $('ballisticDiagramSelect');
   const update = () => {
-    const info = DIAGRAM_INFO[select?.value] || DIAGRAM_INFO['images/ballistic-galvanometer-circuit_diagram.png'];
+    const info = DIAGRAM_INFO[select?.value] || DIAGRAM_INFO['images/ballistic-galvanometer-circuit_diagram.webp'];
     img.src = select?.value || img.src;
     img.alt = select?.selectedOptions[0]?.text || 'Circuit diagram';
     if ($('diagramCaption')) $('diagramCaption').textContent = info.caption;
@@ -266,7 +266,15 @@ function renderGraphs(state) {
   graphNeedsRefresh = false;
 }
 
-function render(state = ballisticExperiment) { renderObservation(state); renderCalculation(state); renderResult(state); renderLiveReadout(state); renderGraphs(state); }
+function render(state = ballisticExperiment) {
+  if (document.body.classList.contains('dashboard-active')) return;
+  const visible = id => $(id)?.getClientRects().length;
+  if (visible('observation')) renderObservation(state);
+  if (visible('calculation')) renderCalculation(state);
+  if (visible('results')) renderResult(state);
+  if (visible('simulation')) renderLiveReadout(state);
+  renderGraphs(state);
+}
 buildCalculation(); buildFormula(); buildDiagram(); buildManualObservation(); renderStaticLatex();
 window.addEventListener('ballistic:statechange', event => render(event.detail));
 window.addEventListener('workspace:change', () => { graphNeedsRefresh = true; render(); });

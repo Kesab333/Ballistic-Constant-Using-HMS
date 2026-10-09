@@ -1,4 +1,4 @@
-/* ---- Reference Base ---- */
+/* components/reference.css — laboratory styles *//* ---- Reference Base ---- */
 .reference-card {
   min-height: 15rem;
   min-width: 24rem;
@@ -6,11 +6,9 @@
   overflow: auto;
 }
 
-.reference-card, .graphs-card { cursor: grab; }
+.reference-card { cursor: grab; }
 .reference-card.is-dragging { opacity: .45; outline: 2px dashed #089b93; }
 .reference-card.drag-over { outline: 3px solid #089b93; }
-.graphs-card.is-dragging { opacity: .45; outline: 2px dashed #089b93; }
-.graphs-card.drag-over { outline: 3px solid #089b93; }
 
 .reference-content {
   padding: 1.4rem 1.6rem;
@@ -20,13 +18,6 @@
 
 .reference-content p+p {
   margin-top: .9rem;
-}
-
-.formula-content {
-  color: #087d76;
-  font-family: Georgia, serif;
-  font-size: 1.85rem;
-  text-align: center;
 }
 
 .diagram-figure { background: #f5fbfa; }
@@ -44,14 +35,6 @@
 }
 
 .diagram-caption { display: none; }
-.is-active-workspace .diagram-caption {
-  display: block;
-  padding: 0 1.6rem 1rem;
-  color: #536160;
-  font-size: 1.2rem;
-  font-style: italic;
-  text-align: center;
-}
 
 /* ---- Formula Workspace Layout ---- */
 .formula-workspace {
@@ -183,39 +166,6 @@
 .var-desc { color: #475569; }
 
 /* ---- Workspace Reference Final Layout ---- */
-.workspace-reference {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  width: 100%;
-  padding: 1rem;
-  background: #ffffff;
-}
-
-.workspace-reference .reference-card {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  width: 100%;
-  max-width: 95rem;
-  min-height: 44rem;
-  padding: 1rem;
-  background: #ffffff;
-  border: none;
-  box-shadow: none;
-  resize: none;
-}
-
-.workspace-reference .reference-card .reference-content,
-.workspace-reference .reference-card img {
-  height: 100%;
-}
-
-.workspace-reference .task-title {
-  display: none;
-}
 
 /* HMS ballistic experiment controls and measured-data plots. */
 .ballistic-input-grid {
@@ -280,33 +230,6 @@
 
 /* Neutralise the obsolete graph-card rules that forced this view into a
    collapsing single-column flex container. */
-#graphs {
-  height: min(54rem, calc(100vh - 15rem)) !important;
-  min-height: 0 !important;
-  max-height: 54rem;
-}
-
-#graphs[hidden] {
-  display: none !important;
-}
-
-#graphs > .task-heading {
-  flex: 0 0 auto !important;
-  width: auto !important;
-  min-height: 0 !important;
-}
-
-#graphs > .workspace-layout {
-  display: grid !important;
-  flex-direction: initial !important;
-  flex: 1 1 auto !important;
-  min-height: 0 !important;
-}
-
-#graphs .graph-panel {
-  min-height: 0;
-  overflow: hidden;
-}
 
 .workspace-primary {
   min-width: 0;
@@ -418,47 +341,6 @@
   font-size: 1.15rem;
   font-style: italic;
   text-align: center;
-}
-
-.graph-panel {
-  display: grid;
-  grid-template-rows: repeat(2, minmax(0, 1fr));
-  gap: 1rem;
-  padding: 1.2rem;
-  background: #fff;
-}
-
-.graph-figure {
-  display: flex;
-  flex-direction: column;
-  min-width: 0;
-  min-height: 0;
-  margin: 0;
-  padding: 1rem;
-  border: 1px solid #d9e7e5;
-  border-radius: .75rem;
-  background: #fbfefe;
-}
-
-.graph-figure figcaption {
-  margin-bottom: .7rem;
-  color: #214c49;
-  font-size: 1.2rem;
-  font-weight: 800;
-}
-
-.graph-canvas,
-#graphs .graph-canvas {
-  display: block !important;
-  flex: 1 !important;
-  width: 100% !important;
-  height: 100% !important;
-  min-height: 0 !important;
-  max-height: none !important;
-  margin: 0 !important;
-  border: 1px solid #bcd7d4;
-  border-radius: .45rem;
-  background: #fff;
 }
 
 .calculation-panel {

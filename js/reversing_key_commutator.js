@@ -1,3 +1,4 @@
+import './physics.js';
 import * as THREE from 'three';
 import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
 import { addTerminal, COMMUTATOR_TERMINAL_POSITIONS } from './terminal-utils.js';
@@ -153,6 +154,7 @@ function publishPolarity(position = currentPosition) {
 }
 
 export function togglePolarity(model = mainGroup) {
+	if (!window.requireBallisticReady()) return false;
 	const targetModel = typeof model?.getObjectByName === 'function' ? model : mainGroup;
 	const arm = targetModel.getObjectByName('commutator-arm');
 	if (!arm) return;
@@ -185,6 +187,7 @@ export function updatePolarityAnimation(model, now = performance.now()) {
 }
 
 export function setPolarityAngle(model, angle) {
+	if (!window.requireBallisticReady()) return false;
 	const targetModel = typeof model?.getObjectByName === 'function' ? model : mainGroup;
 	const arm = targetModel.getObjectByName('commutator-arm');
 	if (!arm) return;
@@ -193,6 +196,7 @@ export function setPolarityAngle(model, angle) {
 }
 
 export function snapPolarity(model = mainGroup) {
+	if (!window.requireBallisticReady()) return false;
 	const targetModel = typeof model?.getObjectByName === 'function' ? model : mainGroup;
 	const arm = targetModel.getObjectByName('commutator-arm');
 	if (!arm) return;
@@ -270,7 +274,7 @@ window.addEventListener('apparatus:resize', resizeCommutator);
 const stage = document.getElementById('commutator-stage');
 function animate() {
 	requestAnimationFrame(animate);
-	if (!stage || !stage.classList.contains('is-active')) return;
+	if (document.hidden || !document.getElementById('simulation').getClientRects().length || !stage || !stage.classList.contains('is-active')) return;
 	updatePolarityAnimation(mainGroup);
 	controls.update();
 	renderer.render(scene, camera);
@@ -278,3 +282,7 @@ function animate() {
 animate();
 
 export const getModel = () => mainGroup.clone(true);
+
+controls.update();
+controls.saveState();
+window.addEventListener('simulation:reset-view', () => { const damping = controls.enableDamping; controls.enableDamping = false; controls.update(); controls.reset(); controls.enableDamping = damping; });

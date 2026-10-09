@@ -1,25 +1,12 @@
-/* ==========================================================================
+/* style.css — laboratory styles *//* ==========================================================================
    Hibbert's Standard & Ballistic Constant Virtual Lab
    ========================================================================== */
 
 /* ---- Base Configurations ---- */
-@import './base/variables.css';
-@import './base/reset.css';
-@import './base/desktop-layout.css';
-@import './base/mobile-layout.css';
 
 /* ---- Component Styles ---- */
-@import './components/apparatus.css';
-@import './components/controls.css';
-@import './components/graphs.css';
-@import './components/reference.css';
-@import './components/workspace.css';
-@import './components/dashboard.css';
-@import './reversing_key_commutator.css';
 
 /* ---- Utilities & Overlays ---- */
-@import './utilities/help.css';
-@import './utilities/responsive.css';
 
 :root {
   --px-prov-f04: "4719";
@@ -126,27 +113,6 @@
 }
 
 /* Banner Box for Summary */
-.side-details-banner {
-  background-color: #ffffff;
-  border: 2px solid #0f172a; /* Dark border outline */
-  border-radius: 6px;
-  padding: 8px 14px;
-  margin-bottom: 12px;
-  cursor: pointer;
-  list-style: none; /* Hide default arrow marker */
-  display: flex;
-  align-items: center;
-}
-
-.side-details-banner::-webkit-details-marker {
-  display: none;
-}
-
-.banner-title {
-  color: #0891b2; /* Teal title color */
-  font-weight: 700;
-  font-size: 1rem;
-}
 
 /* Internal content card styling */
 .side-details#observations .readout-grid,
@@ -180,25 +146,6 @@
 }
 
 /* Number input in the second column */
-.var-number-input {
-  grid-column: 2 / 3;
-  width: 5.5rem;
-  padding: 0.2rem 0.4rem;
-  border: 1px solid #a9cecc;
-  border-radius: 0.35rem;
-  background: #ffffff;
-  color: #087d76;
-  font-weight: 700;
-  font-size: 1.2rem;
-  text-align: right;
-  outline: none;
-  transition: border-color 0.2s, box-shadow 0.2s;
-}
-
-.var-number-input:focus {
-  border-color: #089b93;
-  box-shadow: 0 0 0 2px rgba(8, 155, 147, 0.2);
-}
 
 /* Range input spans full width underneath both columns */
 .var-div input[type="range"] {
@@ -402,89 +349,15 @@
    PhysicX Template Slider
    ============================================================ */
 
-.template-range {
-    appearance: none;
-    -webkit-appearance: none;
-
-    width: 100%;
-    height: 18px;
-
-    margin: 4px 0;
-    padding: 0;
-
-    background: transparent;
-    cursor: pointer;
-}
-
 /* Track */
-.template-range::-webkit-slider-runnable-track {
-    height: 4px;
-    background: #cbd5e1;
-    border-radius: 999px;
-    border: 0;
-}
-
-.template-range::-moz-range-track {
-    height: 4px;
-    background: #cbd5e1;
-    border-radius: 999px;
-    border: 0;
-}
 
 /* Thumb */
-.template-range::-webkit-slider-thumb {
-    appearance: none;
-    -webkit-appearance: none;
-
-    width: 16px;
-    height: 16px;
-
-    margin-top: -6px;
-
-    border-radius: 50%;
-    border: 1px solid #7ea8c7;
-    background: #78abd0;
-
-    box-shadow:
-        0 1px 3px rgba(0, 0, 0, 0.2);
-
-    transition:
-        transform 0.12s ease,
-        box-shadow 0.12s ease;
-}
-
-.template-range::-moz-range-thumb {
-    width: 16px;
-    height: 16px;
-
-    border-radius: 50%;
-    border: 1px solid #7ea8c7;
-    background: #78abd0;
-
-    box-shadow:
-        0 1px 3px rgba(0, 0, 0, 0.2);
-}
-
-.template-range:hover::-webkit-slider-thumb {
-    transform: scale(1.05);
-}
-
-.template-range:focus {
-    outline: none;
-}
-
-.template-range:focus::-webkit-slider-thumb {
-    box-shadow:
-        0 0 0 3px rgba(120, 171, 208, 0.18),
-        0 1px 3px rgba(0, 0, 0, 0.2);
-}
 
 /* ============================================================
    CUSTOM BLUE SLIDER - Matches the image reference
    ============================================================ */
 
-#lab-hms-manual,
-.custom-blue-slider {
+#lab-hms-manual {
   appearance: none;
   -webkit-appearance: none;
   width: 100%;
@@ -586,3 +459,260 @@
   border: none !important;
   color: #ffffff !important;
 }
+/* lab-scene.css — laboratory styles */
+#threeViewport {
+  position: relative;
+  overflow: hidden;
+  background: #f0f4f8;
+}
+#threeViewport .lab-canvas {
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  display: block;
+  width: 100% !important;
+  height: 100% !important;
+}
+#lab-ui-container .ui-item {
+  margin-bottom: .8rem;
+  color: #475569;
+  font-size: 1.1rem;
+}
+#lab-ui-container label {
+  display: flex;
+  align-items: center;
+  gap: .8rem;
+  cursor: pointer;
+  user-select: none;
+}
+/* Lab-stage grid is managed by desktop-layout.css (2-column) and
+   mobile/tablet overrides. No blanket hiding of side-panel here. */
+#simulation .apparatus-selector {
+  display: flex;
+  align-items: center;
+  gap: .8rem;
+  flex-wrap: wrap;
+  padding: .8rem 1.2rem;
+  border-bottom: 1px solid #d9e5e5;
+  background: #fff;
+}
+#simulation .apparatus-selector__label {
+  margin-right: .4rem;
+  color: #475569;
+  font-size: 1.25rem;
+  font-weight: 700;
+}
+#simulation .apparatus-option {
+  padding: .55rem 1rem;
+  border: 1px solid #a9c7c4;
+  border-radius: .45rem;
+  background: #f7fbfb;
+  color: #176c67;
+  cursor: pointer;
+  font: inherit;
+  font-size: 1.2rem;
+  font-weight: 700;
+}
+#simulation .apparatus-option[aria-selected="true"] {
+  border-color: #078f87;
+  background: #089b93;
+  color: #fff;
+}
+#apparatus-runtime-error[data-type="success"] {
+  border-color: #15803d;
+  background: #f0fdf4;
+  color: #166534;
+}
+#apparatus-runtime-error[data-type="info"] {
+  border-color: #0369a1;
+  background: #f0f9ff;
+  color: #075985;
+}
+#resistance-box-stage {
+  position: absolute;
+  inset: 0;
+  z-index: 4;
+  display: none;
+  overflow: hidden;
+  background: #eef0f2;
+  font-family: Inter, ui-sans-serif, system-ui, -apple-system, sans-serif;
+}
+#resistance-box-stage.is-active {
+  display: block;
+}
+#resistance-box-stage .resistance-box-canvas {
+  display: block;
+  width: 100% !important;
+  height: 100% !important;
+}
+#resistance-schematic {
+  position: absolute;
+  top: 20px;
+  left: 20px;
+  z-index: 10;
+}
+#resistance-ui h3 {
+  margin: 0 0 1.2rem;
+  color: #111;
+  font-size: 1.5rem;
+}
+#resistance-ui .resistance-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 1.2rem;
+  color: #444;
+  font-size: 1.3rem;
+  font-weight: 500;
+}
+#resistance-ui .resistance-value {
+  color: #2b5797;
+  font-size: 1.5rem;
+  font-weight: 800;
+  font-variant-numeric: tabular-nums;
+}
+#resistance-ui input {
+  width: 100%;
+  accent-color: #2b5797;
+  cursor: pointer;
+}
+#resistance-ui button {
+  width: 100%;
+  margin-top: 1rem;
+  padding: .8rem;
+  border: 1px solid #ccc;
+  border-radius: .6rem;
+  background: #f9f9f9;
+  color: #333;
+  cursor: pointer;
+  font: inherit;
+  font-weight: 600;
+}
+#resistance-ui button:hover {
+  background: #eee;
+}
+#resistance-help {
+  margin: 1rem 0 0;
+  padding-top: .8rem;
+  border-top: 1px solid #eee;
+  color: #666;
+  font-size: 1.1rem;
+  line-height: 1.4;
+}
+#resistance-schematic {
+  top: 2.2rem;
+  left: 2.2rem;
+  width: 22rem;
+  padding: 1.6rem;
+  border: 1px solid rgba(255, 255, 255, .1);
+  border-radius: .8rem;
+  background: rgba(15, 15, 18, .95);
+  box-shadow: 0 1rem 3rem rgba(0, 0, 0, .3);
+  color: #fff;
+  font-family: monospace;
+  font-size: 1.3rem;
+  pointer-events: none;
+}
+#resistance-schematic .sch-title {
+  margin-bottom: 1.2rem;
+  padding-bottom: .4rem;
+  border-bottom: 1px solid #333;
+  color: #aaa;
+  font-weight: 700;
+}
+#resistance-schematic .sch-node {
+  display: flex;
+  align-items: center;
+  margin: .4rem 0;
+}
+#resistance-schematic .sch-line {
+  margin-left: 2.4rem;
+  color: #555;
+}
+#resistance-schematic .sch-active {
+  color: #ff5555;
+  font-weight: 700;
+}
+#resistance-schematic .sch-bypassed {
+  color: #44ff44;
+}
+#simulationWindow.resistance-mode #lab-ui-container {
+  display: none;
+}
+/* =========================================================
+   Simulation layout fix
+   Prevent the controls panel from stretching the simulation
+   ========================================================= */
+#simulation .lab-stage {
+    display: grid !important;
+    grid-template-columns: minmax(0, 1fr) minmax(280px, 340px) !important;
+    width: 100%;
+    min-width: 0;
+    min-height: 0;
+    height: min(70vh, 720px);
+    overflow: hidden;
+    align-items: stretch;
+}
+#simulation .workspace-viewport,
+#simulation #simulationWindow {
+    min-width: 0 !important;
+    min-height: 0 !important;
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+}
+#simulation .experiment-sidepanel {
+    min-width: 0 !important;
+    min-height: 0 !important;
+    height: 100%;
+    max-height: 100%;
+    overflow-y: auto;
+    overflow-x: hidden;
+    box-sizing: border-box;
+    overscroll-behavior: contain;
+    scrollbar-gutter: stable;
+}
+/* Keep the 3D viewport from expanding because of controls */
+#simulation #threeViewport {
+    width: 100%;
+    height: 100%;
+    min-width: 0;
+    min-height: 0;
+    overflow: hidden;
+}
+/* Prevent long labels / controls from increasing grid width */
+#simulation .experiment-sidepanel *,
+#simulation .side-details,
+#simulation .card-body {
+    max-width: 100%;
+    box-sizing: border-box;
+}
+/* Make ranges stay inside the panel */
+#simulation .experiment-sidepanel input[type="range"] {
+    width: 100%;
+    max-width: 100%;
+}
+/* Slightly nicer scrollbar */
+#simulation .experiment-sidepanel::-webkit-scrollbar {
+    width: 8px;
+}
+#simulation .experiment-sidepanel::-webkit-scrollbar-track {
+    background: #eef3f3;
+}
+#simulation .experiment-sidepanel::-webkit-scrollbar-thumb {
+    background: #9ab8b5;
+    border-radius: 6px;
+}
+#simulation .experiment-sidepanel::-webkit-scrollbar-thumb:hover {
+    background: #6f9995;
+}
+
+/* Calibrated optical magnifier; no change to measured values. */
+.optical-readout { position: absolute; left: 12px; bottom: 12px; z-index: 30; width: min(34rem, calc(100% - 24px)); padding: 10px 12px; background: rgba(255,255,255,.96); border: 1px solid #a9cecc; border-radius: 8px; box-shadow: 0 2px 9px #0002; color: #1e293b; font-size: 1.15rem; pointer-events: none; }
+.optical-heading { display:flex; justify-content:space-between; gap:12px; }
+.optical-reading { font-variant-numeric:tabular-nums; color:#be123c; }
+#simulation .optical-readout canvas { position:static !important; inset:auto !important; display:block !important; width:100% !important; height:55px !important; }
+.optical-range { color:#64748b; font-size:1rem; }
+.optical-status { margin:3px 0 0; line-height:1.3; }
+.optical-readout.is-waiting { border-color:#d97706; }
+@media(max-width:768px) { .optical-readout { width:calc(100% - 16px); left:8px; bottom:8px; padding:6px 8px; font-size:12px; } #simulation .optical-readout canvas { height:38px !important; } }

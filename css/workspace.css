@@ -1,4 +1,4 @@
-:root {
+/* components/workspace.css — laboratory styles */:root {
   --px-prov-f07: "211f";
 }
 
@@ -41,40 +41,6 @@
 /* REMOVED: #workspaceViewport > .graphs-card .graph-grid canvas { height: 21rem; min-height: 0; } */
 
 /* ---- Section List ---- */
-.section-list {
-  display: grid;
-  grid-column: 1 / -1;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: .5rem;
-}
-
-.section-list > .workspace-section,
-.section-list > .main__task-div,
-.section-list > .side-details {
-  min-height: 15rem;
-  max-height: 24rem;
-  overflow: auto;
-}
-
-.section-list > .workspace-section {
-  position: relative;
-  border: 1px solid #e2e8f0;
-  border-radius: .9rem;
-  background: #fff;
-}
-
-.section-list > .workspace-section > canvas {
-  height: 23rem;
-  min-height: 23rem;
-}
-
-.section-list > .side-details {
-  border: 1px solid #c8dada;
-  border-radius: .9rem;
-  background: #fff;
-}
-
-.section-list > .side-details > summary { padding: .8rem 1rem; }
 
 /* ---- Simulation Card Modes ---- */
 .simulation-card.is-reference-mode {
@@ -99,6 +65,3 @@
 .simulation-card.is-reference-mode:not(.is-graph-mode) .experiment-sidepanel { opacity: .62; }
 
 /* ---- Apparatus Caption ---- */
-.apparatus-caption {
-  display: none;
-}

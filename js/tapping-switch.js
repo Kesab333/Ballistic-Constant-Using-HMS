@@ -16,11 +16,11 @@ const scene = new THREE.Scene();
 scene.background = new THREE.Color(0xe9e9e9);
 
 // Adjusted FOV & camera distance so full switch base fits on screen
-const camera = new THREE.PerspectiveCamera(36, apparatusHost.clientWidth / apparatusHost.clientHeight, 0.1, 100);
+const camera = new THREE.PerspectiveCamera(36, (apparatusHost.clientWidth || 1) / (apparatusHost.clientHeight || 1), 0.1, 100);
 camera.position.set(0, 4.5, 7.8);
 
 const renderer = new THREE.WebGLRenderer({ antialias: true });
-renderer.setSize(apparatusHost.clientWidth, apparatusHost.clientHeight);
+renderer.setSize(apparatusHost.clientWidth || 1, apparatusHost.clientHeight || 1);
 renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
 renderer.shadowMap.enabled = true;
 renderer.shadowMap.type = THREE.PCFSoftShadowMap;
@@ -305,7 +305,11 @@ let isLocked = false;
 let isDraggingKey = false;
 const laboratoryModelMirrors = new Set();
 
+let lastSwitchMirror = '';
 function syncLaboratorySwitches() {
+    const signature = `${leverGroup.rotation.z}|${laboratoryModelMirrors.size}`;
+    if (signature === lastSwitchMirror) return;
+    lastSwitchMirror = signature;
     const sourceChildren = scene.children.filter(child => {
         if (!child.isMesh && !child.isGroup) return false;
         return !(child.isGridHelper || (
@@ -368,6 +372,7 @@ if (toggleBtn) {
 }
 
 window.tappingSwitchControl = {
+    setClosed(closed) { isLocked = Boolean(closed); setKeyState(isLocked); },
     toggle() {
         isLocked = !isLocked;
         setKeyState(isLocked);
@@ -408,6 +413,7 @@ window.addEventListener('pointerdown', (e) => {
 });
 
 window.addEventListener('pointermove', (e) => {
+    if (!isDraggingKey && !renderer.domElement.getClientRects().length) return;
     updateMouseNDC(e);
     raycaster.setFromCamera(mouse, camera);
     const intersects = raycaster.intersectObjects([leverGroup], true);
@@ -441,10 +447,11 @@ function animate() {
     requestAnimationFrame(animate);
     
     // FIX 3: Always update lever animation regardless of active viewport tab
-    leverGroup.rotation.z += (targetAngle - leverGroup.rotation.z) * 0.25;
+    const remaining = targetAngle - leverGroup.rotation.z;
+    leverGroup.rotation.z = Math.abs(remaining) < 1e-5 ? targetAngle : leverGroup.rotation.z + remaining * 0.25;
     syncLaboratorySwitches();
 
-    if (!apparatusHost.classList.contains('is-active')) return;
+    if (document.hidden || !document.getElementById('simulation').getClientRects().length || !apparatusHost.classList.contains('is-active')) return;
     controls.update();
     renderer.render(scene, camera);
 }
@@ -482,3 +489,7 @@ export const getModel = () => {
     laboratoryModelMirrors.add(pivot);
     return pivot;
 };
+
+controls.update();
+controls.saveState();
+window.addEventListener('simulation:reset-view', () => { const damping = controls.enableDamping; controls.enableDamping = false; controls.update(); controls.reset(); controls.enableDamping = damping; });

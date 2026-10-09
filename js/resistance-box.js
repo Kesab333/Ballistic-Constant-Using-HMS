@@ -1,3 +1,4 @@
+import './physics.js';
 import * as THREE from 'three';
 import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
 import { addTerminal } from './terminal-utils.js';
@@ -7,12 +8,12 @@ const app = document.getElementById('resistance-box-stage');
 const scene = new THREE.Scene();
 scene.background = new THREE.Color(0xeef0f2);
 
-const camera = new THREE.PerspectiveCamera(34, app.clientWidth / app.clientHeight, 0.1, 100);
+const camera = new THREE.PerspectiveCamera(34, (app.clientWidth || 1) / (app.clientHeight || 1), 0.1, 100);
 camera.position.set(0, 8.5, 10.5);
 
 const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: false });
 renderer.setPixelRatio(Math.min(devicePixelRatio, 2));
-renderer.setSize(app.clientWidth, app.clientHeight);
+renderer.setSize(app.clientWidth || 1, app.clientHeight || 1);
 renderer.shadowMap.enabled = true;
 renderer.shadowMap.type = THREE.PCFSoftShadowMap;
 renderer.outputColorSpace = THREE.SRGBColorSpace;
@@ -606,7 +607,13 @@ function calculateResistance() {
   return plugs.reduce((sum, p) => p.connected ? sum : sum + p.ohm, 0);
 }
 
+let acceptedPlugState = null;
 function updateCircuit(updateInputUI = true) {
+  if (acceptedPlugState && !window.ballisticReady()) {
+    const changed = plugs.some((p,i) => p.connected !== acceptedPlugState[i]);
+    if (changed) { window.requireBallisticReady(); plugs.forEach((p,i) => p.connected = acceptedPlugState[i]); }
+  }
+  acceptedPlugState = plugs.map(p => p.connected);
   const total = calculateResistance();
   const openKeys = [];
 
@@ -645,6 +652,7 @@ function updateCircuit(updateInputUI = true) {
 
 // Function to find and snap to the nearest achievable resistance combination
 function setTargetResistance(target) {
+  if (!window.requireBallisticReady()) { updateCircuit(true); return false; }
   target = Math.max(0, Math.min(210000, Number(target) || 0));
   
   let minDiff = Infinity;
@@ -758,8 +766,7 @@ setTargetResistance(5000);
 
 function render() {
   requestAnimationFrame(render);
-  syncLaboratoryModels();
-  if (!app.classList.contains('is-active')) return;
+  if (document.hidden || !document.getElementById('simulation').getClientRects().length || !app.classList.contains('is-active')) return;
   controls.update();
   renderer.render(scene, camera);
 }
@@ -775,3 +782,7 @@ export const getModel = () => {
 window.resistanceBoxControl = {
   toggleSocket: toggleResistanceSocket
 };
+
+controls.update();
+controls.saveState();
+window.addEventListener('simulation:reset-view', () => { const damping = controls.enableDamping; controls.enableDamping = false; controls.update(); controls.reset(); controls.enableDamping = damping; });

@@ -1,3 +1,18 @@
+function showRuntimeError(error) {
+  const panel = document.getElementById('apparatus-runtime-error');
+  if (!panel) return;
+  panel.hidden = false;
+  panel.textContent = `Apparatus error: ${error}`;
+}
+
+window.addEventListener('error', (event) => {
+  showRuntimeError(event.error?.message || event.message);
+});
+
+window.addEventListener('unhandledrejection', (event) => {
+  showRuntimeError(event.reason?.message || String(event.reason));
+});
+
 (() => {
   const guides = {
     experiment: {
@@ -110,4 +125,165 @@
     }
   });
   renderGuide('experiment');
+})();
+
+const apparatusOptions = document.querySelectorAll('[data-apparatus]');
+const simulationWindow = document.getElementById('simulationWindow');
+const apparatusStages = [...document.querySelectorAll('.apparatus-stage')];
+
+const apparatusPanels = {
+  'laboratory': document.getElementById('lab-ui-container'),
+  'resistance-box': document.getElementById('resistance-ui'),
+  'hms': document.getElementById('hms-hud'),
+  'ballistic-galvanometer': document.getElementById('ballistic-galvanometer-ui-panel'),
+  'tapping-switch': document.getElementById('tapping-switch-control-panel'),
+  'commutator': document.getElementById('commutator-control-panel')
+};
+
+function selectApparatus(apparatus) {
+  const isExternalApparatus = apparatus !== 'laboratory';
+
+  apparatusOptions.forEach((option) => {
+    option.setAttribute('aria-selected', String(option.dataset.apparatus === apparatus));
+  });
+
+  if (simulationWindow) {
+    simulationWindow.classList.toggle('external-apparatus-mode', isExternalApparatus);
+  }
+
+  apparatusStages.forEach((stage) => {
+    stage.classList.toggle('is-active', stage.id === `${apparatus}-stage`);
+  });
+
+  // Switch the active apparatus control panel in the right sidebar
+  Object.entries(apparatusPanels).forEach(([name, panel]) => {
+    if (!panel) return;
+    const isSelected = name === apparatus;
+    panel.dataset.apparatusOpen = String(isSelected);
+
+    if (isSelected) {
+      panel.style.display = 'block';
+      panel.hidden = false;
+    } else {
+      panel.style.display = 'none';
+      panel.hidden = true;
+    }
+  });
+
+  requestAnimationFrame(() => {
+    window.dispatchEvent(new Event('apparatus:resize'));
+    window.dispatchEvent(new Event('resize'));
+  });
+  window.setTimeout(() => {
+    window.dispatchEvent(new Event('apparatus:resize'));
+    window.dispatchEvent(new Event('resize'));
+  }, 120);
+}
+
+apparatusOptions.forEach((option) => {
+  option.addEventListener('click', () => selectApparatus(option.dataset.apparatus));
+  option.addEventListener('dragstart', (e) => {
+    e.dataTransfer.setData('text/plain', option.dataset.apparatus);
+    e.dataTransfer.effectAllowed = 'copy';
+  });
+});
+
+const requestedApparatus = new URLSearchParams(window.location.search).get('apparatus');
+const initialApparatus = requestedApparatus && [...apparatusOptions].some((option) => option.dataset.apparatus === requestedApparatus)
+  ? requestedApparatus
+  : 'laboratory';
+
+window.addEventListener('load', () => {
+  selectApparatus(initialApparatus);
+}, { once: true });
+
+const workspaceSections = [...document.querySelectorAll('.main__task-div')];
+const workspaceLinks = [...document.querySelectorAll('.workspace-link')];
+const workspaceTitle = document.getElementById('workspaceTitle');
+
+function showWorkspace(name) {
+  if (!document.body.classList.contains('dashboard-active') && !document.getElementById('simulation').hidden && name !== 'simulation') window.dispatchEvent(new Event('simulation:reset-view'));
+  // Dismiss dashboard if active
+  document.body.classList.remove('dashboard-active');
+  workspaceSections.forEach((section) => {
+    const isFooter = section.tagName === 'FOOTER';
+    const isSelected = section.id === name;
+    const shouldShow = isFooter || isSelected;
+    section.hidden = !shouldShow;
+    /* Some legacy component styles use display: flex !important. Set the
+       workspace state inline so inactive views can never leak into the page. */
+    section.style.setProperty('display', shouldShow ? (isFooter ? 'block' : 'flex') : 'none', 'important');
+  });
+
+  workspaceLinks.forEach((link) => {
+    link.classList.toggle('is-active', link.dataset.workspace === name);
+  });
+
+  if (workspaceTitle && name === 'simulation') {
+    workspaceTitle.textContent = 'Simulation';
+  }
+
+  window.dispatchEvent(new CustomEvent('workspace:change', { detail: { name } }));
+  // The renderers start while their containers are hidden on the dashboard.
+  requestAnimationFrame(() => window.dispatchEvent(new Event('resize')));
+}
+
+workspaceLinks.forEach((link) => {
+  link.addEventListener('click', () => showWorkspace(link.dataset.workspace));
+});
+
+window.showWorkspace = showWorkspace;
+
+// Magnification changes only the display range, never the measured displacement.
+(function () {
+  const host = document.getElementById('simulationWindow');
+  const panel = document.createElement('aside');
+  panel.className = 'optical-readout';
+  panel.setAttribute('aria-label', 'Magnified galvanometer scale');
+  panel.innerHTML = '<div class="optical-heading"><strong>Galvanometer spot</strong><span class="optical-reading">0.000 cm</span></div><canvas width="640" height="110" aria-label="Magnified optical scale"></canvas><div class="optical-range"></div><p class="optical-status" role="status" aria-live="polite"></p>';
+  host.appendChild(panel);
+  const ctx = panel.querySelector('canvas').getContext('2d');
+  const reading = panel.querySelector('.optical-reading');
+  const rangeLabel = panel.querySelector('.optical-range');
+  const status = panel.querySelector('.optical-status');
+  let range = 1, previousEvent = null, lastStatus = '';
+  function draw(state) {
+    if (!host.getClientRects().length) return;
+    const o = window.ballisticGalvanometerObservation;
+    const visible = o?.visible && Number.isFinite(o.readingCm);
+    const x = visible ? o.readingCm : 0;
+    if (state.circuit.eventStartTime !== previousEvent) {
+      previousEvent = state.circuit.eventStartTime;
+      const expectedAngle = state.circuit.expectedCharge / state.calibration.mechanicalBallisticConstant;
+      range = Math.max(0.01, Math.min(50, Math.abs(expectedAngle * 200) * 1.4 || 1));
+    }
+    if (Math.abs(x) > range) range = Math.min(50, Math.abs(x) * 1.25);
+    reading.textContent = visible ? x.toFixed(3) + ' cm' : 'Spot off scale';
+    rangeLabel.textContent = 'Magnified view · range ±' + range.toFixed(range < 1 ? 3 : 1) + ' cm';
+    ctx.clearRect(0, 0, 640, 110);
+    ctx.fillStyle = '#f8fafc'; ctx.fillRect(0, 0, 640, 110);
+    ctx.strokeStyle = '#64748b'; ctx.fillStyle = '#334155'; ctx.font = '18px sans-serif'; ctx.textAlign = 'center';
+    ctx.beginPath(); ctx.moveTo(25, 48); ctx.lineTo(615, 48);
+    for (let i = -4; i <= 4; i++) {
+      const px = 320 + i * 73.75;
+      ctx.moveTo(px, 39); ctx.lineTo(px, 57);
+      ctx.fillText((i * range / 4).toFixed(range < 1 ? 3 : 1), px, 92);
+    }
+    ctx.stroke();
+    if (visible) {
+      const px = 320 + Math.max(-1, Math.min(1, x / range)) * 295;
+      ctx.fillStyle = '#dc2626'; ctx.fillRect(px - 2, 17, 4, 50);
+    }
+    const busy = !window.ballisticReady?.();
+    const message = busy ? 'Wait: let the spot settle at zero before the next throw.' :
+      !visible ? 'Align the lamp and mirror until the spot is visible on the scale.' : state.validationMessage;
+    if (message !== lastStatus) { status.textContent = message; lastStatus = message; }
+    panel.classList.toggle('is-waiting', busy);
+    document.querySelectorAll('#hms-pullUp, #hms-release, #hms-coilPosSlider, #lab-hms-drop, #lab-hms-manual, #lab-total-resistance, #res-input, #btn-toggle').forEach(control => {
+      control.disabled = busy;
+      control.title = busy ? 'Wait for the galvanometer to settle at zero.' : '';
+    });
+  }
+  window.addEventListener('ballistic:statechange', e => draw(e.detail));
+  window.addEventListener('workspace:change', () => { if (window.ballisticExperiment) draw(window.ballisticExperiment); });
 })();

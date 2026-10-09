@@ -71,14 +71,8 @@ export function initDashboard({ onSelectSection, onReturnHome } = {}) {
     });
   });
 
-  // Listen to sidebar link clicks so clicking sidebar dismisses dashboard if active
-  document.querySelectorAll('.workspace-link').forEach(link => {
-    link.addEventListener('click', () => {
-      document.body.classList.remove('dashboard-active');
-    });
-  });
-
   function showDashboard() {
+    if (!document.body.classList.contains('dashboard-active')) window.dispatchEvent(new Event('simulation:reset-view'));
     document.body.classList.add('dashboard-active');
 
     // Deactivate sidebar highlights
@@ -129,7 +123,7 @@ function getCardPreviewHTML(sectionId) {
     case 'diagram':
       return `
         <div class="dash-diagram-bg">
-          <img src="images/ballistic-galvanometer-circuit_diagram.png" alt="Ballistic Galvanometer Circuit Preview" class="dash-diagram-img" />
+          <img src="images/ballistic-galvanometer-circuit_diagram.webp" alt="Ballistic Galvanometer Circuit Preview" class="dash-diagram-img" />
         </div>
       `;
 
@@ -378,7 +372,8 @@ function initSimulationMiniPreview() {
     if (rect.width > 0 && rect.height > 0) {
       camera.aspect = rect.width / rect.height;
       camera.updateProjectionMatrix();
-      renderer.setSize(rect.width, rect.height, false);
+      const size = renderer.getSize(new THREE.Vector2());
+      if (size.x !== rect.width || size.y !== rect.height) renderer.setSize(rect.width, rect.height, false);
     }
   }
 

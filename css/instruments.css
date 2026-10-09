@@ -1,3 +1,85 @@
+/* hms-apparatus.css — laboratory styles */#hms-stage {
+  --bg: #f9f9fa9c;
+  --accent: #089b93;
+  margin: 0;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  background: var(--bg);
+  font-family: Inter, Segoe UI, Arial, sans-serif;
+  position: relative;
+}
+
+#hms-stage #hms-app {
+  position: absolute;
+  inset: 0;
+  width: 100% !important;
+  height: 100% !important;
+}
+
+#hms-hud .kv {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 6px 10px;
+  font-size: 1.1rem;
+  margin-top: 10px;
+  border-top: 1px solid #e2e8f0;
+  padding-top: 10px;
+  color: #475569;
+}
+
+#hms-hud .kv div:nth-child(even) {
+  color: #087d76;
+  font-variant-numeric: tabular-nums;
+  font-weight: 700;
+}
+
+#hms-legend {
+  position: absolute;
+  right: 16px;
+  top: 60px;
+  z-index: 10;
+  background: transparent;
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.4);
+  border-radius: 12px;
+  padding: 10px 14px;
+  color: #202833;
+  font-size: 11px;
+  line-height: 1.55;
+  box-shadow: 0 10px 28px rgba(0, 0, 0, 0.08);
+}
+
+#hms-legend .sw {
+  display: inline-block;
+  width: 10px;
+  height: 10px;
+  border-radius: 2px;
+  margin-right: 6px;
+  vertical-align: -1px;
+}
+
+#hms-tip {
+  position: absolute;
+  left: 50%;
+  bottom: 16px;
+  transform: translateX(-50%);
+  z-index: 4;
+  background: transparent;
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.4);
+  color: #010911;
+  padding: 8px 14px;
+  border-radius: 999px;
+  font-size: 11px;
+  pointer-events: none;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+}
+
+/* ballistic-galvanometer.css — laboratory styles */
+
 #ballistic-galvanometer-stage {
   margin: 0;
   padding: 0;
@@ -18,6 +100,7 @@
 }
 
 /* Accordion styles for ballistic galvanometer controls */
+
 .bg-accordion-group {
   border: 1px solid #cbd5e1;
   border-radius: 6px;
@@ -63,17 +146,20 @@ details[open] .accordion-header::after {
 }
 
 /* Restrain inner containers from pushing beyond outer borders */
+
 .card-body {
   box-sizing: border-box;
   width: 100%;
 }
 
 /* Perfect alignment row-by-row */
+
 .var-div {
   margin-bottom: 12px;
 }
 
 /* Restrict all range sliders to 100% width of the parent container */
+
 .var-div input[type="range"] {
   width: 100%;
   box-sizing: border-box;
@@ -82,6 +168,7 @@ details[open] .accordion-header::after {
 }
 
 /* Header row with label and input+unit */
+
 .var-header-row {
   display: flex;
   align-items: center;
@@ -100,6 +187,7 @@ details[open] .accordion-header::after {
 }
 
 /* Input with unit label container */
+
 .input-with-unit {
   display: inline-flex;
   align-items: center;
@@ -126,6 +214,7 @@ details[open] .accordion-header::after {
 }
 
 /* Re-enable native stepper spin buttons inside number inputs */
+
 .input-with-unit input[type="number"]::-webkit-inner-spin-button,
 .input-with-unit input[type="number"]::-webkit-outer-spin-button {
   -webkit-appearance: inner-spin-button !important;
@@ -142,6 +231,7 @@ details[open] .accordion-header::after {
 }
 
 /* Fixed width on unit label ensures all input boxes align straight vertically */
+
 .input-with-unit .unit-label {
   font-size: 13px;
   font-weight: 700;
@@ -151,6 +241,7 @@ details[open] .accordion-header::after {
 }
 
 /* Ensure action buttons wrap cleanly inside the card width */
+
 .control-btn {
   width: 100%;
   max-width: 100%;
@@ -254,3 +345,140 @@ details[open] .accordion-header::after {
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
   z-index: 5;
 }
+
+/* tapping-switch.css — laboratory styles */
+
+#tapping-switch-stage {
+  margin: 0;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  background: #e9e9e9;
+  font-family: Arial, sans-serif;
+  user-select: none;
+  position: relative;
+}
+
+#tapping-switch-stage canvas {
+  display: block;
+  width: 100% !important;
+  height: 100% !important;
+}
+
+#tapping-switch-info {
+  display: none !important;
+}
+
+#tapping-switch-control-panel .status-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 14px;
+  font-weight: bold;
+  font-size: 1.15rem;
+  color: #334155;
+}
+
+#tapping-switch-control-panel .status-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: #f1f5f9;
+  padding: 4px 10px;
+  border-radius: 6px;
+  border: 1px solid #cbd5e1;
+}
+
+#tapping-switch-control-panel .status-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background-color: #d9534f;
+  box-shadow: 0 0 6px #d9534f;
+  transition: background-color 0.2s, box-shadow 0.2s;
+}
+
+#tapping-switch-control-panel .status-dot.active {
+  background-color: #28a745;
+  box-shadow: 0 0 8px #28a745;
+}
+
+#tapping-switch-control-panel .control-btn {
+  width: 100%;
+  padding: 0.8rem 1rem;
+  margin-top: 0.75rem;
+  border-radius: 0.5rem;
+  cursor: pointer;
+  font-weight: 700;
+  font-size: 1.1rem;
+  transition: all 0.15s ease;
+}
+
+#tapping-switch-control-panel .control-btn.primary {
+  background: #089b93;
+  color: white;
+  border: none;
+}
+
+#tapping-switch-control-panel .control-btn.primary:hover {
+  background: #056e68;
+}
+
+#tapping-switch-control-panel .control-btn.secondary {
+  background: #e2e8f0;
+  color: #1e293b;
+  border: 1px solid #cbd5e1;
+}
+
+#tapping-switch-control-panel .control-btn.secondary:hover {
+  background: #cbd5e1;
+}
+
+/* apparatus-stages.css — laboratory styles */
+
+#simulationWindow .apparatus-stage {
+  position: absolute;
+  inset: 0;
+  z-index: 4;
+  display: none;
+  overflow: hidden;
+}
+
+#simulationWindow .apparatus-stage.is-active {
+  display: block;
+}
+
+#simulationWindow .apparatus-stage canvas {
+  display: block;
+  width: 100% !important;
+  height: 100% !important;
+}
+
+#hms-stage #hms-app,
+#ballistic-galvanometer-stage #ballistic-galvanometer-canvas-container,
+#commutator-stage #commutator-canvas-container {
+  position: absolute !important;
+  inset: 0 !important;
+  width: 100% !important;
+  height: 100% !important;
+}
+
+#simulationWindow.external-apparatus-mode #lab-ui-container {
+  display: none;
+}
+
+#apparatus-runtime-error {
+  position: absolute;
+  right: 1.2rem;
+  bottom: 1.2rem;
+  z-index: 20;
+  max-width: 60%;
+  padding: .8rem 1rem;
+  border: 1px solid #b91c1c;
+  border-radius: .5rem;
+  background: #fff1f2;
+  color: #991b1b;
+  font: 600 1.2rem/1.35 system-ui, sans-serif;
+}
+
+/* reversing_key_commutator.css — laboratory styles */

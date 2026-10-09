@@ -587,6 +587,7 @@ const uRt = () => {
 
         sBd.getWorldPosition(sP);
         sBd.getWorldDirection(sD);
+        window.ballisticOpticalGain = 2 * Math.abs(sP.clone().sub(wMr).dot(sD)) * 50 / 1.75;
 
         const sN = sD.clone().negate();
 
@@ -762,6 +763,7 @@ const rc = new THREE.Raycaster();
 const ms = new THREE.Vector2();
 
 window.addEventListener('pointermove', e => {
+    if (!d3 && !rnd.domElement.getClientRects().length) return;
     if (d3) {
         uKnob(kA + (e.clientX - pM) * 0.8);
         pM = e.clientX;
@@ -959,21 +961,28 @@ window.addEventListener('apparatus:resize', resizeBallistic);
 
 const renderBallistic = rnd.render.bind(rnd);
 rnd.render = (activeScene, activeCamera) => {
-    if (ballisticStage.classList.contains('is-active')) {
+    if (!document.hidden && document.getElementById('simulation').getClientRects().length && ballisticStage.classList.contains('is-active')) {
         renderBallistic(activeScene, activeCamera);
     }
 };
 
+let lastOpticsSignature = '';
+window.readBallisticSpot = angle => {
+    const signature = [angle,kA,...lG.position.toArray(),lG.rotation.y,scG.position.y,lpG.position.y,bxG.rotation.y].join('|');
+    if (signature !== lastOpticsSignature) { sCl(angle); lastOpticsSignature = signature; }
+    const o = window.ballisticGalvanometerObservation;
+    return o.visible ? o.readingCm : null;
+};
 const laboratoryModelMirrors = new Set();
+const mirrorPairs = new WeakMap();
 
 const anim = t => {
     requestAnimationFrame(anim);
     // The authoritative physics module integrates the circuit impulse and oscillator.
     // The existing mirror/optics consume this physical coil angle directly.
-    const physicalAngle = getGalvanometerAngle();
-    if (Number.isFinite(physicalAngle)) sCl(physicalAngle);
+    // The physics driver already applies the current coil angle and optics.
     ctrl.update();
-    uRt();
+    if (!window.ballisticExperiment) uRt();
     syncLaboratoryModels();
     rnd.render(scn, cam);
 };
@@ -1154,19 +1163,25 @@ mG.add(terminalGroup);
 // ============================================
 
 function syncLaboratoryModels() {
-    const copyChildren = (source, target) => {
-        if (!target) return;
-        source.children.forEach((sourceChild, index) => {
-            const targetChild = target.children[index];
-            if (!targetChild) return;
-            targetChild.position.copy(sourceChild.position);
-            targetChild.quaternion.copy(sourceChild.quaternion);
-            targetChild.scale.copy(sourceChild.scale);
-            targetChild.visible = sourceChild.visible;
-            copyChildren(sourceChild, targetChild);
-        });
-    };
-    laboratoryModelMirrors.forEach(model => copyChildren(mG, model));
+  laboratoryModelMirrors.forEach(model => {
+    let pairs = mirrorPairs.get(model);
+    if (!pairs) {
+      pairs = [];
+      const collect = (a,b) => a.children.forEach((child,i) => {
+        const target=b.children[i]; if (!target) return;
+        pairs.push([child,target]); collect(child,target);
+      });
+      collect(mG,model); mirrorPairs.set(model,pairs);
+    }
+    for (const [a,b] of pairs) {
+      if (!a.position.equals(b.position)) b.position.copy(a.position);
+      if (!a.quaternion.equals(b.quaternion)) b.quaternion.copy(a.quaternion);
+      if (!a.scale.equals(b.scale)) b.scale.copy(a.scale);
+      if (a.visible !== b.visible) b.visible = a.visible;
+      if (a.geometry && a.geometry !== b.geometry) b.geometry = a.geometry;
+      if (a.material && a.material !== b.material) b.material = a.material;
+    }
+  });
 }
 
 export const getModel = () => {
@@ -1174,3 +1189,7 @@ export const getModel = () => {
     laboratoryModelMirrors.add(model);
     return model;
 };
+
+ctrl.update();
+ctrl.saveState();
+window.addEventListener('simulation:reset-view', () => { const damping = ctrl.enableDamping; ctrl.enableDamping = false; ctrl.update(); ctrl.reset(); ctrl.enableDamping = damping; });

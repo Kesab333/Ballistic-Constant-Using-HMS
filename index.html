@@ -11,27 +11,13 @@
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;500;600;700&display=swap" rel="stylesheet" />
-  <link rel="icon" href="images/nitk.ico" />
+  <link rel="icon" href="images/nitk.webp" />
   
   <!-- KaTeX Library for LaTeX Rendering -->
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/katex.min.css" />
   <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/katex.min.js"></script>
 
-  <!-- Main Global Styles -->
-  <link rel="stylesheet" href="css/general.css" />
-  <link rel="stylesheet" href="css/style.css" />
-  <link rel="stylesheet" href="css/lab-scene.css" />
-  <link rel="stylesheet" href="css/hms-apparatus.css" />
-  <link rel="stylesheet" href="css/ballistic-galvanometer.css" />
-  <link rel="stylesheet" href="css/tapping-switch.css" />
-  <link rel="stylesheet" href="css/apparatus-stages.css" />
-
-  <!-- Layout Styles & Component Styles -->
-  <link rel="stylesheet" href="css/components/apparatus.css?v=2" />
-  <link rel="stylesheet" href="css/base/desktop-layout.css" />
-  <link rel="stylesheet" href="css/components/reference.css" />
-  <link rel="stylesheet" href="css/base/tablet-layout.css" media="screen and (min-width: 769px) and (max-width: 1024px)" />
-  <link rel="stylesheet" href="css/base/mobile-layout.css" media="screen and (max-width: 768px)" />
+<!-- Layout Styles & Component Styles -->
 
   <script type="importmap">
     { "imports": {
@@ -39,12 +25,23 @@
       "three/addons/": "https://unpkg.com/three@0.160.0/examples/jsm/"
     } }
   </script>
+  <link rel="stylesheet" href="css/base.css" />
+  <link rel="stylesheet" href="css/controls.css" />
+  <link rel="stylesheet" href="css/workspace.css" />
+  <link rel="stylesheet" href="css/navigation.css" />
+  <link rel="stylesheet" href="css/responsive.css" />
+  <link rel="stylesheet" href="css/lab.css" />
+  <link rel="stylesheet" href="css/instruments.css" />
+  <link rel="stylesheet" href="css/apparatus.css" />
+  <link rel="stylesheet" href="css/layout.css" />
+  <link rel="stylesheet" href="css/reference.css" />
+  <link rel="stylesheet" href="css/viewport.css" />
 </head>
 
-<body>
+<body class="dashboard-active">
   <header class="title-div-container">
     <div class="title-div">
-      <div class="logo-div"><img src="images/nitk.ico" alt="NITK logo" class="logo" /></div>
+      <div class="logo-div"><img src="images/nitk.webp" alt="NITK logo" class="logo" /></div>
       <h1>Ballistic Constant Using Hibbert's Magnetic Standard</h1>
     </div>
   </header>
@@ -57,7 +54,7 @@
             aria-label="Diagram"></button><span>Diagram</span></li>
         <li class="tool-list"><button class="tool-link icon-formula workspace-link" data-workspace="formula"
             aria-label="Formula"></button><span>Formula</span></li>
-        <li class="tool-list"><button class="tool-link icon-simulation workspace-link is-active" data-workspace="simulation"
+        <li class="tool-list"><button class="tool-link icon-simulation workspace-link" data-workspace="simulation"
             aria-label="Simulation"></button><span>Simulation</span></li>
         <li class="tool-list"><button class="tool-link icon-observation workspace-link" data-workspace="observation"
             aria-label="Observation"></button><span>Observation</span></li>
@@ -470,7 +467,7 @@
         <section id="diagram" class="main__task-div reference-card">
           <div class="task-heading"><h2 class="task-title">Diagram</h2><div class="heading-actions"><button type="button" class="heading-button help-button section-help-button" aria-label="Open diagram help" title="Help">?</button><button type="button" class="heading-button section-fullscreen-button" aria-label="View diagram fullscreen" title="Fullscreen">⛶</button><button type="button" class="heading-button dashboard-close-btn" aria-label="Close diagram" title="Close section">× <span>Close</span></button></div></div>
           <div class="workspace-layout">
-            <div class="workspace-primary diagram-panel"><div class="workspace-toolbar"><label for="ballisticDiagramSelect">View</label><select id="ballisticDiagramSelect" class="formula-dropdown"><option value="images/ballistic-galvanometer-circuit_diagram.png">Ballistic Galvanometer Circuit</option><option value="images/HMS_Circuit_Diagram.png">Hibbert's Magnetic Standard Circuit</option><option value="images/lab_circuit_Connection.png">Complete Laboratory Connection</option></select></div><div class="diagram-figure"><img id="ballisticDiagramImage" src="images/ballistic-galvanometer-circuit_diagram.png"
+            <div class="workspace-primary diagram-panel"><div class="workspace-toolbar"><label for="ballisticDiagramSelect">View</label><select id="ballisticDiagramSelect" class="formula-dropdown"><option value="images/ballistic-galvanometer-circuit_diagram.webp">Ballistic Galvanometer Circuit</option><option value="images/HMS_Circuit_Diagram.png">Hibbert's Magnetic Standard Circuit</option><option value="images/lab_circuit_Connection.webp">Complete Laboratory Connection</option></select></div><div class="diagram-figure"><img id="ballisticDiagramImage" src="images/ballistic-galvanometer-circuit_diagram.webp"
             alt="Ballistic Galvanometer Circuit" /><map name="circuit-labels">
               <area shape="rect" coords="650,130,785,315" href="#diagram" alt="Diode" title="D — Diode" />
               <area shape="rect" coords="925,135,1115,310" href="#diagram" alt="Switch" title="SW — Switch" />
@@ -652,17 +649,9 @@
       </div>
     </div>
   </div>
+  <script src="js/navigation.js"></script>
   <script type="module" src="js/lab-scene.js"></script>
-  <script src="js/runtime-diagnostics.js"></script>
-  <script type="module" src="js/resistance-box.js"></script>
-  <script type="module" src="js/hms-apparatus.js"></script>
-  <script type="module" src="js/ballistic-galvanometer.js"></script>
-  <script type="module" src="js/tapping-switch.js"></script>
-  <script type="module" src="js/reversing_key_commutator.js"></script>
   <script type="module" src="js/ui.js"></script>
-  <script src="js/help.js"></script>
-  <script src="js/apparatus-selector.js"></script>
-  <script src="js/workspace-navigation.js"></script>
   <script type="module" src="js/dashboard.js"></script>
 </body>
 

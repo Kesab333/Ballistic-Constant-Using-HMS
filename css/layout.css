@@ -1,4 +1,4 @@
-/* ==========================================================================
+/* base/desktop-layout.css — laboratory styles *//* ==========================================================================
    Desktop Layout & Page Architecture (Simulation + Footer Only)
    ========================================================================== */
 
@@ -141,8 +141,7 @@ html, body {
   font-size: 1.05rem;
 }
 
-.tool-link,
-.rail-button {
+.tool-link {
   position: relative;
   display: grid;
   place-items: center;
@@ -155,8 +154,7 @@ html, body {
   cursor: pointer;
 }
 
-.tool-link::before,
-.rail-button::before {
+.tool-link::before {
   content: '';
   display: block;
   width: 3.8rem;
@@ -172,31 +170,18 @@ html, body {
   transform: scale(1.06);
 }
 
-.rail-button:hover,
 .tool-link:hover {
   transform: translateY(-1px);
   color: #056e68;
 }
 
-.tool-spacer {
-  display: block;
-  width: 4.3rem;
-  height: 4.3rem;
-}
-
-.tool-icon {
-  display: none;
-}
-
 /* Sidebar Icon Assets */
-.icon-simulation::before  { background-image: url('../../images/simulation.svg'); }
-.icon-diagram::before     { background-image: url('../../images/diagram.svg'); }
-.icon-calculation::before { background-image: url('../../images/calculation.svg'); }
-.icon-formula::before     { background-image: url('../../images/formula.svg'); }
-.icon-results::before     { background-image: url('../../images/results.svg'); }
-.icon-graph::before       { background-image: url('../../images/graphbutton.svg'); }
-.icon-experiments::before { background-image: url('../../images/experiments.svg'); }
-.icon-observation::before { background-image: url('../../images/observation.svg'); }
+.icon-simulation::before  { background-image: url('../images/simulation.svg'); }
+.icon-diagram::before     { background-image: url('../images/diagram.svg'); }
+.icon-calculation::before { background-image: url('../images/calculation.svg'); }
+.icon-formula::before     { background-image: url('../images/formula.svg'); }
+.icon-results::before     { background-image: url('../images/results.svg'); }
+.icon-observation::before { background-image: url('../images/observation.svg'); }
 
 /* --------------------------------------------------------------------------
    4. Hide Secondary Windows & Expand Simulation Card
@@ -354,7 +339,6 @@ body.dashboard-active .main-section {
 }
 
 /* Hide legacy simulation toolbar and floating info headers */
-.simulation-toolbar,
 #tapping-switch-info,
 .simulation-card .apparatus-caption,
 .simulation-card .drag-hint {
@@ -398,15 +382,6 @@ body.dashboard-active .main-section {
   animation: help-pop-in 0.25s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
-.help-step {
-  display: inline-block;
-  color: #087d76;
-  font-size: 0.95rem;
-  font-weight: 700;
-  text-transform: uppercase;
-  letter-spacing: 0.08em;
-}
-
 .help-popover h3 {
   margin: 0;
   color: #1a4d4a;
@@ -419,44 +394,6 @@ body.dashboard-active .main-section {
   color: #3b4d4c;
   font-size: 1.1rem;
   line-height: 1.6;
-}
-
-.help-actions {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 1rem;
-  margin-top: 1rem;
-  padding-top: 1.2rem;
-  border-top: 1px solid #e2e8f0;
-}
-
-.help-btn {
-  padding: 0.65rem 1.5rem;
-  border: 1px solid #089b93;
-  border-radius: 0.6rem;
-  background: #089b93;
-  color: #ffffff;
-  font-weight: 600;
-  font-size: 1.05rem;
-  cursor: pointer;
-  transition: background-color 0.15s ease, transform 0.1s ease;
-}
-
-.help-btn:hover {
-  background: #056e68;
-  transform: translateY(-1px);
-}
-
-.help-btn-secondary {
-  border: 1px solid #089b93;
-  background: transparent;
-  color: #087d76;
-}
-
-.help-btn-secondary:hover {
-  background: #f0f7f7;
-  color: #056e68;
 }
 
 @keyframes help-fade-in {
@@ -479,8 +416,3 @@ body.dashboard-active .main-section {
    8. ENSURE HIDDEN STATE OVERRIDES SIDEPANEL !IMPORTANT RULES
    ========================================================================== */
 /* Ensure hidden state overrides sidepanel !important rules */
-.simulation-card .experiment-sidepanel [hidden],
-.apparatus-panel[data-apparatus-open="false"],
-.apparatus-panel[style*="display: none"] {
-  display: none !important;
-}

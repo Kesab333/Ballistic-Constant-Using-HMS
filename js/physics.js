@@ -39,6 +39,24 @@ const REQUIRED_EDGES = [
 let switchClosed = false, lastTime = null, lastFlux = 0, previousVelocity = 0;
 let awaitingDampingPeaks = false, hmsWasRaised = false, lastPublishedAt = 0;
 let recordedPeakCount = 0;
+let trialInvalid = false;
+let trialPolarity = 1;
+// Readiness uses the oscillation envelope, not a zero crossing. 0.25 mrad
+// corresponds to 0.05 cm on a one-metre lamp scale.
+export function isGalvanometerReady() {
+  const e = ballisticExperiment, m = e.mechanics;
+  const w = Math.sqrt(m.torsionalConstant / m.momentOfInertia);
+  return !e.circuit.transientActive && !awaitingDampingPeaks &&
+    Math.hypot(e.galvanometer.angle, e.galvanometer.angularVelocity / w) < Math.min(0.00025, 0.05 / (window.ballisticOpticalGain || 200));
+}
+export function requireGalvanometerReady() {
+  if (isGalvanometerReady()) return true;
+  ballisticExperiment.validationMessage = 'Wait for the spot to settle at zero before the next throw or changing the settings.';
+  publish(true);
+  return false;
+}
+window.ballisticReady = isGalvanometerReady;
+window.requireBallisticReady = requireGalvanometerReady;
 
 const validNumber = (value, positive = false) => Number.isFinite(value) && (!positive || value > 0);
 const edgeKey = (a, b) => [a, b].sort().join('|');
@@ -51,7 +69,7 @@ function getExternalResistance() {
 function mechanicsReady() {
   const m = ballisticExperiment.mechanics;
   return validNumber(m.momentOfInertia, true) && validNumber(m.torsionalConstant, true) &&
-    validNumber(m.dampingCoefficient) && validNumber(m.torqueConstant, true);
+    validNumber(m.dampingCoefficient) && m.dampingCoefficient >= 0 && validNumber(m.torqueConstant, true);
 }
 
 function updateDerivedInstrumentValues() {
@@ -65,7 +83,7 @@ function updateDerivedInstrumentValues() {
   // Q/theta_first for an impulsive charge, from Jθ'' + cθ' + Sθ = Kt I.
   if (omegaD) {
     const peakTime = Math.atan2(omegaD, beta) / omegaD;
-    exp.calibration.mechanicalBallisticConstant = (m.momentOfInertia * omegaD / m.torqueConstant) * Math.exp(beta * peakTime);
+    exp.calibration.mechanicalBallisticConstant = (m.momentOfInertia * omega0 / m.torqueConstant) * Math.exp(beta * peakTime);
   }
 }
 
@@ -80,6 +98,7 @@ function updateCircuitState() {
   exp.circuitClosed = topologyComplete && !switchClosed;
   if (!topologyComplete) exp.validationMessage = 'Circuit open: connect HMS → resistance box → commutator → tapping switch → BG → commutator.';
   else if (switchClosed) exp.validationMessage = 'Circuit bypassed: the closed tapping switch shunts the BG. Open it to arm the experiment.';
+  else if (!isGalvanometerReady()) exp.validationMessage = 'Wait for the spot to settle at zero before the next throw.';
   else if (!exp.circuit.transientActive) exp.validationMessage = 'Circuit armed. Raise the HMS coil fully, then release it.';
   publish(true);
 }
@@ -148,7 +167,8 @@ function commitTrial() {
   }
   const correctedAngularThrow = correctedThrow(theta1, theta3);
   const correctedCm = correctedThrow(theta1Cm, theta3Cm);
-  const prefix = exp.commutator.polarity > 0 ? 'right' : 'left';
+  if (trialInvalid) { exp.validationMessage = 'Trial discarded: circuit/settings changed during the throw. Wait for zero and repeat.'; return; }
+  const prefix = trialPolarity > 0 ? 'right' : 'left';
   let row = exp.observation.trials.find(candidate => candidate.R === exp.circuit.externalResistance && candidate.n === exp.hmsStandard.turns && candidate.flux === exp.hmsStandard.maximumFlux && !candidate.complete);
   if (!row) {
     row = { trial: exp.observation.trials.length + 1, R: exp.circuit.externalResistance, n: exp.hmsStandard.turns, flux: exp.hmsStandard.maximumFlux, charge: Math.abs(exp.circuit.charge), totalResistance: exp.circuit.totalResistance };
@@ -180,13 +200,18 @@ function publish(force = false) {
 }
 
 export function setElectricalConnections(connections) {
+  if (!isGalvanometerReady()) trialInvalid = true;
   ballisticExperiment.connections = connections.map(({ from, to, resistance = 0 }) => ({ from, to, resistance })); updateCircuitState();
 }
 export function setSwitchClosed(isClosed) {
+  const interrupted = Boolean(isClosed) !== switchClosed && !isGalvanometerReady();
+  if (interrupted) { trialInvalid = true; awaitingDampingPeaks = false; }
   const changed = switchClosed !== Boolean(isClosed); switchClosed = Boolean(isClosed); updateCircuitState();
+  if (interrupted) ballisticExperiment.validationMessage = 'Throw interrupted by the damping key; wait for zero before starting a new trial.';
   if (changed && !switchClosed && ballisticExperiment.controlSource === 'SWITCH' && !ballisticExperiment.circuit.transientActive) window.dispatchEvent(new CustomEvent('ballistic:external-switch-event'));
 }
 export function setCommutatorPolarity(polarity) {
+  if (!requireGalvanometerReady()) return false;
   ballisticExperiment.commutator.polarity = Number(polarity) < 0 ? -1 : 1;
   if (!ballisticExperiment.circuit.transientActive) ballisticExperiment.validationMessage = `Commutator set for ${ballisticExperiment.commutator.polarity > 0 ? 'right' : 'left'} deflection. Raise the HMS coil when ready.`;
   publish(true);
@@ -194,7 +219,7 @@ export function setCommutatorPolarity(polarity) {
 export function setControlSource(source) { ballisticExperiment.controlSource = source === 'SWITCH' ? 'SWITCH' : 'HMS'; publish(true); }
 export function simulateGalvanometerImpulse(targetAngleRadians) {
   const exp = ballisticExperiment;
-  if (!mechanicsReady()) return false;
+  if (!mechanicsReady() || !requireGalvanometerReady()) return false;
   const target = Number(targetAngleRadians);
   if (!validNumber(target) || Math.abs(target) < 1e-6) return false;
   const m = exp.mechanics;
@@ -204,7 +229,8 @@ export function simulateGalvanometerImpulse(targetAngleRadians) {
   // Give the coil the angular velocity that produces the requested first
   // deflection, then let the same damped physics animation run as a trial.
   exp.galvanometer.angle = 0;
-  exp.galvanometer.angularVelocity = target * omegaD;
+  const peakTime = Math.atan2(omegaD, beta) / omegaD;
+  exp.galvanometer.angularVelocity = target * omega0 * Math.exp(beta * peakTime);
   exp.galvanometer.firstThrow = null;
   exp.galvanometer.correctedThrow = null;
   exp.observation.liveThrow = null;
@@ -217,11 +243,19 @@ export function simulateGalvanometerImpulse(targetAngleRadians) {
   return true;
 }
 export function configureExperimentParameters(values) {
+  if (!requireGalvanometerReady()) return false;
+  for (const key of ['turns','maximumFlux','galvanometerResistance','momentOfInertia','torsionalConstant','dampingCoefficient','torqueConstant']) {
+    if (key in values && (!validNumber(values[key], key !== 'dampingCoefficient') || values[key] < 0)) {
+      ballisticExperiment.validationMessage = 'Use positive instrument constants and non-negative damping.';
+      publish(true); return false;
+    }
+  }
   const hms = ballisticExperiment.hmsStandard, galv = ballisticExperiment.galvanometer, mechanics = ballisticExperiment.mechanics;
   const hasReadings = ballisticExperiment.observation.trials.length > 0;
   const changingStandard = ('turns' in values && Number(values.turns) !== hms.turns) || ('maximumFlux' in values && Number(values.maximumFlux) !== hms.maximumFlux);
-  if (hasReadings && changingStandard) {
-    ballisticExperiment.validationMessage = 'Keep the HMS turns and flux fixed for one observation set. Reset observations before changing the magnetic standard.';
+  const changingInstrument = ['galvanometerResistance','momentOfInertia','torsionalConstant','dampingCoefficient','torqueConstant'].some(key => key in values && values[key] !== (key === 'galvanometerResistance' ? galv.resistance : mechanics[key]));
+  if (hasReadings && (changingStandard || changingInstrument)) {
+    ballisticExperiment.validationMessage = 'Keep the standard and galvanometer constants fixed for one observation set. Reset observations before changing instrument constants.';
     publish(true);
     return;
   }
@@ -245,20 +279,25 @@ export function setHMSCoilPosition(position, { minPosition, maxPosition, motionS
 
 export function updateBallisticPhysics(timestamp = now()) {
   if (lastTime === null) { lastTime = timestamp; lastFlux = fluxForPosition(ballisticExperiment.hms.coilPosition) || 0; updateDerivedInstrumentValues(); return; }
-  const dt = Math.min(0.032, Math.max(0.001, timestamp - lastTime)); lastTime = timestamp;
+  const dt = Math.min(0.25, Math.max(0, timestamp - lastTime)); lastTime = timestamp;
+  if (!dt) return;
   const exp = ballisticExperiment, flux = fluxForPosition(exp.hms.coilPosition), fluxRate = flux === null ? 0 : (flux - lastFlux) / dt;
   exp.observation.flux = flux; lastFlux = flux ?? lastFlux;
   const canInduce = exp.circuitClosed && validNumber(exp.hmsStandard.turns, true) && validNumber(exp.circuit.totalResistance, true);
   // hmsWasRaised arms the *start* of a known transition.  Once started, keep
   // integrating until the coil stops; clearing the arm must not truncate Q.
-  const movingFlux = canInduce && (hmsWasRaised || exp.circuit.transientActive) && Math.abs(fluxRate) > 1e-12;
+  let movingFlux = canInduce && ((hmsWasRaised && fluxRate > 0) || exp.circuit.transientActive) && Math.abs(fluxRate) > 1e-12;
   exp.circuit.emf = movingFlux ? -exp.hmsStandard.turns * fluxRate : 0;
   exp.circuit.current = movingFlux ? (exp.commutator.polarity * exp.circuit.emf / exp.circuit.totalResistance) : 0;
   if (canInduce && !hmsWasRaised && Math.abs(fluxRate) > 1e-12) exp.validationMessage = 'Raise the HMS coil fully before its downward flux change; otherwise the standard flux change is not known.';
   if (movingFlux && !exp.circuit.transientActive) {
-    const atRest = Math.abs(exp.galvanometer.angle) < 0.003 && Math.abs(exp.galvanometer.angularVelocity) < 0.004;
-    if (!atRest) exp.validationMessage = 'Wait for the galvanometer spot to return to zero before taking the next throw.';
+    const atRest = isGalvanometerReady();
+    if (!atRest) {
+      exp.validationMessage = 'Wait for the galvanometer spot to settle at zero before taking the next throw.';
+      movingFlux = false; exp.circuit.current = 0; hmsWasRaised = false;
+    }
     else {
+      trialInvalid = false; trialPolarity = exp.commutator.polarity;
       exp.circuit.transientActive = true; exp.circuit.eventStartTime = timestamp; exp.circuit.charge = 0; exp.circuit.energyDissipated = 0;
       exp.galvanometer.firstThrow = null; exp.galvanometer.thirdThrow = null;
       exp.galvanometer.firstThrowSpotCm = null; exp.galvanometer.thirdThrowSpotCm = null; exp.galvanometer.correctedThrow = null;
@@ -273,9 +312,23 @@ export function updateBallisticPhysics(timestamp = now()) {
   const m = exp.mechanics;
   if (mechanicsReady()) {
     const torque = exp.circuit.transientActive ? exp.circuit.current * m.torqueConstant : 0;
-    const acceleration = (torque - m.dampingCoefficient * exp.galvanometer.angularVelocity - m.torsionalConstant * exp.galvanometer.angle) / m.momentOfInertia;
-    exp.galvanometer.angularVelocity += acceleration * dt; exp.galvanometer.angle += exp.galvanometer.angularVelocity * dt;
-    const reading = window.ballisticGalvanometerObservation?.readingCm;
+    // RK4 with bounded substeps: display frame rate cannot change charge,
+    // damping, or the oscillator period.
+    const steps = Math.max(1, Math.ceil(dt * 240)), h = dt / steps;
+    // Closing the connected damping key adds the coil's short-circuit braking.
+    const bgShunted = switchClosed && REQUIRED_EDGES.slice(-2).every(([a,b]) =>
+      exp.connections.some(({from,to}) => (from === a && to === b) || (from === b && to === a)));
+    const damping = m.dampingCoefficient + (bgShunted ? m.torqueConstant ** 2 / exp.galvanometer.resistance : 0);
+    const accel = (x,v) => (torque - damping*v - m.torsionalConstant*x) / m.momentOfInertia;
+    for (let i=0; i<steps; i++) {
+      const x=exp.galvanometer.angle, v=exp.galvanometer.angularVelocity;
+      const a=accel(x,v), b=accel(x+v*h/2,v+a*h/2);
+      const c=accel(x+(v+a*h/2)*h/2,v+b*h/2), d=accel(x+(v+b*h/2)*h,v+c*h);
+      exp.galvanometer.angle += h*(v+2*(v+a*h/2)+2*(v+b*h/2)+(v+c*h))/6;
+      exp.galvanometer.angularVelocity += h*(a+2*b+2*c+d)/6;
+    }
+    // Sample the optics at THIS angle, independently of rendering order.
+    const reading = window.readBallisticSpot?.(exp.galvanometer.angle) ?? null;
     // The trajectory is a record of a real throw/oscillation, not a permanent
     // idle-time trace. Keeping it empty at rest leaves the graph blank until
     // the user actually performs an experiment.
@@ -307,12 +360,18 @@ export function updateBallisticPhysics(timestamp = now()) {
     exp.circuit.transientActive = false; exp.circuit.eventEndTime = timestamp;
     if (!exp.galvanometer.firstThrow) exp.validationMessage = 'Awaiting the first maximum throw.';
   }
-  exp.observation.charge = Math.abs(exp.circuit.charge); publish();
+  exp.observation.charge = Math.abs(exp.circuit.charge);
+  exp.readyForThrow = isGalvanometerReady();
+  publish();
 }
 
 export const getGalvanometerAngle = () => ballisticExperiment.galvanometer.angle;
 export function resetBallisticExperiment() {
-  const exp = ballisticExperiment; exp.observation.trials.length = 0; exp.observation.trajectory.length = 0;
+  const exp = ballisticExperiment;
+  exp.circuit.transientActive = false; exp.circuit.current = 0; exp.circuit.emf = 0;
+  lastTime = null; hmsWasRaised = false; trialInvalid = false;
+  exp.observation.liveThrow = null; exp.observation.laterThrow = null; exp.observation.correctedThrow = null;
+  exp.observation.trials.length = 0; exp.observation.trajectory.length = 0;
   exp.calibration.ballisticConstant = null; exp.calibration.fittedInternalResistance = null; exp.calibration.slope = null; exp.calibration.intercept = null; exp.calibration.pairConstants = [];
   exp.galvanometer.angle = 0; exp.galvanometer.angularVelocity = 0; exp.galvanometer.firstThrow = null; exp.galvanometer.thirdThrow = null; exp.galvanometer.firstThrowSpotCm = null; exp.galvanometer.thirdThrowSpotCm = null; exp.galvanometer.correctedThrow = null;
   exp.circuit.charge = 0; exp.circuit.energyDissipated = 0; awaitingDampingPeaks = false; recordedPeakCount = 0; previousVelocity = 0;

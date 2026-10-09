@@ -5,7 +5,6 @@ import { getModel as getHMS } from './hms-apparatus.js';
 import { getModel as getGalvanometer } from './ballistic-galvanometer.js';
 import { getModel as getTappingSwitch } from './tapping-switch.js';
 import { getModel as getCommutator, togglePolarity as toggleCommutatorPolarity, updatePolarityAnimation, setPolarityAngle, snapPolarity } from './reversing_key_commutator.js';
-import { createWoodTexture, createTileTexture, createVentGrille } from './lab-scene-assets.js';
 import { updateAllWires, createWire, removeWire } from './terminal-utils.js';
 import { ballisticExperiment, setElectricalConnections, updateBallisticPhysics } from './physics.js';
 
@@ -31,8 +30,14 @@ let observationMonitorCanvas;
 let observationMonitorContext;
 let observationMonitorTexture;
 
+let lastMonitorText = '';
 function updateObservationMonitor(state = ballisticExperiment) {
     if (!observationMonitorContext || !observationMonitorTexture) return;
+    const signature = [state.circuitClosed, state.observation.trials.length, state.observation.charge,
+      state.galvanometer.firstThrowSpotCm, state.galvanometer.thirdThrowSpotCm,
+      state.calibration.ballisticConstant, state.validationMessage].join('|');
+    if (signature === lastMonitorText) return;
+    lastMonitorText = signature;
     const ctx = observationMonitorContext;
     const c = state.calibration;
 
@@ -205,11 +210,11 @@ function init() {
     scene = new THREE.Scene();
     scene.background = new THREE.Color(0xf0f4f8);
 
-    camera = new THREE.PerspectiveCamera(45, simulationViewport.clientWidth / simulationViewport.clientHeight, 0.1, 100);
+    camera = new THREE.PerspectiveCamera(45, (simulationViewport.clientWidth || 1) / (simulationViewport.clientHeight || 1), 0.1, 100);
     camera.position.set(0, TABLE_HEIGHT + 0.75, 4.8);
 
     renderer = new THREE.WebGLRenderer({ antialias: true });
-    renderer.setSize(simulationViewport.clientWidth, simulationViewport.clientHeight);
+    renderer.setSize(simulationViewport.clientWidth || 1, simulationViewport.clientHeight || 1);
     renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
     renderer.shadowMap.enabled = true;
     renderer.shadowMap.type = THREE.PCFSoftShadowMap;
@@ -220,7 +225,20 @@ function init() {
 
     controls = new OrbitControls(camera, renderer.domElement);
     controls.target.set(0, TABLE_HEIGHT + 0.3, 0);
-    
+    controls.update();
+    controls.saveState();
+    window.addEventListener('simulation:reset-view', () => {
+        selectedApparatusForDrag = null;
+        isDraggingOnTable = false;
+        controls.enabled = !isRotationLocked;
+        controls.reset();
+        placedApparatus.forEach(model => {
+            if (model.userData.homePosition) model.position.copy(model.userData.homePosition);
+            if (model.userData.homeQuaternion) model.quaternion.copy(model.userData.homeQuaternion);
+        });
+        updateConnectedWires();
+    });
+
     // No inertial damping in the laboratory: the camera stops exactly on pointer release.
     controls.enableDamping = false;
     controls.dampingFactor = 0;
@@ -723,7 +741,7 @@ function init() {
     setupUI();
     setupDragAndDrop();
     refreshLabControlsVisibility();
-    
+
     // ============================================================
     // FIX: ResizeObserver for viewport element tracking
     // ============================================================
@@ -734,7 +752,7 @@ function init() {
     });
 
     viewportObserver.observe(simulationViewport);
-    
+
     setupRaycasterForInteractions();
     enableTerminalInspector();
     window.dispatchEvent(new CustomEvent('lab:ready'));
@@ -774,9 +792,9 @@ function onWindowResize() {
 function buildRoom() {
     const floorGeo = new THREE.PlaneGeometry(20, 20);
     const tileTex = createTileTexture();
-    const floorMat = new THREE.MeshStandardMaterial({ 
-        color: 0xffffff, 
-        roughness: 0.1, 
+    const floorMat = new THREE.MeshStandardMaterial({
+        color: 0xffffff,
+        roughness: 0.1,
         metalness: 0.1,
         map: tileTex
     });
@@ -787,7 +805,7 @@ function buildRoom() {
 
     const wallMat = new THREE.MeshStandardMaterial({ color: 0xf8fafc, roughness: 0.3, metalness: 0.1 });
     const wallGeo = new THREE.PlaneGeometry(20, 10);
-    
+
     const wallBack = new THREE.Mesh(wallGeo, wallMat);
     wallBack.position.set(0, 5, -10);
     wallBack.receiveShadow = true;
@@ -815,7 +833,7 @@ function buildRoom() {
     const ceilingGeo = new THREE.PlaneGeometry(20, 20);
     const ceiling = new THREE.Mesh(ceilingGeo, ceilingMat);
     ceiling.position.set(0, 10, 0);
-    ceiling.rotation.x = Math.PI / 2; 
+    ceiling.rotation.x = Math.PI / 2;
     scene.add(ceiling);
 
     // Light Switch
@@ -826,12 +844,12 @@ function buildRoom() {
     switchGroup.add(plate);
 
     const toggleGeo = new THREE.BoxGeometry(0.12, 0.28, 0.08);
-    const toggleMat = new THREE.MeshStandardMaterial({ 
-        color: 0x0284c7, 
+    const toggleMat = new THREE.MeshStandardMaterial({
+        color: 0x0284c7,
         emissive: 0x0284c7,
         emissiveIntensity: 0.2,
-        roughness: 0.2, 
-        metalness: 0.5 
+        roughness: 0.2,
+        metalness: 0.5
     });
     wallLightSwitchMesh = new THREE.Mesh(toggleGeo, toggleMat);
     wallLightSwitchMesh.position.set(0, 0, 0.04);
@@ -872,7 +890,7 @@ function buildRoom() {
     // ============================================================
     // OBSERVATION MONITOR - FIXED: No tone mapping, sRGB color space
     // ============================================================
-    
+
     observationMonitorCanvas = document.createElement('canvas');
     observationMonitorCanvas.width = 1024;
     observationMonitorCanvas.height = 680;
@@ -889,7 +907,7 @@ function buildRoom() {
         map: observationMonitorTexture,
         toneMapped: false
     });
-    
+
     const obsScreen = new THREE.Mesh(screenGeo, obsScreenMat);
     obsScreen.position.z = 0.065;
     obsMonitorGroup.add(obsScreen);
@@ -1003,7 +1021,7 @@ function buildRoom() {
     // Doors
     const doorGroup = new THREE.Group();
     const doorFrameMat = new THREE.MeshStandardMaterial({ color: 0xB8C0C6, metalness: 0.95, roughness: 0.22 });
-    
+
     const sideFrameGeo = new THREE.BoxGeometry(0.4, 5.8, 0.4);
     const leftFrame = new THREE.Mesh(sideFrameGeo, doorFrameMat);
     leftFrame.position.set(-2.8, 2.9, 0);
@@ -1018,11 +1036,11 @@ function buildRoom() {
     topFrame.position.set(0, 5.9, 0);
     doorGroup.add(topFrame);
 
-    const glassMat = new THREE.MeshStandardMaterial({ 
-        color: 0xe2e8f0, 
-        roughness: 0.05, 
-        metalness: 0.2, 
-        transparent: true, 
+    const glassMat = new THREE.MeshStandardMaterial({
+        color: 0xe2e8f0,
+        roughness: 0.05,
+        metalness: 0.2,
+        transparent: true,
         opacity: 0.3,
         side: THREE.DoubleSide
     });
@@ -1038,7 +1056,7 @@ function buildRoom() {
 
     const handleMat = new THREE.MeshStandardMaterial({ color: 0xB8C0C6, metalness: 0.95, roughness: 0.22 });
     const handleGeo = new THREE.BoxGeometry(0.12, 0.25, 0.12);
-    
+
     const leftHandle = new THREE.Mesh(handleGeo, handleMat);
     leftHandle.position.set(-0.08, 2.85, 0.06);
     doorGroup.add(leftHandle);
@@ -1055,7 +1073,7 @@ function buildRoom() {
 function createTable() {
     labTable = new THREE.Group();
     labTable.userData.labRole = 'table';
-    
+
     const woodMap = createWoodTexture();
     const woodTopMaterial = new THREE.MeshStandardMaterial({ color: 0xffffff, roughness: 0.92, metalness: 0.0, map: woodMap });
     const woodLegMaterial = new THREE.MeshStandardMaterial({ color: 0xffffff, roughness: 0.75, metalness: 0.0, map: woodMap });
@@ -1342,7 +1360,7 @@ function setupUI() {
     const helpBtn = document.getElementById('helpButton');
     const helpOverlay = document.getElementById('helpOverlay');
     const closeHelpBtn = document.getElementById('closeHelpButton');
-    
+
     if (helpBtn && helpOverlay) {
         const openHelp = () => {
             helpOverlay.hidden = false;
@@ -1366,7 +1384,7 @@ function setupUI() {
             isTerminalSelectionMode = !isTerminalSelectionMode;
             window.terminalSelectionMode = isTerminalSelectionMode;
             terminalModeBtn.classList.toggle('active', isTerminalSelectionMode);
-            
+
             if (!isTerminalSelectionMode && selectedStartAnchor) {
                 if (selectedStartAnchor.userData.highlightMesh) {
                     selectedStartAnchor.userData.highlightMesh.visible = false;
@@ -1573,7 +1591,7 @@ function setupUI() {
 function toggleRoomLights() {
     lightsOnState = !lightsOnState;
     window.labLightsOn = lightsOnState;
-    
+
     // --- UPDATE THIS BLOCK ---
     const uiLightSwitchBtn = document.getElementById('light-toggle-btn');
     if (uiLightSwitchBtn) {
@@ -1584,12 +1602,12 @@ function toggleRoomLights() {
     // 3D Wall Switch Mesh Updates
     if (wallLightSwitchMesh) {
         wallLightSwitchMesh.position.y = lightsOnState ? 0 : -0.06;
-        const newColor = lightsOnState ? 0x0284c7 : 0xef4444; 
+        const newColor = lightsOnState ? 0x0284c7 : 0xef4444;
         wallLightSwitchMesh.material.color.setHex(newColor);
         wallLightSwitchMesh.material.emissive.setHex(newColor);
         wallLightSwitchMesh.material.emissiveIntensity = lightsOnState ? 0.2 : 0.8;
     }
-    
+
     // 3D Scene Light Visibility
     roomLights.forEach(light => {
         if (light) light.visible = lightsOnState;
@@ -1710,18 +1728,7 @@ function handleTerminalClick(raycaster) {
 // 5. WIRE DYNAMIC ENDPOINT REGENERATION FOR MOVING APPARATUSES
 // =========================================================================
 function updateConnectedWires() {
-    activeWires.forEach(wire => {
-        if (!wire.userData?.fromTerminal?.object || !wire.userData?.toTerminal?.object) return;
-
-        const from = wire.userData.fromTerminal;
-        const to = wire.userData.toTerminal;
-
-        const p1 = from.object.getWorldPosition(new THREE.Vector3());
-        const p2 = to.object.getWorldPosition(new THREE.Vector3());
-
-        // Dynamic geometry update via terminal-utils helper
-    });
-
+    scene.updateMatrixWorld();
     updateAllWires();
 }
 
@@ -1729,6 +1736,7 @@ function updateConnectedWires() {
 // MONITOR T — LIVE BALLISTIC GALVANOMETER OBSERVATION
 // ============================================================
 
+let lastOpticalMonitor = '';
 function updateBallisticGalvanometerMonitor() {
 
     if (
@@ -1743,6 +1751,9 @@ function updateBallisticGalvanometerMonitor() {
     const observation =
         window.ballisticGalvanometerObservation;
 
+    const signature = `${observation?.visible}|${observation?.normalized}`;
+    if (signature === lastOpticalMonitor) return;
+    lastOpticalMonitor = signature;
     // No galvanometer / no optical hit.
     if (!observation) {
 
@@ -1814,49 +1825,31 @@ function updateBallisticGalvanometerMonitor() {
     );
 }
 
+let lastLabFrame = '';
+let labInteractionUntil = 0;
+for (const event of ['pointerdown','pointermove','pointerup','input','change','resize','apparatus:resize','ballistic:wire-removed']) {
+    window.addEventListener(event, () => { labInteractionUntil = performance.now() + 600; });
+}
 function animate() {
-
-    requestAnimationFrame(
-        animate
-    );
-
-    // --------------------------------------------------------
-    // Main laboratory controls
-    // --------------------------------------------------------
-
-    controls.update();
-
-    // --------------------------------------------------------
-    // Recalculate wire geometry
-    // --------------------------------------------------------
-
-    updateConnectedWires();
-
-    // --------------------------------------------------------
-    // Update dedicated Monitor T
-    // --------------------------------------------------------
-
-    updateBallisticGalvanometerMonitor();
+    requestAnimationFrame(animate);
     updateBallisticPhysics(performance.now() / 1000);
     updatePolarityAnimation(commutator, performance.now());
-
-    // --------------------------------------------------------
-    // Render main laboratory
-    // --------------------------------------------------------
-
-    if (
-        !document.hidden &&
-        !document
-            .getElementById('simulationWindow')
-            .classList
-            .contains('external-apparatus-mode')
-    ) {
-
-        renderer.render(
-            scene,
-            camera
-        );
-    }
+    const visible = !document.hidden && document.getElementById('simulation').getClientRects().length &&
+        !document.getElementById('simulationWindow').classList.contains('external-apparatus-mode');
+    if (!visible) return;
+    controls.update();
+    updateConnectedWires();
+    const signature = [renderer.domElement.width, renderer.domElement.height,
+      ...camera.position.toArray(), ...camera.quaternion.toArray(), camera.zoom,
+      ballisticExperiment.hms.coilPosition, ballisticExperiment.galvanometer.angle,
+      ballisticExperiment.commutator.polarity, ballisticExperiment.circuitClosed,
+      lastMonitorText, activeWires.length];
+    placedApparatus.forEach(model => signature.push(model.uuid, ...model.position.toArray(), ...model.quaternion.toArray(), ...model.scale.toArray()));
+    const frame = signature.join('|');
+    if (frame === lastLabFrame && performance.now() > labInteractionUntil) return;
+    lastLabFrame = frame;
+    updateBallisticGalvanometerMonitor();
+    renderer.render(scene, camera);
 }
 
 // =========================================================================
@@ -1951,7 +1944,7 @@ function autoConnectCircuit() {
                 positionApparatusOnTable(model, id, defaultPositions[id]);
             }
         }
-        
+
         // Rotate the Tapping Switch so terminals point cleanly toward the circuit
         if (id === 'tapping-switch') {
             const swModel = placedApparatus.find(m => m.userData.apparatusId === 'tapping-switch');
@@ -1961,6 +1954,10 @@ function autoConnectCircuit() {
         }
     });
 
+    placedApparatus.forEach(model => {
+        model.userData.homePosition = model.position.clone();
+        model.userData.homeQuaternion = model.quaternion.clone();
+    });
     circuitConnections.forEach(conn => {
         const fromTerm = findTerminalById(conn.from);
         const toTerm = findTerminalById(conn.to);
@@ -2283,7 +2280,7 @@ function setupDragAndDrop() {
 
     canvas.addEventListener('pointerdown', (e) => {
         if (document.getElementById('simulationWindow').classList.contains('external-apparatus-mode')) return;
-        
+
         const rect = canvas.getBoundingClientRect();
         mouse.x = ((e.clientX - rect.left) / rect.width) * 2 - 1;
         mouse.y = -((e.clientY - rect.top) / rect.height) * 2 + 1;
@@ -2296,7 +2293,7 @@ function setupDragAndDrop() {
             );
             if (terminalHits.length) return;
         }
-        
+
         const intersects = raycaster.intersectObjects(placedApparatus, true);
         if (intersects.length > 0) {
             const obj = getPlacedApparatusRoot(intersects[0].object);
@@ -2313,7 +2310,7 @@ function setupDragAndDrop() {
 
     canvas.addEventListener('pointermove', (e) => {
         if (!selectedApparatusForDrag) return;
-        
+
         const dist = dragStartPosition.distanceTo(new THREE.Vector2(e.clientX, e.clientY));
         if (dist > 5) {
             isDraggingOnTable = true;
@@ -2332,7 +2329,7 @@ function setupDragAndDrop() {
                 const halfD = TABLE_DEPTH / 2 - 0.3;
                 intersectPoint.x = Math.max(-halfW, Math.min(halfW, intersectPoint.x));
                 intersectPoint.z = Math.max(-halfD, Math.min(halfD, intersectPoint.z));
-                
+
                 positionApparatusOnTable(selectedApparatusForDrag, selectedApparatusForDrag.userData.apparatusId, intersectPoint);
             }
         }
@@ -2363,6 +2360,7 @@ function addApparatusToTable(id, point) {
         if (model) {
             if (id === 'commutator') commutator = model;
             positionApparatusOnTable(model, id, point);
+        if (!model.userData.homePosition) { model.userData.homePosition = model.position.clone(); model.userData.homeQuaternion = model.quaternion.clone(); }
         }
         refreshLabControlsVisibility();
         return;
@@ -2383,6 +2381,7 @@ function addApparatusToTable(id, point) {
         placedApparatus.push(model);
         instantiatedApparatus.add(id);
         positionApparatusOnTable(model, id, point);
+        if (!model.userData.homePosition) { model.userData.homePosition = model.position.clone(); model.userData.homeQuaternion = model.quaternion.clone(); }
 
         model.traverse((child) => {
             if (child.userData && (child.userData.isTerminal || child.userData.terminalId)) {
@@ -2391,7 +2390,7 @@ function addApparatusToTable(id, point) {
 
                 const highlight = new THREE.Mesh(
                     new THREE.SphereGeometry(0.03, 12, 12),
-                    new THREE.MeshBasicMaterial({ 
+                    new THREE.MeshBasicMaterial({
                         color: 0x00ff00,
                         transparent: true,
                         opacity: 0.6,
@@ -2401,11 +2400,11 @@ function addApparatusToTable(id, point) {
                 highlight.position.copy(child.position);
                 highlight.visible = false;
                 child.parent.add(highlight);
-                
+
                 child.userData.highlightMesh = highlight;
             }
         });
-        
+
         // Re-evaluate visibility (Lab controls will only show once all 5 are present)
         refreshLabControlsVisibility();
     }
@@ -2427,7 +2426,7 @@ function enableTerminalInspector() {
 
         if (intersects.length > 0) {
             const hit = intersects[0];
-            
+
             let rootModel = hit.object;
             while (rootModel.parent && rootModel.parent.type !== 'Scene' && !rootModel.userData.apparatusId) {
                 rootModel = rootModel.parent;
@@ -2436,7 +2435,7 @@ function enableTerminalInspector() {
             const localPoint = rootModel.worldToLocal(hit.point.clone());
 
             console.log(
-                `%c[Terminal Inspector] App: "${rootModel.userData.apparatusId}"`, 
+                `%c[Terminal Inspector] App: "${rootModel.userData.apparatusId}"`,
                 'color: #00ff00; font-weight: bold;'
             );
             console.log(
@@ -2448,21 +2447,21 @@ function enableTerminalInspector() {
 
 function cleanup() {
     clearAllWires();
-    
+
     if (monitorRenderTarget) {
         monitorRenderTarget.dispose();
     }
-    
+
     window.removeEventListener('resize', onWindowResize);
     renderer.dispose();
 }
 
-export { 
-    init, 
-    animate, 
+export {
+    init,
+    animate,
     getLabEnvironmentClone,
     getMonitorTPreviewTexture,
-    addApparatusToTable, 
+    addApparatusToTable,
     autoConnectCircuit,
     clearAllWires,
     toggleRoomLights,
@@ -2476,3 +2475,129 @@ window.addEventListener('load', () => {
     init();
     animate();
 }, { once: true });
+// Procedural environment textures and geometry
+function createWoodTexture() {
+    const canvas = document.createElement('canvas');
+    canvas.width = 1024;
+    canvas.height = 1024;
+    const ctx = canvas.getContext('2d');
+
+    // Warm golden-brown base color
+    ctx.fillStyle = '#c89658';
+    ctx.fillRect(0, 0, 1024, 1024);
+
+    // Longitudinal wood grain fibers
+    ctx.fillStyle = '#b07d42';
+    for (let i = 0; i < 800; i++) {
+        ctx.globalAlpha = Math.random() * 0.25 + 0.08;
+        const y = Math.random() * 1024;
+        const h = Math.random() * 3 + 1;
+        ctx.fillRect(0, y, 1024, h);
+    }
+
+    // Darker grain waves and streaks
+    ctx.strokeStyle = '#8c5825';
+    ctx.lineWidth = 2;
+    for (let i = 0; i < 35; i++) {
+        ctx.globalAlpha = Math.random() * 0.3 + 0.1;
+        ctx.beginPath();
+        let startY = Math.random() * 1024;
+        ctx.moveTo(0, startY);
+        for (let x = 0; x <= 1024; x += 100) {
+            startY += (Math.random() - 0.5) * 45;
+            ctx.lineTo(x, startY);
+        }
+        ctx.stroke();
+    }
+
+    // Natural wood knots
+    function drawKnot(kx, ky) {
+        ctx.save();
+        ctx.translate(kx, ky);
+        ctx.scale(1, 0.4);
+        for (let r = 70; r > 12; r -= 10) {
+            ctx.beginPath();
+            ctx.arc(0, 0, r, 0, Math.PI * 2);
+            ctx.strokeStyle = '#734316';
+            ctx.globalAlpha = 0.25;
+            ctx.lineWidth = 3;
+            ctx.stroke();
+        }
+        ctx.fillStyle = '#593210';
+        ctx.globalAlpha = 0.65;
+        ctx.beginPath();
+        ctx.arc(0, 0, 14, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.restore();
+    }
+
+    drawKnot(280, 320);
+    drawKnot(780, 720);
+
+    const texture = new THREE.CanvasTexture(canvas);
+    texture.wrapS = THREE.RepeatWrapping;
+    texture.wrapT = THREE.RepeatWrapping;
+    texture.repeat.set(1.2, 1.2);
+    return texture;
+}
+
+function createTileTexture() {
+    const canvas = document.createElement('canvas');
+    canvas.width = 512;
+    canvas.height = 512;
+    const ctx = canvas.getContext('2d');
+
+    ctx.fillStyle = '#ffffff';
+    ctx.fillRect(0, 0, 512, 512);
+
+    ctx.strokeStyle = '#cbd5e1';
+    ctx.lineWidth = 4;
+
+    for (let i = 0; i <= 512; i += 128) {
+        ctx.beginPath(); ctx.moveTo(i, 0); ctx.lineTo(i, 512); ctx.stroke();
+        ctx.beginPath(); ctx.moveTo(0, i); ctx.lineTo(512, i); ctx.stroke();
+    }
+
+    const texture = new THREE.CanvasTexture(canvas);
+    texture.wrapS = THREE.RepeatWrapping;
+    texture.wrapT = THREE.RepeatWrapping;
+    texture.repeat.set(8, 8);
+    return texture;
+}
+
+
+// Helper: Ventilation Outlet Grille Mesh
+function createVentGrille() {
+    const ventGroup = new THREE.Group();
+
+    const frameGeo = new THREE.BoxGeometry(2.4, 0.5, 0.06);
+    const frameMat = new THREE.MeshStandardMaterial({ color: 0x334155, metalness: 0.8, roughness: 0.3 });
+    const frame = new THREE.Mesh(frameGeo, frameMat);
+    ventGroup.add(frame);
+
+    const canvas = document.createElement('canvas');
+    canvas.width = 256;
+    canvas.height = 64;
+    const ctx = canvas.getContext('2d');
+    ctx.fillStyle = '#020617';
+    ctx.fillRect(0, 0, 256, 64);
+    ctx.fillStyle = '#475569';
+    for (let y = 6; y < 64; y += 10) {
+        ctx.fillRect(6, y, 244, 4);
+    }
+
+    const ventTex = new THREE.CanvasTexture(canvas);
+    const innerGeo = new THREE.PlaneGeometry(2.26, 0.38);
+    const innerMat = new THREE.MeshBasicMaterial({ map: ventTex });
+    const inner = new THREE.Mesh(innerGeo, innerMat);
+    inner.position.z = 0.032;
+    ventGroup.add(inner);
+
+    return ventGroup;
+}
+
+export function getLabDiagnostics() {
+  return { camera: camera?.position.toArray(), target: controls?.target.toArray(),
+    renderCalls: renderer?.info.render.calls, geometries: renderer?.info.memory.geometries,
+    models: placedApparatus.map(m => ({id:m.userData.apparatusId,position:m.position.toArray(),home:m.userData.homePosition?.toArray()})) };
+}
